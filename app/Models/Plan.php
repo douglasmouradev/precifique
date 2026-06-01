@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Plan extends Model
+{
+    protected $fillable = [
+        'slug',
+        'name',
+        'price_monthly',
+        'max_products',
+        'features',
+        'has_ai',
+        'is_active',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'price_monthly' => 'decimal:2',
+            'features' => 'array',
+            'has_ai' => 'boolean',
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+}

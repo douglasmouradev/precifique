@@ -1,0 +1,128 @@
+# Produção — stack completa
+# 1. cp .env.example .env && configure variáveis de produção
+# 2. docker compose -f docker-compose.prod.yml up -d --build
+# 3. docker compose -f docker-compose.prod.yml exec app php artisan migrate --force --seed
+
+services:
+  app:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_HOST: mysql
+      REDIS_HOST: redis
+    volumes:
+      - .:/var/www/html
+      - ./storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - precifique
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - .:/var/www/html:ro
+    depends_on:
+      - app
+    networks:
+      - precifique
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE:-precifique}
+      MYSQL_USER: ${DB_USERNAME:-precifique}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --mysql-native-password=ON
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - precifique
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - precifique
+
+  queue:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_ENV: production
+      DB_HOST: mysql
+      REDIS_HOST: redis
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - .:/var/www/html
+      - ./storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - precifique
+
+  scheduler:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_ENV: production
+      DB_HOST: mysql
+      REDIS_HOST: redis
+    command: php artisan schedule:work
+    volumes:
+      - .:/var/www/html
+      - ./storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - precifique
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  precifique:
+    driver: bridge

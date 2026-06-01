@@ -1,0 +1,21 @@
+@props([
+    'class' => 'h-11 w-11',
+])
+
+<svg {{ $attributes->merge(['class' => $class]) }} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    {{-- Hexágono --}}
+    <path d="M24 2L42.784 12.5V35.5L24 46L5.216 35.5V12.5L24 2Z" fill="#00C896"/>
+    <path d="M24 4.5L40.66 13.75V34.25L24 43.5L7.34 34.25V13.75L24 4.5Z" fill="#00A67D" fill-opacity="0.35"/>
+
+    {{-- Etiqueta de preço --}}
+    <path d="M16 18h12l6 6-6 6H16V18Z" fill="#0D0D0D" fill-opacity="0.15"/>
+    <path d="M17.5 19.5h10.5l4.5 4.5-4.5 4.5H17.5v-9Z" fill="white"/>
+    <circle cx="20" cy="24" r="1.2" fill="#00A67D"/>
+
+    {{-- Seta de crescimento --}}
+    <path d="M27 26.5L30 23.5L33 26.5" stroke="#0D0D0D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M30 23.5V30" stroke="#0D0D0D" stroke-width="1.8" stroke-linecap="round"/>
+
+    {{-- Brilho sutil --}}
+    <path d="M14 14L18 10" stroke="white" stroke-opacity="0.45" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

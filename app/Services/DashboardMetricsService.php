@@ -1,0 +1,189 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+
+use App\Enums\PaymentMethod;
+use App\Models\MonthlyGoal;
+use App\Models\Sale;
+use App\Models\Tenant;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+class DashboardMetricsService
+{
+    public function __construct(
+        private readonly AIAssistantService $ai,
+    ) {}
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function for(Tenant $tenant): array
+    {
+        $cacheKey = $this->cacheKey($tenant);
+
+        return Cache::remember($cacheKey, now()->addMinutes(5), fn () => $this->build($tenant));
+    }
+
+    public function forget(Tenant $tenant): void
+    {
+        Cache::forget($this->cacheKey($tenant));
+    }
+
+    private function cacheKey(Tenant $tenant): string
+    {
+        return 'tenant.'.$tenant->id.'.dashboard.'.now()->format('Y-m');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function build(Tenant $tenant): array
+    {
+        $now = now();
+
+        $monthStats = Sale::query()
+            ->where('tenant_id', $tenant->id)
+            ->whereYear('sold_at', $now->year)
+            ->whereMonth('sold_at', $now->month)
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue, COUNT(*) as sales_count')
+            ->first();
+
+        $monthRevenue = (float) ($monthStats->revenue ?? 0);
+        $salesCount = (int) ($monthStats->sales_count ?? 0);
+
+        $goal = MonthlyGoal::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('year', $now->year)
+            ->where('month', $now->month)
+            ->first();
+
+        $goalAmount = (float) ($goal?->goal_amount ?? 0);
+        $goalProgress = $goalAmount > 0 ? min(100, ($monthRevenue / $goalAmount) * 100) : 0;
+
+        $productsCount = $tenant->products()->where('is_active', true)->count();
+        $productsWithoutPrice = $tenant->products()
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('selling_price')->orWhere('selling_price', '<=', 0);
+            })
+            ->count();
+        $fixedCostsCount = $tenant->fixedCosts()->where('is_active', true)->count();
+
+        $onboardingSteps = [
+            [
+                'done' => $fixedCostsCount > 0,
+                'label' => 'Cadastrar custos fixos',
+                'url' => route('tenant.fixed-costs.index'),
+            ],
+            [
+                'done' => $productsCount > 0,
+                'label' => 'Criar primeiro produto',
+                'url' => route('tenant.products.create'),
+            ],
+            [
+                'done' => $productsCount > 0 && $productsWithoutPrice === 0,
+                'label' => 'Precificar todos os produtos',
+                'url' => route('tenant.products.index'),
+            ],
+            [
+                'done' => $goalAmount > 0,
+                'label' => 'Definir meta mensal',
+                'url' => route('tenant.goals.edit'),
+            ],
+        ];
+        $onboardingComplete = collect($onboardingSteps)->every(fn ($s) => $s['done']);
+
+        $yearExpr = sql_year('sold_at');
+        $monthExpr = sql_month('sold_at');
+
+        $revenueChart = Sale::query()
+            ->where('tenant_id', $tenant->id)
+            ->select(
+                DB::raw("{$yearExpr} as year"),
+                DB::raw("{$monthExpr} as month"),
+                DB::raw('SUM(total_amount) as total')
+            )
+            ->where('sold_at', '>=', $now->copy()->subMonths(5)->startOfMonth())
+            ->groupBy(DB::raw($yearExpr), DB::raw($monthExpr))
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        $paymentCountsRaw = Sale::query()
+            ->where('tenant_id', $tenant->id)
+            ->whereYear('sold_at', $now->year)
+            ->whereMonth('sold_at', $now->month)
+            ->select('payment_method', DB::raw('COUNT(*) as count'))
+            ->groupBy('payment_method')
+            ->pluck('count', 'payment_method');
+
+        $paymentLabels = [];
+        $paymentCounts = [];
+        $paymentColors = [];
+        foreach (PaymentMethod::cases() as $method) {
+            $paymentLabels[] = $method->label();
+            $paymentCounts[] = (int) ($paymentCountsRaw[$method->value] ?? 0);
+            $paymentColors[] = $method->chartColor();
+        }
+
+        $topProducts = Sale::query()
+            ->where('tenant_id', $tenant->id)
+            ->whereYear('sold_at', $now->year)
+            ->whereMonth('sold_at', $now->month)
+            ->select('product_id', DB::raw('SUM(quantity) as qty'))
+            ->with('product:id,name')
+            ->groupBy('product_id')
+            ->orderByDesc('qty')
+            ->limit(5)
+            ->get();
+
+        $recentSales = Sale::query()
+            ->where('tenant_id', $tenant->id)
+            ->with('product:id,name')
+            ->latest('sold_at')
+            ->limit(10)
+            ->get();
+
+        $aiTip = $tenant->isPremium()
+            ? $this->cachedDailyTip($tenant)
+            : null;
+
+        return [
+            'tenant' => $tenant,
+            'monthRevenue' => $monthRevenue,
+            'goalAmount' => $goalAmount,
+            'goalProgress' => $goalProgress,
+            'salesCount' => $salesCount,
+            'productsCount' => $productsCount,
+            'productsWithoutPrice' => $productsWithoutPrice,
+            'fixedCostsCount' => $fixedCostsCount,
+            'revenueChart' => $revenueChart,
+            'paymentSalesTotal' => array_sum($paymentCounts),
+            'paymentColors' => $paymentColors,
+            'topProducts' => $topProducts,
+            'recentSales' => $recentSales,
+            'aiTip' => $aiTip,
+            'revenueChartLabels' => $revenueChart->map(
+                fn ($row) => str_pad((string) $row->month, 2, '0', STR_PAD_LEFT).'/'.$row->year
+            )->values(),
+            'revenueChartTotals' => $revenueChart->pluck('total')->values(),
+            'paymentLabels' => $paymentLabels,
+            'paymentCounts' => $paymentCounts,
+            'topProductLabels' => $topProducts->map(fn ($row) => $row->product?->name ?? '—')->values(),
+            'topProductQty' => $topProducts->pluck('qty')->values(),
+            'onboardingSteps' => $onboardingSteps,
+            'onboardingComplete' => $onboardingComplete,
+        ];
+    }
+
+    private function cachedDailyTip(Tenant $tenant): string
+    {
+        $niche = $tenant->niche->value ?? (string) $tenant->niche;
+        $key = 'tenant.'.$tenant->id.'.ai_tip.'.now()->toDateString();
+
+        return Cache::remember($key, now()->endOfDay(), fn () => $this->ai->dailyTip($niche));
+    }
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0D0D0D"/>
+  <circle cx="900" cy="200" r="180" fill="#00C896" opacity="0.15"/>
+  <text x="80" y="280" fill="#00C896" font-family="Arial,sans-serif" font-size="48" font-weight="bold">Precifique</text>
+  <text x="80" y="360" fill="#ffffff" font-family="Arial,sans-serif" font-size="36">Precificação inteligente para o seu negócio</text>
+  <text x="80" y="420" fill="#94a3b8" font-family="Arial,sans-serif" font-size="24">Custos, margem e preço de venda  sem planilha</text>
+</svg>

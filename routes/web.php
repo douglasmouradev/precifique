@@ -1,0 +1,75 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\TenantManagementController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Tenant\BillingController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', [LandingController::class, 'index'])->name('home');
+Route::get('/privacidade', [LandingController::class, 'privacy'])->name('privacy');
+Route::get('/termos', [LandingController::class, 'terms'])->name('terms');
+
+Route::get('/sitemap.xml', function () {
+    $urls = [
+        ['loc' => route('home'), 'priority' => '1.0'],
+        ['loc' => route('privacy'), 'priority' => '0.5'],
+        ['loc' => route('terms'), 'priority' => '0.5'],
+        ['loc' => route('tenant.register'), 'priority' => '0.8'],
+    ];
+    $xml = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    foreach ($urls as $u) {
+        $xml .= '<url><loc>'.e($u['loc']).'</loc><priority>'.$u['priority'].'</priority></url>';
+    }
+    $xml .= '</urlset>';
+
+    return response($xml, 200, ['Content-Type' => 'application/xml']);
+})->name('sitemap');
+
+Route::post('/webhooks/stripe', [BillingController::class, 'stripeWebhook'])
+    ->middleware('throttle:webhooks')
+    ->name('webhooks.stripe')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+Route::post('/webhooks/mercadopago', [BillingController::class, 'mercadopagoWebhook'])
+    ->middleware('throttle:webhooks')
+    ->name('webhooks.mercadopago')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/two-factor', [\App\Http\Controllers\Admin\TwoFactorController::class, 'show'])->name('two-factor.show');
+    Route::post('/two-factor/confirm', [\App\Http\Controllers\Admin\TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
+    Route::delete('/two-factor', [\App\Http\Controllers\Admin\TwoFactorController::class, 'destroy'])->name('two-factor.destroy');
+});
+
+Route::middleware(['auth', 'superadmin', 'admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/tenants', [AdminDashboardController::class, 'tenants'])->name('tenants.index');
+    Route::get('/tenants/create', [TenantManagementController::class, 'create'])->name('tenants.create');
+    Route::post('/tenants', [TenantManagementController::class, 'store'])->name('tenants.store');
+    Route::patch('/tenants/{tenant}/toggle', [TenantManagementController::class, 'toggle'])->name('tenants.toggle');
+    Route::get('/lgpd', [AdminDashboardController::class, 'lgpd'])->name('lgpd');
+    Route::get('/plans', [\App\Http\Controllers\Admin\PlanController::class, 'index'])->name('plans.index');
+    Route::patch('/plans/{plan}', [\App\Http\Controllers\Admin\PlanController::class, 'update'])->name('plans.update');
+    Route::get('/logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('logs.index');
+});
+
+Route::middleware('auth')->get('/dashboard', function () {
+    if (auth()->user()?->is_superadmin) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('home');
+})->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
+require __DIR__.'/tenant.php';

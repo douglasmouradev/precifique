@@ -1,0 +1,159 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+
+use App\Enums\PaymentMethod;
+use App\Models\Tenant;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+class ReportService
+{
+    public function generateMonthlyReport(Tenant $tenant, int $year, int $month): string
+    {
+        $dir = storage_path('app/reports/'.$tenant->id);
+        $this->purgeOldReports($dir);
+
+        $spreadsheet = new Spreadsheet();
+        $brandColor = '00C896';
+
+        $this->buildSummarySheet($spreadsheet, $tenant, $year, $month, $brandColor);
+        $this->buildProductsSheet($spreadsheet->createSheet(), $tenant, $brandColor);
+        $this->buildSalesSheet($spreadsheet->createSheet(), $tenant, $year, $month, $brandColor);
+        $this->buildCashFlowSheet($spreadsheet->createSheet(), $tenant, $year, $month, $brandColor);
+
+        $spreadsheet->setActiveSheetIndex(0);
+
+        $dir = storage_path('app/reports/'.$tenant->id);
+        if (! is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $filename = "relatorio_{$year}_{$month}.xlsx";
+        $path = $dir.'/'.$filename;
+
+        (new Xlsx($spreadsheet))->save($path);
+
+        return $path;
+    }
+
+    private function buildSummarySheet(Spreadsheet $spreadsheet, Tenant $tenant, int $year, int $month, string $color): void
+    {
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Resumo');
+
+        $sheet->setCellValue('A1', 'Precifique — Relatório Mensal');
+        $sheet->setCellValue('A2', $tenant->name);
+        $sheet->setCellValue('A3', sprintf('%02d/%d', $month, $year));
+
+        $sales = $tenant->sales()
+            ->whereYear('sold_at', $year)
+            ->whereMonth('sold_at', $month);
+
+        $sheet->setCellValue('A5', 'Faturamento');
+        $sheet->setCellValue('B5', (float) $sales->sum('total_amount'));
+        $sheet->setCellValue('A6', 'Quantidade de vendas');
+        $sheet->setCellValue('B6', $sales->count());
+
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A1:A3')->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF'.$color);
+        $sheet->getStyle('A1:A3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+    }
+
+    private function buildProductsSheet(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, Tenant $tenant, string $color): void
+    {
+        $sheet->setTitle('Produtos');
+        $sheet->fromArray(['Produto', 'Preço venda', 'Margem %', 'Estoque'], null, 'A1');
+
+        $row = 2;
+        foreach ($tenant->products()->with('variableCosts')->get() as $product) {
+            $sheet->fromArray([
+                $product->name,
+                $product->selling_price,
+                $product->profit_margin_percent,
+                $product->stock_quantity,
+            ], null, "A{$row}");
+            $row++;
+        }
+
+        $sheet->getStyle('A1:D1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:D1')->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF'.$color);
+    }
+
+    private function buildSalesSheet(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, Tenant $tenant, int $year, int $month, string $color): void
+    {
+        $sheet->setTitle('Vendas');
+        $sheet->fromArray(['Data', 'Produto', 'Qtd', 'Valor unit.', 'Total', 'Pagamento'], null, 'A1');
+
+        $row = 2;
+        $sales = $tenant->sales()
+            ->with('product')
+            ->whereYear('sold_at', $year)
+            ->whereMonth('sold_at', $month)
+            ->orderByDesc('sold_at')
+            ->get();
+
+        foreach ($sales as $sale) {
+            $sheet->fromArray([
+                $sale->sold_at->format('d/m/Y H:i'),
+                $sale->product?->name,
+                $sale->quantity,
+                $sale->unit_price,
+                $sale->total_amount,
+                PaymentMethod::tryLabel($sale->payment_method),
+            ], null, "A{$row}");
+            $row++;
+        }
+
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:F1')->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF'.$color);
+    }
+
+    private function buildCashFlowSheet(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, Tenant $tenant, int $year, int $month, string $color): void
+    {
+        $sheet->setTitle('Fluxo de Caixa');
+        $sheet->fromArray(['Tipo', 'Descrição', 'Valor'], null, 'A1');
+
+        $revenue = (float) $tenant->sales()
+            ->whereYear('sold_at', $year)
+            ->whereMonth('sold_at', $month)
+            ->sum('total_amount');
+
+        $fixedCosts = (float) $tenant->fixedCosts()->where('is_active', true)->sum('amount');
+
+        $sheet->fromArray(['Entrada', 'Vendas do mês', $revenue], null, 'A2');
+        $sheet->fromArray(['Saída', 'Custos fixos mensais', $fixedCosts], null, 'A3');
+        $sheet->fromArray(['Saldo', 'Resultado estimado', $revenue - $fixedCosts], null, 'A4');
+
+        $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:C1')->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('FF'.$color);
+    }
+
+    private function purgeOldReports(string $dir): void
+    {
+        if (! is_dir($dir)) {
+            return;
+        }
+
+        $maxAgeDays = (int) config('tenancy.report_retention_days', 90);
+        $threshold = now()->subDays($maxAgeDays)->getTimestamp();
+
+        foreach (glob($dir.'/*.xlsx') ?: [] as $file) {
+            if (filemtime($file) < $threshold) {
+                @unlink($file);
+            }
+        }
+    }
+}
