@@ -1,8 +1,18 @@
 <?php
 
+use App\Http\Controllers\HealthController;
+use App\Http\Middleware\AuthenticateTenantApi;
+use App\Http\Middleware\EnsureAdminTwoFactor;
+use App\Http\Middleware\PlanMiddleware;
+use App\Http\Middleware\SecurityHeadersMiddleware;
+use App\Http\Middleware\SuperAdminMiddleware;
+use App\Http\Middleware\TenantMiddleware;
+use App\Http\Middleware\VerifyHealthCheckToken;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Route;
+use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,20 +21,23 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
-            \Illuminate\Support\Facades\Route::get('/health', \App\Http\Controllers\HealthController::class)
+            Route::get('/health', HealthController::class)
+                ->middleware([
+                    VerifyHealthCheckToken::class,
+                    'throttle:health',
+                ])
                 ->name('health.detailed');
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'tenant' => \App\Http\Middleware\TenantMiddleware::class,
-            'plan' => \App\Http\Middleware\PlanMiddleware::class,
-            'lgpd' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
-            'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
-            'admin.2fa' => \App\Http\Middleware\EnsureAdminTwoFactor::class,
-            'auth.tenant.api' => \App\Http\Middleware\AuthenticateTenantApi::class,
+            'tenant' => TenantMiddleware::class,
+            'plan' => PlanMiddleware::class,
+            'superadmin' => SuperAdminMiddleware::class,
+            'admin.2fa' => EnsureAdminTwoFactor::class,
+            'auth.tenant.api' => AuthenticateTenantApi::class,
         ]);
-        $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
+        $middleware->append(SecurityHeadersMiddleware::class);
 
         $proxies = env('TRUSTED_PROXIES');
         if ($proxies !== null && $proxies !== '') {
@@ -32,7 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        if (config('precifique.monitoring.sentry_dsn') && class_exists(\Sentry\Laravel\Integration::class)) {
-            \Sentry\Laravel\Integration::handles($exceptions);
+        if (config('precifique.monitoring.sentry_dsn') && class_exists(Integration::class)) {
+            Integration::handles($exceptions);
         }
     })->create();

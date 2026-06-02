@@ -25,6 +25,7 @@ return [
 
     'monitoring' => [
         'sentry_dsn' => env('SENTRY_LARAVEL_DSN'),
+        'health_token' => env('HEALTH_CHECK_TOKEN'),
     ],
 
 ];

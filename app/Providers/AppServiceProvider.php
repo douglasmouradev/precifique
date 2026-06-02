@@ -17,11 +17,12 @@ use App\Policies\SalePolicy;
 use App\Policies\TenantVariableCostPolicy;
 use App\Services\TenantSetupProgressService;
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,9 +40,22 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(TenantVariableCost::class, TenantVariableCostPolicy::class);
         Gate::policy(MonthlyGoal::class, MonthlyGoalPolicy::class);
 
+        $this->configureProductionUrls();
         $this->registerTenantRouteBindings();
         $this->registerRateLimiters();
         $this->registerViewComposers();
+    }
+
+    private function configureProductionUrls(): void
+    {
+        $forceHttps = filter_var(
+            env('FORCE_HTTPS', $this->app->environment('production')),
+            FILTER_VALIDATE_BOOL
+        );
+
+        if ($forceHttps) {
+            URL::forceScheme('https');
+        }
     }
 
     private function registerViewComposers(): void
@@ -104,5 +118,7 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by($email.$request->ip());
         });
+
+        RateLimiter::for('health', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
     }
 }

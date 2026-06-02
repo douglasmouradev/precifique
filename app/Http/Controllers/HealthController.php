@@ -57,15 +57,17 @@ class HealthController extends Controller
 
     private function checkQueue(): bool
     {
-        if (config('queue.default') === 'sync') {
+        $driver = config('queue.default');
+
+        if ($driver === 'sync') {
             return true;
         }
 
-        try {
-            return config('queue.connections.'.config('queue.default')) !== null;
-        } catch (\Throwable) {
-            return false;
+        if ($driver === 'redis') {
+            return $this->checkRedis();
         }
+
+        return config('queue.connections.'.$driver) !== null;
     }
 
     private function checkRedis(): bool

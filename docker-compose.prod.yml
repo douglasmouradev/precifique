@@ -1,7 +1,14 @@
-# Produção — stack completa
-# 1. cp .env.example .env && configure variáveis de produção
+# Produção — stack imutável (código na imagem Docker, storage persistente)
+#
+# 1. cp .env.production.example .env && preencha variáveis (ADMIN_PASSWORD, DB_PASSWORD, etc.)
 # 2. docker compose -f docker-compose.prod.yml up -d --build
-# 3. docker compose -f docker-compose.prod.yml exec app php artisan migrate --force --seed
+# 3. docker compose -f docker-compose.prod.yml exec app php artisan migrate --force
+# 4. docker compose -f docker-compose.prod.yml exec app php artisan storage:link
+# 5. docker compose -f docker-compose.prod.yml exec app php artisan config:cache route:cache view:cache
+#
+# NÃO use migrate --seed em produção (perfis demo são bloqueados; admin exige ADMIN_PASSWORD).
+# Primeiro admin: defina ADMIN_PASSWORD no .env e rode migrate --seed UMA vez OU:
+#   php artisan precifique:ensure-admin
 
 services:
   app:
@@ -16,8 +23,7 @@ services:
       DB_HOST: mysql
       REDIS_HOST: redis
     volumes:
-      - .:/var/www/html
-      - ./storage:/var/www/html/storage
+      - storage_data:/var/www/html/storage
     depends_on:
       mysql:
         condition: service_healthy
@@ -31,9 +37,10 @@ services:
     restart: unless-stopped
     ports:
       - "${APP_PORT:-80}:80"
+    volumes_from:
+      - app:ro
     volumes:
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - .:/var/www/html:ro
+      - ./docker/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
     networks:
@@ -43,7 +50,7 @@ services:
     image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no .env}
       MYSQL_DATABASE: ${DB_DATABASE:-precifique}
       MYSQL_USER: ${DB_USERNAME:-precifique}
       MYSQL_PASSWORD: ${DB_PASSWORD}
@@ -83,12 +90,12 @@ services:
     env_file: .env
     environment:
       APP_ENV: production
+      APP_DEBUG: "false"
       DB_HOST: mysql
       REDIS_HOST: redis
     command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
     volumes:
-      - .:/var/www/html
-      - ./storage:/var/www/html/storage
+      - storage_data:/var/www/html/storage
     depends_on:
       mysql:
         condition: service_healthy
@@ -105,12 +112,12 @@ services:
     env_file: .env
     environment:
       APP_ENV: production
+      APP_DEBUG: "false"
       DB_HOST: mysql
       REDIS_HOST: redis
     command: php artisan schedule:work
     volumes:
-      - .:/var/www/html
-      - ./storage:/var/www/html/storage
+      - storage_data:/var/www/html/storage
     depends_on:
       mysql:
         condition: service_healthy
@@ -120,6 +127,7 @@ services:
       - precifique
 
 volumes:
+  storage_data:
   mysql_data:
   redis_data:
 

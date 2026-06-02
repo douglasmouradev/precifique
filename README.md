@@ -69,7 +69,7 @@ docker compose up -d
 
 ## Estrutura principal
 
-- `app/Services/PricingCalculatorService .php` — motor de precificação
+- `app/Services/PricingCalculatorService.php` — motor de precificação
 - `app/Http/Middleware/TenantMiddleware.php` — multi-tenant + LGPD
 - `routes/tenant.php` — rotas do app (`/app/*`)
 - `routes/web.php` — landing + admin
@@ -126,26 +126,27 @@ GEMINI_API_KEY=sua-chave
 
 ## Produção
 
+**Guia completo:** [docs/PRODUCTION.md](docs/PRODUCTION.md)
+
 ```bash
-docker compose -f docker-compose.prod.yml up -d
-php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan queue:work --tries=3
+cp .env.production.example .env
+# Edite .env (ADMIN_PASSWORD, DB_PASSWORD, SMTP, Stripe, S3…)
+
+./scripts/deploy-prod.sh          # Linux/macOS
+# ou .\scripts\deploy-prod.ps1    # Windows
 ```
 
-Configure cron no servidor: `* * * * * php artisan schedule:run`
+O `docker-compose.prod.yml` sobe app, nginx, MySQL, Redis, **queue** e **scheduler**. O código roda na imagem Docker (sem montar o repositório inteiro); apenas `storage` é persistente.
 
-Variáveis críticas em produção:
+Variáveis críticas:
 
-- `APP_ENV=production`, `APP_DEBUG=false`
-- `TRUSTED_PROXIES` (IP do nginx/Cloudflare ou `*`)
-- `STRIPE_*`, `MP_*` para pagamentos
-- `QUEUE_CONNECTION=redis` + worker (`php artisan queue:work`)
-- `CACHE_STORE=redis`, `SESSION_DRIVER=redis`
-- `FILESYSTEM_DISK=s3` para fotos e exportações CSV grandes
-- **Não rode** `TestProfilesSeeder` em produção (desabilitado automaticamente)
+- `APP_ENV=production`, `APP_DEBUG=false`, `FORCE_HTTPS=true`
+- `ADMIN_PASSWORD` — obrigatório; use `php artisan precifique:ensure-admin`
+- `TRUSTED_PROXIES` (Cloudflare: `*`)
+- `QUEUE_CONNECTION=redis`, `CACHE_STORE=redis`, `SESSION_DRIVER=redis`
+- `FILESYSTEM_DISK=s3`, `MAIL_*`, `STRIPE_*`, `MP_*`
+- `HEALTH_CHECK_TOKEN` (opcional, para `/health`)
+- **Não use** `migrate --seed` em produção sem `ADMIN_PASSWORD` definido
 
 ### API REST (v1)
 
@@ -164,7 +165,13 @@ Em `/admin/two-factor`, ative TOTP (Google Authenticator). Após ativar, o login
 ### Saúde
 
 - `GET /up` — health check padrão Laravel
-- `GET /health` — JSON com DB, cache e fila
+- `GET /health` — JSON com DB, cache e fila (throttle; token Bearer se `HEALTH_CHECK_TOKEN` definido)
+
+### Backup
+
+```bash
+./scripts/backup-mysql.sh    # ou backup-mysql.ps1 no Windows
+```
 
 ## Testes
 
