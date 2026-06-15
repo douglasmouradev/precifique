@@ -13,4 +13,9 @@ class SalePolicy
     {
         return $sale->tenant_id === $tenant->id;
     }
+
+    public function update(Tenant $tenant, Sale $sale): bool
+    {
+        return $sale->tenant_id === $tenant->id;
+    }
 }

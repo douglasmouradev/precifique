@@ -9,6 +9,7 @@ use App\Mail\TenantWelcomeMail;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Tenant;
+use App\Services\LGPDService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -65,8 +66,20 @@ class TenantManagementController extends Controller
 
         Mail::to($tenant->email)->send(new TenantWelcomeMail($tenant, $resetUrl));
 
+        $lgpd = app(LGPDService::class);
+        $version = (string) config('lgpd.policy_version', '1.0');
+        $lgpd->recordConsent($tenant, $request, 'terms', $version);
+        $lgpd->recordConsent($tenant, $request, 'privacy', $version);
+
         return redirect()->route('admin.tenants.index')
             ->with('success', 'Tenant criado e e-mail enviado.');
+    }
+
+    public function show(Tenant $tenant): View
+    {
+        $tenant->load(['subscription.plan', 'lgpdConsents' => fn ($q) => $q->latest('consented_at')->limit(5)]);
+
+        return view('admin.tenants.show', compact('tenant'));
     }
 
     public function toggle(Tenant $tenant): RedirectResponse

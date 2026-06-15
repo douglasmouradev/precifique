@@ -14,7 +14,9 @@
                 <tbody>
                 @foreach($tenants as $tenant)
                 <tr>
-                    <td class="font-medium text-ink">{{ $tenant->name }}</td>
+                    <td class="font-medium text-ink">
+                        <a href="{{ route('admin.tenants.show', $tenant) }}" class="hover:text-brand hover:underline">{{ $tenant->name }}</a>
+                    </td>
                     <td>{{ $tenant->email }}</td>
                     <td>
                         <span class="ui-badge-brand">{{ $tenant->plan?->value ?? $tenant->plan }}</span>
@@ -28,8 +30,9 @@
                     </td>
                     <td>{{ $tenant->is_active ? 'Sim' : 'Não' }}</td>
                     <td>
-                        <form method="POST" action="{{ route('admin.tenants.toggle', $tenant) }}">@csrf @method('PATCH')
-                            <button class="text-brand text-xs font-semibold hover:underline">{{ $tenant->is_active ? 'Desativar' : 'Ativar' }}</button>
+                        <a href="{{ route('admin.tenants.show', $tenant) }}" class="text-brand text-xs font-semibold hover:underline mr-3">Detalhes</a>
+                        <form method="POST" action="{{ route('admin.tenants.toggle', $tenant) }}" class="inline">@csrf @method('PATCH')
+                            <button class="text-slate-600 text-xs font-semibold hover:underline">{{ $tenant->is_active ? 'Desativar' : 'Ativar' }}</button>
                         </form>
                     </td>
                 </tr>

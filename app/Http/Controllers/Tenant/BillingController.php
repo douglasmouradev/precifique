@@ -48,18 +48,26 @@ class BillingController extends Controller
     public function success(Request $request): RedirectResponse
     {
         $sessionId = (string) $request->query('session_id', '');
-
         $tenant = Auth::guard('tenant')->user();
 
-        if ($sessionId !== '' && $tenant && $this->payments->verifyStripeSession($sessionId, $tenant->id)) {
+        if ($tenant?->isPremium()) {
             return redirect()->route('tenant.dashboard')->with('success', 'Pagamento confirmado! Bem-vindo ao Premium.');
         }
 
-        if ($tenant?->isPremium()) {
-            return redirect()->route('tenant.dashboard')->with('success', 'Você já está no plano Premium.');
+        if ($sessionId !== '' && $tenant && $this->payments->isStripeSessionPaid($sessionId, $tenant->id)) {
+            return redirect()->route('tenant.dashboard')->with('success', 'Pagamento recebido! Seu Premium será ativado em instantes.');
         }
 
-        return redirect()->route('tenant.billing.upgrade')->with('warning', 'Não foi possível confirmar o pagamento.');
+        return redirect()->route('tenant.billing.upgrade')->with('warning', 'Pagamento em processamento. Aguarde a confirmação.');
+    }
+
+    public function pixStatus(): \Illuminate\Http\JsonResponse
+    {
+        $tenant = Auth::guard('tenant')->user()->fresh();
+
+        return response()->json([
+            'premium' => $tenant->isPremium(),
+        ]);
     }
 
     public function cancel(): RedirectResponse

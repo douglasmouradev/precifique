@@ -8,7 +8,7 @@ SaaS de precificação para mão de obra e produtos artesanais, alimentícios e 
 - MySQL 8.3+
 - Blade + Alpine.js + Tailwind CSS v3
 - Redis (cache/filas)
-- Anthropic Claude (IA — Premium)
+- Gemini / Groq / Anthropic (IA multi-provedor — Premium)
 - Stripe + Mercado Pago (PIX)
 - PhpSpreadsheet + DomPDF
 

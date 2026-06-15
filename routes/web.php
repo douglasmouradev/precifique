@@ -68,6 +68,7 @@ Route::middleware(['auth', 'superadmin', 'admin.2fa'])->prefix('admin')->name('a
     Route::get('/tenants', [AdminDashboardController::class, 'tenants'])->name('tenants.index');
     Route::get('/tenants/create', [TenantManagementController::class, 'create'])->name('tenants.create');
     Route::post('/tenants', [TenantManagementController::class, 'store'])->name('tenants.store');
+    Route::get('/tenants/{tenant}', [TenantManagementController::class, 'show'])->name('tenants.show');
     Route::patch('/tenants/{tenant}/toggle', [TenantManagementController::class, 'toggle'])->name('tenants.toggle');
     Route::get('/lgpd', [AdminDashboardController::class, 'lgpd'])->name('lgpd');
     Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');

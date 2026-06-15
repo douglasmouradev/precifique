@@ -7,7 +7,7 @@ namespace Tests\Feature;
 use App\Models\Tenant;
 use App\Services\PaymentService;
 use Database\Seeders\PlanSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Tests\Concerns\CreatesReadyTenant;
 use Tests\TestCase;
 
@@ -24,7 +24,7 @@ class BillingSecurityTest extends TestCase
         Tenant::factory()->create(['email' => 'b@test.com']);
 
         $payments = $this->mock(PaymentService::class);
-        $payments->shouldReceive('verifyStripeSession')
+        $payments->shouldReceive('isStripeSessionPaid')
             ->once()
             ->with('sess_other', $tenantA->id)
             ->andReturn(false);

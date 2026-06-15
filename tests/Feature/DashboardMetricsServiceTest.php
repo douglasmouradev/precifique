@@ -6,7 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Sale;
 use App\Services\DashboardMetricsService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\Concerns\CreatesReadyTenant;
 use Tests\TestCase;

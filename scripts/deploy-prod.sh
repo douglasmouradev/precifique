@@ -24,6 +24,11 @@ sleep 20
 echo "==> Migrar (sem seed)"
 docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
 
+echo "==> Planos, admin e preflight"
+docker compose -f docker-compose.prod.yml exec -T app php artisan precifique:ensure-plans
+docker compose -f docker-compose.prod.yml exec -T app php artisan precifique:ensure-admin
+docker compose -f docker-compose.prod.yml exec -T app php artisan precifique:preflight || true
+
 echo "==> Storage link e caches"
 docker compose -f docker-compose.prod.yml exec -T app php artisan storage:link --force 2>/dev/null || true
 docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache

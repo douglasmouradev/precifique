@@ -52,6 +52,9 @@
 @case('edit')
 <svg {{ $attributes->merge(['class' => $class]) }} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
 @break
+@case('menu')
+<svg {{ $attributes->merge(['class' => $class]) }} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+@break
 @case('quote')
 <svg {{ $attributes->merge(['class' => $class]) }} fill="currentColor" viewBox="0 0 24 24"><path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.442 1.202-5.036 3.876-5.036 6.825 0 1.388.495 2.676 1.312 3.704.271.343.707.442 1.063.242 1.234-.712 2.805-.985 4.416-.766 1.234.17 2.315.758 3.029 1.656a4.096 4.096 0 01-1.112 6.058 4.008 4.008 0 01-5.058-1.785zM14.583 17.321c-1.03-1.094-1.583-2.321-1.583-4.31 0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.442 1.202-5.036 3.876-5.036 6.825 0 1.388.495 2.676 1.312 3.704.271.343.707.442 1.063.242 1.234-.712 2.805-.985 4.416-.766 1.234.17 2.315.758 3.029 1.656a4.096 4.096 0 01-1.112 6.058 4.008 4.008 0 01-5.058-1.785z"/></svg>
 @break

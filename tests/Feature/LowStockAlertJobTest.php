@@ -8,7 +8,7 @@ use App\Jobs\LowStockAlertJob;
 use App\Mail\LowStockAlertMail;
 use App\Models\Product;
 use App\Models\Tenant;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 

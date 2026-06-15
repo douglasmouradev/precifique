@@ -6,7 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Services\TotpService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminTwoFactorTest extends TestCase

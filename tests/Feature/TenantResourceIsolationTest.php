@@ -7,7 +7,7 @@ namespace Tests\Feature;
 use App\Models\FixedCost;
 use App\Models\Product;
 use App\Models\Sale;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Tests\Concerns\CreatesReadyTenant;
 use Tests\TestCase;
 

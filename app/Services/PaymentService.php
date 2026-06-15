@@ -52,6 +52,11 @@ class PaymentService
 
     public function verifyStripeSession(string $sessionId, int $expectedTenantId): bool
     {
+        return $this->isStripeSessionPaid($sessionId, $expectedTenantId);
+    }
+
+    public function isStripeSessionPaid(string $sessionId, int $expectedTenantId): bool
+    {
         $secret = (string) config('services.stripe.secret');
         if ($secret === '' || $sessionId === '' || $expectedTenantId <= 0) {
             return false;
@@ -66,22 +71,8 @@ class PaymentService
             }
 
             $sessionTenantId = (int) ($session->metadata->tenant_id ?? 0);
-            if ($sessionTenantId !== $expectedTenantId) {
-                Log::warning('Stripe session tenant mismatch', [
-                    'expected' => $expectedTenantId,
-                    'session_tenant' => $sessionTenantId,
-                ]);
 
-                return false;
-            }
-
-            return $this->activatePremium(
-                $sessionTenantId,
-                (int) ($session->metadata->plan_id ?? 0),
-                $session->subscription ?? null,
-                null,
-                null,
-            );
+            return $sessionTenantId === $expectedTenantId;
         } catch (\Throwable $e) {
             Log::warning('Stripe session verify failed', ['message' => $e->getMessage()]);
 
@@ -191,7 +182,7 @@ class PaymentService
                 'checkout.session.completed' => $this->handleCheckoutCompleted($event->data->object),
                 'customer.subscription.deleted' => $this->handleStripeSubscriptionEnded($event->data->object->id ?? null),
                 'customer.subscription.updated' => $this->handleStripeSubscriptionUpdated($event->data->object),
-                'invoice.payment_failed' => $this->handleStripeSubscriptionEnded($event->data->object->subscription ?? null),
+                'invoice.payment_failed' => true,
                 default => true,
             };
         });
@@ -293,7 +284,7 @@ class PaymentService
         }
 
         $status = $subscription->status ?? 'active';
-        if (in_array($status, ['canceled', 'unpaid', 'past_due'], true)) {
+        if (in_array($status, ['canceled', 'unpaid'], true)) {
             return $this->deactivatePremium($local);
         }
 

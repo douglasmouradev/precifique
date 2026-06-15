@@ -368,7 +368,7 @@ document.addEventListener('alpine:init', () => {
                         this.refreshWizardStep();
                     }
                 })
-                .catch(() => {});
+                .catch(() => { window.toast?.error('Não foi possível atualizar a prévia.'); });
         },
         fetchAi() {
             this.aiLoading = true;

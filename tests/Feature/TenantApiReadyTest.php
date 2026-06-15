@@ -6,7 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Tenant;
 use App\Models\TenantApiToken;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Tests\Concerns\CreatesReadyTenant;
 use Tests\TestCase;
 

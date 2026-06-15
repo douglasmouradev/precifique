@@ -2,7 +2,7 @@
 # Deploy Precifique em VPS Ubuntu (PHP 8.3 + Nginx)
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/www/wwwroot/precifique}"
+APP_DIR="${APP_DIR:-/www/wwwroot/precifique.tdesksolutions.com.br}"
 APP_USER="${APP_USER:-www}"
 
 echo "==> Precifique VPS deploy"
@@ -31,7 +31,11 @@ composer install --no-dev --optimize-autoloader --no-interaction
 npm ci
 npm run build
 
-php artisan key:generate --force
+if ! grep -qE '^APP_KEY=base64:' .env 2>/dev/null; then
+  php artisan key:generate --force
+else
+  echo "APP_KEY já definida — mantendo chave existente."
+fi
 php artisan migrate --force
 php artisan storage:link --force 2>/dev/null || true
 php artisan precifique:ensure-plans

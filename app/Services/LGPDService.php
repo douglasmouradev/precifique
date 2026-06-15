@@ -77,9 +77,7 @@ class LGPDService
     {
         DB::transaction(function () use ($tenant): void {
             foreach ($tenant->products as $product) {
-                if ($product->photo_path) {
-                    Storage::disk('public')->delete($product->photo_path);
-                }
+                $this->deleteStoredPath($product->photo_path);
                 $product->variableCosts()->delete();
                 $product->additionalCosts()->delete();
                 $product->laborCosts()->delete();
@@ -96,9 +94,7 @@ class LGPDService
             $tenant->subscription()?->delete();
             TenantApiToken::query()->where('tenant_id', $tenant->id)->delete();
 
-            if ($tenant->logo_path) {
-                Storage::disk('public')->delete($tenant->logo_path);
-            }
+            $this->deleteStoredPath($tenant->logo_path);
 
             Storage::disk('local')->deleteDirectory('reports/'.$tenant->id);
             Storage::disk('local')->deleteDirectory('exports/tenant-'.$tenant->id);
@@ -117,5 +113,15 @@ class LGPDService
 
             $tenant->delete();
         });
+    }
+
+    private function deleteStoredPath(?string $path): void
+    {
+        if ($path === null || $path === '') {
+            return;
+        }
+
+        $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+        Storage::disk($disk)->delete($path);
     }
 }

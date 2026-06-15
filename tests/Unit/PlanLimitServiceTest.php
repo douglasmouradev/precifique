@@ -6,7 +6,7 @@ namespace Tests\Unit;
 
 use App\Models\Tenant;
 use App\Services\PlanLimitService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 class PlanLimitServiceTest extends TestCase

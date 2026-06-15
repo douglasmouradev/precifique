@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Events\SaleRecorded;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreSaleRequest;
+use App\Http\Requests\Tenant\UpdateSaleRequest;
 use App\Jobs\ExportSalesCsvJob;
 use App\Models\Sale;
 use App\Models\SaleExportRequest;
@@ -159,6 +160,34 @@ class SaleController extends Controller
         SaleRecorded::dispatch($tenant, $sale);
 
         return redirect()->route('tenant.sales.index')->with('success', 'Venda registrada.');
+    }
+
+    public function edit(Sale $sale): View
+    {
+        $this->authorize('update', $sale);
+        $sale->load('product:id,name');
+
+        return view('sales.edit', compact('sale'));
+    }
+
+    public function update(UpdateSaleRequest $request, Sale $sale): RedirectResponse
+    {
+        $tenant = Auth::guard('tenant')->user();
+        $this->authorize('update', $sale);
+
+        $sale->update([
+            'unit_price' => $request->input('unit_price'),
+            'payment_method' => $request->input('payment_method'),
+            'sold_at' => $request->input('sold_at'),
+            'notes' => $request->input('notes'),
+        ]);
+
+        $this->audit->log($tenant, 'sale.updated', $sale, [
+            'product' => $sale->product?->name,
+            'total' => $sale->total_amount,
+        ], $request);
+
+        return redirect()->route('tenant.sales.index')->with('success', 'Venda atualizada.');
     }
 
     public function destroy(Sale $sale): RedirectResponse

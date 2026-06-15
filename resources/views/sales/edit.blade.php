@@ -1,0 +1,49 @@
+@extends('layouts.tenant')
+@section('title', 'Editar venda')
+@section('breadcrumb') Vendas / Editar @endsection
+
+@section('content')
+<x-ui.page-header title="Editar venda" :subtitle="$sale->product?->name" />
+
+<x-ui.card class="max-w-xl">
+    <form method="POST" action="{{ route('tenant.sales.update', $sale) }}" class="space-y-5" x-data="{ payment: '{{ $sale->payment_method->value ?? $sale->payment_method }}' }">
+        @csrf
+        @method('PUT')
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="ui-label">Quantidade</label>
+                <input type="text" value="{{ $sale->quantity }}" class="ui-input bg-slate-50" disabled>
+            </div>
+            <div>
+                <label class="ui-label">Preço unit. (R$)</label>
+                <input type="number" name="unit_price" step="0.01" value="{{ $sale->unit_price }}" required class="ui-input">
+            </div>
+        </div>
+        <div>
+            <label class="ui-label">Data da venda</label>
+            <input type="datetime-local" name="sold_at" value="{{ $sale->sold_at?->format('Y-m-d\TH:i') }}" required class="ui-input">
+        </div>
+        <div>
+            <label class="ui-label">Forma de pagamento</label>
+            <input type="hidden" name="payment_method" :value="payment">
+            <div class="grid grid-cols-3 gap-2 mt-1">
+                @foreach(\App\Enums\PaymentMethod::cases() as $method)
+                <button type="button" @click="payment = '{{ $method->value }}'"
+                    class="px-3 py-3 rounded-xl border text-sm font-semibold transition-colors"
+                    :class="payment === '{{ $method->value }}' ? 'bg-brand border-brand text-ink shadow-sm' : 'bg-white border-slate-200 text-slate-600'">
+                    {{ $method->label() }}
+                </button>
+                @endforeach
+            </div>
+        </div>
+        <div>
+            <label class="ui-label">Observações</label>
+            <textarea name="notes" rows="3" class="ui-input">{{ $sale->notes }}</textarea>
+        </div>
+        <div class="flex gap-3">
+            <x-ui.button type="submit">Salvar</x-ui.button>
+            <x-ui.button variant="ghost" :href="route('tenant.sales.index')">Cancelar</x-ui.button>
+        </div>
+    </form>
+</x-ui.card>
+@endsection

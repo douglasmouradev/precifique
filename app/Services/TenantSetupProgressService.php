@@ -21,12 +21,6 @@ class TenantSetupProgressService
                 'url' => route('lgpd.consent'),
             ],
             [
-                'key' => 'profile',
-                'label' => 'Montar perfil e nicho',
-                'done' => (bool) $tenant->profile_setup_completed,
-                'url' => route('tenant.profile.setup'),
-            ],
-            [
                 'key' => 'onboarding',
                 'label' => 'Concluir configuração inicial',
                 'done' => (bool) $tenant->onboarding_completed,

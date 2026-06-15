@@ -65,7 +65,10 @@
         </div>
         <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 text-sm">
             <span class="text-slate-500">Qtd: {{ $sale->quantity }} · {{ \App\Enums\PaymentMethod::tryLabel($sale->payment_method) }}</span>
-            <x-ui.confirm-delete :action="route('tenant.sales.destroy', $sale)" message="Excluir esta venda?" />
+            <div class="flex items-center gap-3">
+                <a href="{{ route('tenant.sales.edit', $sale) }}" class="text-brand text-xs font-semibold hover:underline">Editar</a>
+                <x-ui.confirm-delete :action="route('tenant.sales.destroy', $sale)" message="Excluir esta venda?" />
+            </div>
         </div>
     </article>
     @empty
@@ -88,7 +91,10 @@
                 <td class="font-semibold text-brand-dark">R$ {{ number_format($sale->total_amount, 2, ',', '.') }}</td>
                 <td><span class="ui-badge-brand">{{ \App\Enums\PaymentMethod::tryLabel($sale->payment_method) }}</span></td>
                 <td>
-                    <x-ui.confirm-delete :action="route('tenant.sales.destroy', $sale)" message="Excluir esta venda?" />
+                    <div class="flex items-center justify-end gap-3">
+                        <a href="{{ route('tenant.sales.edit', $sale) }}" class="text-brand text-xs font-semibold hover:underline">Editar</a>
+                        <x-ui.confirm-delete :action="route('tenant.sales.destroy', $sale)" message="Excluir esta venda?" />
+                    </div>
                 </td>
             </tr>
             @empty

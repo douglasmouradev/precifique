@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Models\TechnicalSheet;
 use App\Models\Tenant;
 use App\Services\PricingCalculatorService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 class PricingCalculatorServiceTest extends TestCase

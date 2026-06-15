@@ -7,7 +7,7 @@ namespace Tests\Feature;
 use App\Models\LgpdConsent;
 use App\Models\Tenant;
 use App\Services\LGPDService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 class LGPDServiceTest extends TestCase

@@ -11,6 +11,7 @@ use App\Http\Controllers\Tenant\BillingController;
 use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\FixedCostController;
 use App\Http\Controllers\Tenant\LGPDController;
+use App\Http\Controllers\Tenant\MenuController;
 use App\Http\Controllers\Tenant\MonthlyGoalController;
 use App\Http\Controllers\Tenant\PricingController;
 use App\Http\Controllers\Tenant\ProductController;
@@ -70,6 +71,7 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
     Route::put('/perfil', [AccountController::class, 'updateProfile']);
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/menu', MenuController::class)->name('menu');
 
     Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'destroy']);
     Route::post('/products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
@@ -83,7 +85,7 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
 
     Route::get('/sales/export', [SaleController::class, 'export'])->name('sales.export');
     Route::get('/sales/export/{saleExportRequest}', [SaleController::class, 'downloadExport'])->name('sales.export.download');
-    Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::resource('sales', SaleController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::resource('fixed-costs', FixedCostController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('variable-costs', TenantVariableCostController::class)
         ->parameters(['variable-costs' => 'tenantVariableCost'])
@@ -112,6 +114,7 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
     Route::post('/billing/stripe', [BillingController::class, 'stripeCheckout'])
         ->middleware('throttle:tenant-billing')
         ->name('billing.stripe');
+    Route::get('/billing/pix/status', [BillingController::class, 'pixStatus'])->name('billing.pix.status');
     Route::get('/billing/pix', [BillingController::class, 'pix'])
         ->middleware('throttle:tenant-billing')
         ->name('billing.pix');

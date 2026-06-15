@@ -222,7 +222,7 @@
             ['route' => 'tenant.dashboard', 'label' => 'Início', 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
             ['route' => 'tenant.products.index', 'label' => 'Produtos', 'icon' => 'products', 'match' => 'tenant.products.*'],
             ['route' => 'tenant.sales.index', 'label' => 'Vendas', 'icon' => 'sales', 'match' => 'tenant.sales.*'],
-            ['route' => 'tenant.account.index', 'label' => 'Conta', 'icon' => 'edit', 'match' => 'tenant.account.*'],
+            ['route' => 'tenant.menu', 'label' => 'Mais', 'icon' => 'menu', 'match' => 'tenant.menu'],
         ] as $tab)
         <a href="{{ route($tab['route']) }}"
            class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-medium min-w-[4rem] {{ request()->routeIs($tab['match']) ? 'text-brand-dark' : 'text-slate-500' }}"
