@@ -26,7 +26,7 @@ class LowStockAlertMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Alerta de estoque baixo — Precifique');
+        return new Envelope(subject: __('mail.low_stock.subject'));
     }
 
     public function content(): Content

@@ -53,7 +53,7 @@ class PricingController extends Controller
         $result = $payload['result'];
 
         return redirect()->route('tenant.pricing.edit', $product)
-            ->with('success', 'Preço calculado: R$ '.number_format($result['final_price'], 2, ',', '.'))
+            ->with('success', __('messages.pricing.calculated', ['price' => number_format($result['final_price'], 2, ',', '.')]))
             ->with('pricing', $result);
     }
 
@@ -90,7 +90,7 @@ class PricingController extends Controller
         $tenant = Auth::guard('tenant')->user();
 
         if (! $this->planLimits->isMarginAllowed($tenant, $margin)) {
-            return response()->json(['message' => 'Margem inválida para o seu plano.'], 422);
+            return response()->json(['message' => __('messages.pricing.invalid_margin')], 422);
         }
 
         return response()->json([

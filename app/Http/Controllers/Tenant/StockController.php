@@ -41,6 +41,6 @@ class StockController extends Controller
 
         $product->update($data);
 
-        return back()->with('success', 'Estoque atualizado.');
+        return back()->with('success', __('messages.stock.updated'));
     }
 }

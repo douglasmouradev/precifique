@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Página não encontrada — Precifique</title>
+    <title>{{ __('errors.404.title') }}</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
     <style>
         * { box-sizing: border-box; }
@@ -29,11 +29,11 @@
             <span>Preci<em>$</em>ique</span>
         </a>
         <p class="code">404</p>
-        <h1>Página não encontrada</h1>
-        <p>O endereço pode ter mudado ou não existe mais.</p>
+        <h1>{{ __('errors.404.heading') }}</h1>
+        <p>{{ __('errors.404.message') }}</p>
         <div class="actions">
-            <a href="{{ url('/') }}" class="btn secondary">Ir para o site</a>
-            <a href="{{ url('/entrar') }}" class="btn primary">Entrar</a>
+            <a href="{{ url('/') }}" class="btn secondary">{{ __('errors.404.go_home') }}</a>
+            <a href="{{ url('/entrar') }}" class="btn primary">{{ __('errors.404.sign_in') }}</a>
         </div>
     </div>
 </body>

@@ -26,7 +26,7 @@ class PixExpiringMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Seu PIX Premium está expirando — Precifique',
+            subject: __('mail.pix_expiring.subject'),
         );
     }
 

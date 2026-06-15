@@ -24,7 +24,7 @@ class TrialExpiringMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Seu trial Premium está acabando — Precifique',
+            subject: __('mail.trial_expiring.subject'),
         );
     }
 

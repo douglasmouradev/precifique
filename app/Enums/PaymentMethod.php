@@ -13,9 +13,9 @@ enum PaymentMethod: string
     public function label(): string
     {
         return match ($this) {
-            self::Credito => 'Crédito',
-            self::Debito => 'Débito',
-            self::Pix => 'PIX',
+            self::Credito => __('sales.payment_methods.credito'),
+            self::Debito => __('sales.payment_methods.debito'),
+            self::Pix => __('sales.payment_methods.pix'),
         };
     }
 

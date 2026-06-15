@@ -1,15 +1,15 @@
 <x-mail::message>
-# Bem-vindo ao Precifique, {{ $tenant->name }}!
+# {{ __('mail.tenant_welcome.heading', ['name' => $tenant->name]) }}
 
-Sua conta foi criada pelo administrador.
+{{ __('mail.tenant_welcome.body_created') }}
 
-**E-mail:** {{ $tenant->email }}
+**{{ __('mail.tenant_welcome.email_label') }}** {{ $tenant->email }}
 
-Para definir sua senha, use o link abaixo (válido por tempo limitado):
+{{ __('mail.tenant_welcome.password_instructions') }}
 
 <x-mail::button :url="$resetUrl">
-Definir senha e entrar
+{{ __('mail.tenant_welcome.button') }}
 </x-mail::button>
 
-Se você não solicitou esta conta, ignore este e-mail.
+{{ __('mail.tenant_welcome.ignore') }}
 </x-mail::message>

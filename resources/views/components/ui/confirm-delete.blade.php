@@ -1,13 +1,19 @@
 @props([
     'action',
-    'title' => 'Confirmar exclusão',
-    'message' => 'Esta ação não pode ser desfeita.',
-    'confirmLabel' => 'Excluir',
+    'title' => null,
+    'message' => null,
+    'confirmLabel' => null,
 ])
+
+@php
+    $title = $title ?? __('app.confirm_delete.title');
+    $message = $message ?? __('app.confirm_delete.message');
+    $confirmLabel = $confirmLabel ?? __('app.confirm_delete.confirm');
+@endphp
 
 <div x-data="{ open: false }" class="inline">
     <button type="button" @click="open = true" {{ $attributes->merge(['class' => 'text-sm text-red-500 hover:text-red-600 font-medium']) }}>
-        {{ $slot->isEmpty() ? 'Excluir' : $slot }}
+        {{ $slot->isEmpty() ? __('app.actions.delete') : $slot }}
     </button>
 
     <div x-show="open" x-cloak class="fixed inset-0 z-[80] flex items-center justify-center p-4" role="dialog" aria-modal="true">
@@ -16,7 +22,7 @@
             <h3 class="font-display text-lg font-bold text-ink">{{ $title }}</h3>
             <p class="text-sm text-slate-600 mt-2">{{ $message }}</p>
             <div class="flex gap-3 mt-6 justify-end">
-                <x-ui.button type="button" variant="outline" @click="open = false">Cancelar</x-ui.button>
+                <x-ui.button type="button" variant="outline" @click="open = false">{{ __('app.actions.cancel') }}</x-ui.button>
                 <form method="POST" action="{{ $action }}">
                     @csrf
                     @method('DELETE')

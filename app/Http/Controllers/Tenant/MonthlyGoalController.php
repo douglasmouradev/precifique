@@ -51,6 +51,6 @@ class MonthlyGoalController extends Controller
 
         TenantDashboardChanged::dispatch($tenant);
 
-        return redirect()->route('tenant.dashboard')->with('success', 'Meta do mês definida.');
+        return redirect()->route('tenant.dashboard')->with('success', __('messages.goal.saved'));
     }
 }

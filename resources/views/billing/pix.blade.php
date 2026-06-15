@@ -1,6 +1,6 @@
 @extends('layouts.tenant')
-@section('title', 'PIX Premium')
-@section('breadcrumb') Assinatura / PIX @endsection
+@section('title', __('billing.pix_page.title'))
+@section('breadcrumb') {{ __('billing.pix_page.breadcrumb') }} @endsection
 
 @section('content')
 <div class="max-w-lg mx-auto text-center py-6 animate-fade-in" x-data="{
@@ -17,7 +17,7 @@
                 if (d.premium) {
                     this.premium = true;
                     clearInterval(this.pollTimer);
-                    window.toast?.success('Pagamento confirmado! Bem-vindo ao Premium.');
+                    window.toast?.success(@js(__('billing.pix_page.toast_confirmed')));
                     setTimeout(() => window.location.href = '{{ route('tenant.dashboard') }}', 1500);
                 }
             })
@@ -25,27 +25,27 @@
     },
 }" x-init="init()">
     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand/15 text-3xl mb-6">📱</div>
-    <h1 class="ui-page-title">Pague via PIX</h1>
+    <h1 class="ui-page-title">{{ __('billing.pix_page.heading') }}</h1>
 
     @if(isset($pix['error']))
     <x-ui.alert type="warning" class="mt-6 text-left">{{ $pix['error'] }}</x-ui.alert>
     @else
-    <p class="ui-page-subtitle mt-2">Valor: <strong class="text-ink">R$ {{ number_format($plan->price_monthly, 2, ',', '.') }}</strong></p>
+    <p class="ui-page-subtitle mt-2">{{ __('billing.pix_page.amount', ['amount' => 'R$ '.number_format($plan->price_monthly, 2, ',', '.')]) }}</p>
 
     <x-ui.card class="mt-8">
         @if(!empty($pix['qr_code_base64']))
-        <img src="data:image/png;base64,{{ $pix['qr_code_base64'] }}" alt="QR Code PIX" class="mx-auto mb-6 max-w-[220px] rounded-xl ring-1 ring-slate-200">
+        <img src="data:image/png;base64,{{ $pix['qr_code_base64'] }}" alt="{{ __('billing.pix_page.qr_alt') }}" class="mx-auto mb-6 max-w-[220px] rounded-xl ring-1 ring-slate-200">
         @endif
         @if(!empty($pix['qr_code']))
-        <label class="ui-label text-left">Copia e cola</label>
+        <label class="ui-label text-left">{{ __('billing.pix_page.copy_paste_label') }}</label>
         <textarea readonly class="ui-input text-xs font-mono" rows="4">{{ $pix['qr_code'] }}</textarea>
-        <p class="text-sm text-slate-500 mt-4" x-show="!premium">Após o pagamento, seu plano Premium será ativado automaticamente.</p>
-        <p class="text-sm text-emerald-600 font-medium mt-4" x-show="premium" x-cloak>Pagamento confirmado! Redirecionando…</p>
-        <p class="text-xs text-slate-400 mt-2" x-show="!premium">Verificando pagamento a cada 5 segundos…</p>
+        <p class="text-sm text-slate-500 mt-4" x-show="!premium">{{ __('billing.pix_page.waiting_activation') }}</p>
+        <p class="text-sm text-emerald-600 font-medium mt-4" x-show="premium" x-cloak>{{ __('billing.pix_page.payment_confirmed') }}</p>
+        <p class="text-xs text-slate-400 mt-2" x-show="!premium">{{ __('billing.pix_page.checking_payment') }}</p>
         @endif
     </x-ui.card>
     @endif
 
-    <x-ui.button variant="ghost" :href="route('tenant.dashboard')" class="mt-8">← Voltar ao dashboard</x-ui.button>
+    <x-ui.button variant="ghost" :href="route('tenant.dashboard')" class="mt-8">{{ __('billing.pix_page.back_dashboard') }}</x-ui.button>
 </div>
 @endsection

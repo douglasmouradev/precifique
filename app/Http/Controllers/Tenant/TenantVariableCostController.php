@@ -34,7 +34,7 @@ class TenantVariableCostController extends Controller
         $cost = $tenant->tenantVariableCosts()->create($request->validated());
         $this->audit->log($tenant, 'tenant_variable_cost.created', $cost, [], $request);
 
-        return back()->with('success', 'Custo variável adicionado.');
+        return back()->with('success', __('messages.variable_cost.created'));
     }
 
     public function update(UpdateTenantVariableCostRequest $request, TenantVariableCost $tenantVariableCost): RedirectResponse
@@ -45,7 +45,7 @@ class TenantVariableCostController extends Controller
         $tenantVariableCost->update($request->validated());
         $this->audit->log($tenant, 'tenant_variable_cost.updated', $tenantVariableCost, [], $request);
 
-        return back()->with('success', 'Custo variável atualizado.');
+        return back()->with('success', __('messages.variable_cost.updated'));
     }
 
     public function destroy(TenantVariableCost $tenantVariableCost): RedirectResponse
@@ -56,6 +56,6 @@ class TenantVariableCostController extends Controller
         $tenantVariableCost->delete();
         $this->audit->log($tenant, 'tenant_variable_cost.deleted', null, ['id' => $tenantVariableCost->id]);
 
-        return back()->with('success', 'Custo variável removido.');
+        return back()->with('success', __('messages.variable_cost.removed'));
     }
 }

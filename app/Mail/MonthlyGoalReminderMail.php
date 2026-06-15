@@ -26,7 +26,7 @@ class MonthlyGoalReminderMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Lembrete de meta — Precifique');
+        return new Envelope(subject: __('mail.goal_reminder.subject'));
     }
 
     public function content(): Content

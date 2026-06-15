@@ -110,11 +110,11 @@ class OnboardingController extends Controller
 
         if ($request->session()->pull('onboarding_selected_plan') === 'premium') {
             return redirect()->route('tenant.billing.upgrade')
-                ->with('success', 'Conta pronta! Finalize o pagamento para ativar o Premium.');
+                ->with('success', __('messages.onboarding.account_ready_premium'));
         }
 
         return redirect()->route('tenant.dashboard')
-            ->with('success', 'Conta criada! Bem-vindo ao Precifique.')
+            ->with('success', __('messages.onboarding.account_created'))
             ->with('guided_setup', true);
     }
 }

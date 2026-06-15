@@ -1,14 +1,14 @@
 <x-mail::message>
-# Olá, {{ $tenant->name }}
+# {{ __('mail.trial_expiring.heading', ['name' => $tenant->name]) }}
 
-Seu período de teste Premium do Precifique termina em **{{ $tenant->trial_ends_at?->format('d/m/Y') }}**.
+{{ __('mail.trial_expiring.body', ['date' => $tenant->trial_ends_at?->format('d/m/Y')]) }}
 
-Para continuar com produtos ilimitados, IA e relatórios:
+{{ __('mail.trial_expiring.cta_intro') }}
 
 <x-mail::button :url="route('tenant.billing.upgrade')">
-Fazer upgrade
+{{ __('mail.trial_expiring.button') }}
 </x-mail::button>
 
-Obrigado,<br>
+{{ __('mail.thanks') }}<br>
 {{ config('app.name') }}
 </x-mail::message>

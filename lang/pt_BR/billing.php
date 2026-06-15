@@ -28,4 +28,19 @@ return [
     'pix_waiting' => 'Aguardando confirmação do pagamento…',
     'copy_code' => 'Copiar código PIX',
     'copied' => 'Copiado!',
+
+    'pix_page' => [
+        'title' => 'Premium PIX',
+        'breadcrumb' => 'Assinatura / PIX',
+        'heading' => 'Pagar via PIX',
+        'amount' => 'Valor: :amount',
+        'qr_alt' => 'QR Code PIX',
+        'copy_paste' => 'Copiar código',
+        'copy_paste_label' => 'Copia e cola',
+        'waiting_activation' => 'Após o pagamento, seu Premium será ativado automaticamente.',
+        'payment_confirmed' => 'Pagamento confirmado! Redirecionando…',
+        'checking_payment' => 'Verificando pagamento a cada 5 segundos…',
+        'toast_confirmed' => 'Pagamento confirmado! Bem-vindo ao Premium.',
+        'back_dashboard' => '← Voltar ao dashboard',
+    ],
 ];

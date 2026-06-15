@@ -1,11 +1,11 @@
 <x-mail::message>
-# Lembrete de meta — {{ $tenant->name }}
+# {{ __('mail.goal_reminder.title', ['name' => $tenant->name]) }}
 
-Você está com **{{ number_format($progress, 0) }}%** da meta de R$ {{ number_format($goal->goal_amount, 2, ',', '.') }}.
+{{ __('mail.goal_reminder.progress', ['progress' => number_format($progress, 0), 'goal' => number_format($goal->goal_amount, 2, ',', '.')]) }}
 
-Faturamento atual: **R$ {{ number_format($revenue, 2, ',', '.') }}**
+{{ __('mail.goal_reminder.revenue', ['revenue' => number_format($revenue, 2, ',', '.')]) }}
 
 <x-mail::button :url="route('tenant.dashboard')">
-Ver dashboard
+{{ __('mail.goal_reminder.button') }}
 </x-mail::button>
 </x-mail::message>

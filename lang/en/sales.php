@@ -25,4 +25,37 @@ return [
     'notes' => 'Notes',
     'save' => 'Save sale',
     'edit' => 'Edit sale',
+    'cancel' => 'Cancel',
+    'clear' => 'Clear',
+    'qty_short' => 'Qty',
+    'edit_action' => 'Edit',
+    'delete_confirm' => 'Delete this sale?',
+    'empty_title' => 'No sales in period',
+    'empty_description' => 'Adjust filters or record a new sale.',
+
+    'table' => [
+        'date' => 'Date',
+        'qty' => 'Qty',
+        'total' => 'Total',
+    ],
+
+    'create' => [
+        'title' => 'New sale',
+        'breadcrumb' => 'Sales / New',
+        'page_title' => 'Record sale',
+        'subtitle' => 'The sale updates the dashboard and reduces stock',
+        'confirm' => 'Confirm sale',
+    ],
+
+    'edit' => [
+        'title' => 'Edit sale',
+        'breadcrumb' => 'Sales / Edit',
+        'page_title' => 'Edit sale',
+    ],
+
+    'payment_methods' => [
+        'credito' => 'Credit',
+        'debito' => 'Debit',
+        'pix' => 'PIX',
+    ],
 ];

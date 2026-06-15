@@ -36,7 +36,7 @@ class FixedCostController extends Controller
         $this->audit->log($tenant, 'fixed_cost.created', $cost, [], $request);
         TenantDashboardChanged::dispatch($tenant);
 
-        return back()->with('success', 'Custo fixo adicionado.');
+        return back()->with('success', __('messages.fixed_cost.created'));
     }
 
     public function update(UpdateFixedCostRequest $request, FixedCost $fixedCost): RedirectResponse
@@ -48,7 +48,7 @@ class FixedCostController extends Controller
         $this->audit->log($tenant, 'fixed_cost.updated', $fixedCost, [], $request);
         TenantDashboardChanged::dispatch($tenant);
 
-        return back()->with('success', 'Custo fixo atualizado.');
+        return back()->with('success', __('messages.fixed_cost.updated'));
     }
 
     public function destroy(FixedCost $fixedCost): RedirectResponse
@@ -60,6 +60,6 @@ class FixedCostController extends Controller
         $this->audit->log($tenant, 'fixed_cost.deleted', null, ['id' => $fixedCost->id]);
         TenantDashboardChanged::dispatch($tenant);
 
-        return back()->with('success', 'Custo fixo removido.');
+        return back()->with('success', __('messages.fixed_cost.removed'));
     }
 }

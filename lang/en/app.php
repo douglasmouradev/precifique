@@ -30,6 +30,28 @@ return [
         'close' => 'Close',
     ],
 
+    'confirm_delete' => [
+        'title' => 'Confirm deletion',
+        'message' => 'This action cannot be undone.',
+        'confirm' => 'Delete',
+    ],
+
+    'setup_progress' => [
+        'title' => 'Account setup',
+        'journey' => 'Your journey',
+        'steps_completed' => ':completed of :total steps completed',
+        'steps' => [
+            'lgpd' => 'Accept terms and privacy policy',
+            'onboarding' => 'Complete initial setup',
+            'costs' => 'Add fixed costs',
+            'product' => 'Create first product',
+            'price' => 'Price a product',
+            'price_all' => 'Price all products',
+            'goal' => 'Set monthly goal',
+            'sale' => 'Record first sale',
+        ],
+    ],
+
     'account' => [
         'title' => 'My account',
         'subtitle' => 'Business profile, password and subscription',

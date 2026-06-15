@@ -113,7 +113,7 @@ class ProductController extends Controller
         TenantDashboardChanged::dispatch($tenant);
 
         return redirect()->route('tenant.products.index')
-            ->with('success', 'Produto atualizado.');
+            ->with('success', __('messages.product.updated'));
     }
 
     public function duplicate(Product $product): RedirectResponse
@@ -130,7 +130,7 @@ class ProductController extends Controller
         TenantDashboardChanged::dispatch($tenant);
 
         return redirect()->route('tenant.pricing.edit', $copy)
-            ->with('success', 'Produto duplicado. Ajuste o nome e salve o preço.');
+            ->with('success', __('messages.product.duplicated'));
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -143,6 +143,6 @@ class ProductController extends Controller
         TenantDashboardChanged::dispatch($tenant);
 
         return redirect()->route('tenant.products.index')
-            ->with('success', 'Produto removido.');
+            ->with('success', __('messages.product.deleted'));
     }
 }

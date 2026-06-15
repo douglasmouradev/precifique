@@ -25,4 +25,37 @@ return [
     'notes' => 'Observações',
     'save' => 'Salvar venda',
     'edit' => 'Editar venda',
+    'cancel' => 'Cancelar',
+    'clear' => 'Limpar',
+    'qty_short' => 'Qtd',
+    'edit_action' => 'Editar',
+    'delete_confirm' => 'Excluir esta venda?',
+    'empty_title' => 'Nenhuma venda no período',
+    'empty_description' => 'Ajuste os filtros ou registre uma nova venda.',
+
+    'table' => [
+        'date' => 'Data',
+        'qty' => 'Qtd',
+        'total' => 'Total',
+    ],
+
+    'create' => [
+        'title' => 'Nova venda',
+        'breadcrumb' => 'Vendas / Nova',
+        'page_title' => 'Registrar venda',
+        'subtitle' => 'A venda atualiza o dashboard e reduz o estoque',
+        'confirm' => 'Confirmar venda',
+    ],
+
+    'edit' => [
+        'title' => 'Editar venda',
+        'breadcrumb' => 'Vendas / Editar',
+        'page_title' => 'Editar venda',
+    ],
+
+    'payment_methods' => [
+        'credito' => 'Crédito',
+        'debito' => 'Débito',
+        'pix' => 'PIX',
+    ],
 ];

@@ -83,12 +83,12 @@ class SaleController extends Controller
                 $exportRequest->refresh();
                 if ($exportRequest->status === 'completed' && $exportRequest->file_path) {
                     return redirect()->route('tenant.sales.export.download', $exportRequest)
-                        ->with('success', 'Exportação concluída.');
+                        ->with('success', __('messages.sale.export_done'));
                 }
             }
 
             return redirect()->route('tenant.sales.index')
-                ->with('success', 'Exportação em processamento. Atualize a página em instantes para baixar.');
+                ->with('success', __('messages.sale.export_processing'));
         }
 
         return $this->salesExport->streamDownload($tenant, $filters);
@@ -103,7 +103,7 @@ class SaleController extends Controller
         $disk = config('filesystems.default') === 's3' ? 's3' : 'local';
 
         if (! Storage::disk($disk)->exists($saleExportRequest->file_path)) {
-            return redirect()->route('tenant.sales.index')->with('error', 'Arquivo de exportação não encontrado.');
+            return redirect()->route('tenant.sales.index')->with('error', __('messages.sale.export_not_found'));
         }
 
         return Storage::disk($disk)->download(
@@ -131,7 +131,7 @@ class SaleController extends Controller
 
             if ($product->stock_quantity > 0 && $product->stock_quantity < $quantity) {
                 throw ValidationException::withMessages([
-                    'quantity' => 'Estoque insuficiente para esta venda.',
+                    'quantity' => __('messages.sale.insufficient_stock'),
                 ]);
             }
 
@@ -165,13 +165,13 @@ class SaleController extends Controller
             $this->notifications->notify(
                 $tenant,
                 'milestone',
-                'Primeira venda registrada!',
-                'Parabéns! Continue acompanhando seus resultados no dashboard.',
+                __('messages.sale.first_sale_title'),
+                __('messages.sale.first_sale_body'),
                 route('tenant.dashboard'),
             );
         }
 
-        return redirect()->route('tenant.sales.index')->with('success', 'Venda registrada.');
+        return redirect()->route('tenant.sales.index')->with('success', __('messages.sale.created'));
     }
 
     public function edit(Sale $sale): View
@@ -196,7 +196,7 @@ class SaleController extends Controller
                     $delta = $newQuantity - $sale->quantity;
                     if ($delta > 0 && $product->stock_quantity < $delta) {
                         throw ValidationException::withMessages([
-                            'quantity' => 'Estoque insuficiente para esta quantidade.',
+                            'quantity' => __('messages.sale.insufficient_stock_edit'),
                         ]);
                     }
                     if ($delta !== 0) {
@@ -222,7 +222,7 @@ class SaleController extends Controller
 
         SaleRecorded::dispatch($tenant, $sale->fresh());
 
-        return redirect()->route('tenant.sales.index')->with('success', 'Venda atualizada.');
+        return redirect()->route('tenant.sales.index')->with('success', __('messages.sale.updated'));
     }
 
     public function destroy(Sale $sale): RedirectResponse
@@ -244,7 +244,7 @@ class SaleController extends Controller
 
         $this->audit->log($tenant, 'sale.deleted', null, ['sale_id' => $sale->id]);
 
-        return back()->with('success', 'Venda removida.');
+        return back()->with('success', __('messages.sale.deleted'));
     }
 
     /**

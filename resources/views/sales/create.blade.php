@@ -1,28 +1,28 @@
 @extends('layouts.tenant')
-@section('title', 'Nova venda')
-@section('breadcrumb') Vendas / Nova @endsection
+@section('title', __('sales.create.title'))
+@section('breadcrumb') {{ __('sales.create.breadcrumb') }} @endsection
 
 @section('content')
-<x-ui.page-header title="Registrar venda" subtitle="A venda atualiza o dashboard e baixa o estoque" />
+<x-ui.page-header :title="__('sales.create.page_title')" :subtitle="__('sales.create.subtitle')" />
 
 <x-ui.card class="max-w-xl">
     <form method="POST" action="{{ route('tenant.sales.store') }}" class="space-y-5" x-data="{ price: 0, payment: 'pix' }">
         @csrf
         <div>
-            <label class="ui-label">Produto</label>
+            <label class="ui-label">{{ __('sales.product') }}</label>
             <select name="product_id" required class="ui-input" @change="price = $event.target.selectedOptions[0]?.dataset.price || 0">
-                <option value="">Selecione...</option>
+                <option value="">{{ __('sales.select') }}</option>
                 @foreach($products as $p)
                 <option value="{{ $p->id }}" data-price="{{ $p->selling_price ?? 0 }}">{{ $p->name }}</option>
                 @endforeach
             </select>
         </div>
         <div class="grid grid-cols-2 gap-4">
-            <div><label class="ui-label">Quantidade</label><input type="number" name="quantity" value="1" min="1" required class="ui-input"></div>
-            <div><label class="ui-label">Preço unit. (R$)</label><input type="number" name="unit_price" step="0.01" x-model="price" required class="ui-input"></div>
+            <div><label class="ui-label">{{ __('sales.quantity') }}</label><input type="number" name="quantity" value="1" min="1" required class="ui-input"></div>
+            <div><label class="ui-label">{{ __('sales.unit_price') }}</label><input type="number" name="unit_price" step="0.01" x-model="price" required class="ui-input"></div>
         </div>
         <div>
-            <label class="ui-label">Forma de pagamento</label>
+            <label class="ui-label">{{ __('sales.payment_method') }}</label>
             <input type="hidden" name="payment_method" :value="payment">
             <div class="grid grid-cols-3 gap-2 mt-1">
                 @foreach(\App\Enums\PaymentMethod::cases() as $method)
@@ -40,8 +40,8 @@
                 @endforeach
             </div>
         </div>
-        <div><label class="ui-label">Observações</label><textarea name="notes" rows="2" class="ui-input"></textarea></div>
-        <x-ui.button type="submit" class="w-full py-3">Confirmar venda</x-ui.button>
+        <div><label class="ui-label">{{ __('sales.notes') }}</label><textarea name="notes" rows="2" class="ui-input"></textarea></div>
+        <x-ui.button type="submit" class="w-full py-3">{{ __('sales.create.confirm') }}</x-ui.button>
     </form>
 </x-ui.card>
 @endsection

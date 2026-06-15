@@ -1,11 +1,11 @@
 @php
     $adminLinks = [
-        ['route' => 'admin.dashboard', 'label' => 'Dashboard', 'match' => 'admin.dashboard'],
-        ['route' => 'admin.tenants.index', 'label' => 'Tenants', 'match' => 'admin.tenants.*'],
-        ['route' => 'admin.plans.index', 'label' => 'Planos', 'match' => 'admin.plans.*'],
-        ['route' => 'admin.logs.index', 'label' => 'Logs', 'match' => 'admin.logs.*'],
-        ['route' => 'admin.lgpd', 'label' => 'LGPD', 'match' => 'admin.lgpd'],
-        ['route' => 'admin.two-factor.show', 'label' => '2FA', 'match' => 'admin.two-factor.*'],
+        ['route' => 'admin.dashboard', 'label' => __('admin.nav.dashboard'), 'match' => 'admin.dashboard'],
+        ['route' => 'admin.tenants.index', 'label' => __('admin.nav.tenants'), 'match' => 'admin.tenants.*'],
+        ['route' => 'admin.plans.index', 'label' => __('admin.nav.plans'), 'match' => 'admin.plans.*'],
+        ['route' => 'admin.logs.index', 'label' => __('admin.nav.logs'), 'match' => 'admin.logs.*'],
+        ['route' => 'admin.lgpd', 'label' => __('admin.nav.lgpd'), 'match' => 'admin.lgpd'],
+        ['route' => 'admin.two-factor.show', 'label' => __('admin.nav.two_factor'), 'match' => 'admin.two-factor.*'],
     ];
 @endphp
 
@@ -32,7 +32,8 @@
 
             {{-- Ações --}}
             <div class="flex items-center gap-2 shrink-0">
-                <a href="{{ route('home') }}" class="hidden sm:inline text-sm text-slate-500 hover:text-brand transition-colors whitespace-nowrap">Site</a>
+                <x-ui.locale-switcher class="hidden sm:flex" />
+                <a href="{{ route('home') }}" class="hidden sm:inline text-sm text-slate-500 hover:text-brand transition-colors whitespace-nowrap">{{ __('admin.nav.site') }}</a>
 
                 <div class="hidden sm:block">
                     <x-dropdown align="right" width="48">

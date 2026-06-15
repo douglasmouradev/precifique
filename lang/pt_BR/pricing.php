@@ -54,7 +54,31 @@ return [
     'ai_calculate' => 'Calcular com IA',
     'ai_using' => 'Usando custos e margem selecionada…',
     'save_price' => 'Salvar preço',
+    'save_and_calculate' => 'Salvar e calcular preço',
     'section_stock' => '5. Estoque',
     'stock_quantity' => 'Quantidade em estoque',
     'stock_alert' => 'Alerta estoque baixo',
+    'download_quote_pdf' => 'Baixar orçamento PDF',
+    'variables_hint' => 'Variáveis (energia, gás, etc.)',
+    'additional_hint' => 'Adicionais (embalagem, etiqueta…)',
+    'margin_label' => 'Margem :percent%',
+
+    'niche_food' => [
+        'title' => 'Campos — Alimentos',
+        'portion_yield' => 'Porção / rendimento',
+        'shelf_life' => 'Validade',
+        'storage_temp' => 'Temperatura armazenamento',
+        'nutrition_label' => 'Rótulo nutricional',
+    ],
+    'niche_service' => [
+        'title' => 'Campos — Serviços',
+        'minimum_visit_fee' => 'Taxa mínima visita (R$)',
+        'travel_cost' => 'Deslocamento (R$)',
+        'tools_cost' => 'Ferramentas (R$)',
+    ],
+    'niche_handmade' => [
+        'title' => 'Campos — Artesanato',
+        'collection' => 'Coleção',
+        'production_line' => 'Linha de produtos',
+    ],
 ];

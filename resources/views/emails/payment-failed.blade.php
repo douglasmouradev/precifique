@@ -1,14 +1,14 @@
 <x-mail::message>
-# Falha no pagamento
+# {{ __('mail.payment_failed.title') }}
 
-Olá {{ $tenant->name }},
+{{ __('mail.payment_failed.greeting', ['name' => $tenant->name]) }}
 
-Não conseguimos processar o pagamento da sua assinatura Premium.
+{{ __('mail.payment_failed.body') }}
 
 <x-mail::button :url="route('tenant.billing.portal')">
-Atualizar pagamento
+{{ __('mail.payment_failed.button') }}
 </x-mail::button>
 
-Obrigado,<br>
+{{ __('mail.payment_failed.thanks') }}<br>
 {{ config('app.name') }}
 </x-mail::message>

@@ -30,6 +30,28 @@ return [
         'close' => 'Fechar',
     ],
 
+    'confirm_delete' => [
+        'title' => 'Confirmar exclusão',
+        'message' => 'Esta ação não pode ser desfeita.',
+        'confirm' => 'Excluir',
+    ],
+
+    'setup_progress' => [
+        'title' => 'Configuração da conta',
+        'journey' => 'Sua jornada',
+        'steps_completed' => ':completed de :total etapas concluídas',
+        'steps' => [
+            'lgpd' => 'Aceitar termos e privacidade',
+            'onboarding' => 'Concluir configuração inicial',
+            'costs' => 'Cadastrar custos fixos',
+            'product' => 'Criar primeiro produto',
+            'price' => 'Precificar um produto',
+            'price_all' => 'Precificar todos os produtos',
+            'goal' => 'Definir meta mensal',
+            'sale' => 'Registrar primeira venda',
+        ],
+    ],
+
     'account' => [
         'title' => 'Minha conta',
         'subtitle' => 'Dados do negócio, senha e assinatura',

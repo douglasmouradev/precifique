@@ -77,7 +77,7 @@ class TenantManagementController extends Controller
         $lgpd->recordConsent($tenant, $request, 'privacy', $version);
 
         return redirect()->route('admin.tenants.index')
-            ->with('success', 'Tenant criado e e-mail enviado.');
+            ->with('success', __('messages.admin.tenant_created'));
     }
 
     public function show(Tenant $tenant): View
@@ -91,7 +91,7 @@ class TenantManagementController extends Controller
     {
         $tenant->update(['is_active' => ! $tenant->is_active]);
 
-        return back()->with('success', 'Status atualizado.');
+        return back()->with('success', __('messages.admin.status_updated'));
     }
 
     public function resendWelcome(Tenant $tenant): RedirectResponse
@@ -101,7 +101,7 @@ class TenantManagementController extends Controller
 
         Mail::to($tenant->email)->send(new TenantWelcomeMail($tenant, $resetUrl));
 
-        return back()->with('success', 'E-mail de boas-vindas reenviado.');
+        return back()->with('success', __('messages.admin.welcome_resent'));
     }
 
     public function extendTrial(Request $request, Tenant $tenant): RedirectResponse
@@ -118,13 +118,13 @@ class TenantManagementController extends Controller
             'trial_ends_at' => $base->copy()->addDays((int) $data['days']),
         ]);
 
-        return back()->with('success', "Trial estendido em {$data['days']} dia(s).");
+        return back()->with('success', __('messages.admin.trial_extended', ['days' => $data['days']]));
     }
 
     public function impersonate(Tenant $tenant): RedirectResponse
     {
         if (! $tenant->is_active) {
-            return back()->with('warning', 'Não é possível acessar uma conta inativa.');
+            return back()->with('warning', __('messages.admin.inactive_account'));
         }
 
         session([
@@ -139,6 +139,6 @@ class TenantManagementController extends Controller
         Auth::guard('tenant')->login($tenant);
 
         return redirect()->route('tenant.dashboard')
-            ->with('warning', 'Modo suporte: você está visualizando como '.$tenant->name);
+            ->with('warning', __('messages.admin.impersonating', ['name' => $tenant->name]));
     }
 }

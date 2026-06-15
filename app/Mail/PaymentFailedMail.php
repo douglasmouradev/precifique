@@ -24,7 +24,7 @@ class PaymentFailedMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Falha no pagamento da assinatura — Precifique',
+            subject: __('mail.payment_failed.subject'),
         );
     }
 

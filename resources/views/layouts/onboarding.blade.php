@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <x-head-icons />
-    <title>@yield('title', 'Configuração — Precifique')</title>
+    <title>@yield('title', __('onboarding.layout.title'))</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans text-ink antialiased bg-paper min-h-screen">
+<body class="font-sans text-ink antialiased bg-paper min-h-screen relative">
+    <x-ui.locale-switcher class="absolute top-4 right-4" />
     @php
         $step = $step ?? 0;
-        $steps = ['Nicho', 'Modo', 'Plano', 'Setup'];
+        $steps = array_values(__('onboarding.layout.steps'));
     @endphp
     <div class="min-h-screen flex flex-col">
         <header class="border-b border-slate-200/70 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
             <div class="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
                 <a href="{{ route('home') }}"><x-ui.logo variant="full" size="md" /></a>
                 @if($step > 0)
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Passo {{ $step }} de {{ count($steps) }}</span>
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">{{ __('onboarding.layout.step', ['current' => $step, 'total' => count($steps)]) }}</span>
                 @endif
             </div>
             @if($step > 0)

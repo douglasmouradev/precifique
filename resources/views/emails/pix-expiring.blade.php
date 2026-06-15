@@ -1,14 +1,14 @@
 <x-mail::message>
-# PIX Premium expirando
+# {{ __('mail.pix_expiring.title') }}
 
-Olá {{ $tenant->name }},
+{{ __('mail.pix_expiring.greeting', ['name' => $tenant->name]) }}
 
-Sua assinatura via PIX expira em **{{ $subscription->ends_at?->format('d/m/Y') }}**.
+{{ __('mail.pix_expiring.body', ['date' => $subscription->ends_at?->format('d/m/Y')]) }}
 
 <x-mail::button :url="route('tenant.billing.upgrade')">
-Renovar Premium
+{{ __('mail.pix_expiring.button') }}
 </x-mail::button>
 
-Obrigado,<br>
+{{ __('mail.pix_expiring.thanks') }}<br>
 {{ config('app.name') }}
 </x-mail::message>

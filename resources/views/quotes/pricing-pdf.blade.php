@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <title>Precificação — {{ $product->name }}</title>
+    <title>{{ __('quotes.pricing.title', ['product' => $product->name]) }}</title>
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #334155; padding: 28px; }
         .brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -22,24 +22,24 @@
         <p class="brand">Preci<span style="color:#00C896;">$</span>ique</p>
     </div>
     <p><strong>{{ $tenant->name }}</strong></p>
-    <h1>Ficha de precificação — {{ $product->name }}</h1>
+    <h1>{{ __('quotes.pricing.heading', ['product' => $product->name]) }}</h1>
 
     <table>
-        <tr><th>Item</th><th style="text-align:right">R$</th></tr>
-        <tr><td>Materiais</td><td style="text-align:right">{{ number_format($breakdown['materials_cost'], 2, ',', '.') }}</td></tr>
-        <tr><td>Mão de obra</td><td style="text-align:right">{{ number_format($breakdown['labor_cost'], 2, ',', '.') }}</td></tr>
-        <tr><td>Custos variáveis (produto)</td><td style="text-align:right">{{ number_format($breakdown['variable_costs'], 2, ',', '.') }}</td></tr>
-        <tr><td>Custos adicionais</td><td style="text-align:right">{{ number_format($breakdown['additional_costs'], 2, ',', '.') }}</td></tr>
-        <tr><td>Rateio custos fixos</td><td style="text-align:right">{{ number_format($breakdown['fixed_cost_share'], 2, ',', '.') }}</td></tr>
-        <tr><td><strong>Custo total</strong></td><td style="text-align:right"><strong>{{ number_format($breakdown['total_production'], 2, ',', '.') }}</strong></td></tr>
-        <tr><td>Lucro ({{ $breakdown['profit_margin_pct'] }}%)</td><td style="text-align:right">{{ number_format($breakdown['profit_absolute'], 2, ',', '.') }}</td></tr>
+        <tr><th>{{ __('quotes.pricing.item') }}</th><th style="text-align:right">{{ __('quotes.pricing.currency') }}</th></tr>
+        <tr><td>{{ __('quotes.pricing.materials') }}</td><td style="text-align:right">{{ number_format($breakdown['materials_cost'], 2, ',', '.') }}</td></tr>
+        <tr><td>{{ __('quotes.pricing.labor') }}</td><td style="text-align:right">{{ number_format($breakdown['labor_cost'], 2, ',', '.') }}</td></tr>
+        <tr><td>{{ __('quotes.pricing.variable_costs') }}</td><td style="text-align:right">{{ number_format($breakdown['variable_costs'], 2, ',', '.') }}</td></tr>
+        <tr><td>{{ __('quotes.pricing.additional_costs') }}</td><td style="text-align:right">{{ number_format($breakdown['additional_costs'], 2, ',', '.') }}</td></tr>
+        <tr><td>{{ __('quotes.pricing.fixed_cost_share') }}</td><td style="text-align:right">{{ number_format($breakdown['fixed_cost_share'], 2, ',', '.') }}</td></tr>
+        <tr><td><strong>{{ __('quotes.pricing.total_cost') }}</strong></td><td style="text-align:right"><strong>{{ number_format($breakdown['total_production'], 2, ',', '.') }}</strong></td></tr>
+        <tr><td>{{ __('quotes.pricing.profit', ['pct' => $breakdown['profit_margin_pct']]) }}</td><td style="text-align:right">{{ number_format($breakdown['profit_absolute'], 2, ',', '.') }}</td></tr>
     </table>
 
     <div class="total">
-        <span style="font-size:10px;color:#64748b;text-transform:uppercase">Preço de venda sugerido</span><br>
+        <span style="font-size:10px;color:#64748b;text-transform:uppercase">{{ __('quotes.pricing.suggested_price') }}</span><br>
         <strong>R$ {{ number_format($breakdown['final_price'], 2, ',', '.') }}</strong>
     </div>
 
-    <p style="margin-top:24px;font-size:9px;color:#94a3b8;">Gerado em {{ now()->format('d/m/Y H:i') }} — Precifique</p>
+    <p style="margin-top:24px;font-size:9px;color:#94a3b8;">{{ __('quotes.pricing.generated_at', ['datetime' => now()->format('d/m/Y H:i')]) }}</p>
 </body>
 </html>

@@ -24,7 +24,7 @@ class MonthlyReportMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Seu relatório mensal — Precifique');
+        return new Envelope(subject: __('mail.monthly_report.subject'));
     }
 
     public function content(): Content

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Erro interno — Precifique</title>
+    <title>{{ __('errors.500.title') }}</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
     <style>
         * { box-sizing: border-box; }
@@ -26,9 +26,9 @@
             <span>Preci<em>$</em>ique</span>
         </a>
         <p class="code">500</p>
-        <h1>Algo deu errado</h1>
-        <p>Nossa equipe foi notificada. Tente novamente em instantes.</p>
-        <a href="{{ url('/') }}" class="btn">Voltar ao início</a>
+        <h1>{{ __('errors.500.heading') }}</h1>
+        <p>{{ __('errors.500.message') }}</p>
+        <a href="{{ url('/') }}" class="btn">{{ __('errors.500.go_home') }}</a>
     </div>
 </body>
 </html>

@@ -6,9 +6,9 @@
         <div class="p-4 md:p-5 border-b border-slate-100/80 bg-gradient-to-r from-brand/[0.06] via-transparent to-transparent">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <p class="text-[11px] font-semibold uppercase tracking-widest text-brand-dark">Sua jornada</p>
-                    <h2 class="font-display text-lg font-bold text-ink mt-0.5">Configuração da conta</h2>
-                    <p class="text-sm text-slate-500 mt-1">{{ $progress['completed'] }} de {{ $progress['total'] }} etapas concluídas</p>
+                    <p class="text-[11px] font-semibold uppercase tracking-widest text-brand-dark">{{ __('app.setup_progress.journey') }}</p>
+                    <h2 class="font-display text-lg font-bold text-ink mt-0.5">{{ __('app.setup_progress.title') }}</h2>
+                    <p class="text-sm text-slate-500 mt-1">{{ __('app.setup_progress.steps_completed', ['completed' => $progress['completed'], 'total' => $progress['total']]) }}</p>
                 </div>
                 <div class="flex items-center gap-3 shrink-0">
                     <div class="relative w-14 h-14">

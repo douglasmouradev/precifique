@@ -41,7 +41,7 @@ class ProfileSetupController extends Controller
         $tenant->update($request->profileAttributes());
 
         return redirect()->route('tenant.dashboard')
-            ->with('success', 'Perfil configurado! Bem-vindo ao Precifique.');
+            ->with('success', __('messages.profile.configured'));
     }
 
     public function edit(): View
@@ -55,6 +55,6 @@ class ProfileSetupController extends Controller
         $tenant->update($request->profileAttributes());
 
         return redirect()->route('tenant.dashboard')
-            ->with('success', 'Perfil atualizado com sucesso.');
+            ->with('success', __('messages.profile.updated'));
     }
 }

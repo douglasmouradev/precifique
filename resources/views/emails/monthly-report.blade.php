@@ -1,11 +1,11 @@
 <x-mail::message>
-# Relatório mensal — Precifique
+# {{ __('mail.monthly_report.title') }}
 
-Olá, {{ $tenant->name }}!
+{{ __('mail.monthly_report.greeting', ['name' => $tenant->name]) }}
 
-Seu relatório mensal está em anexo (Excel).
+{{ __('mail.monthly_report.body') }}
 
 <x-mail::button :url="route('tenant.dashboard')">
-Acessar Precifique
+{{ __('mail.monthly_report.button') }}
 </x-mail::button>
 </x-mail::message>

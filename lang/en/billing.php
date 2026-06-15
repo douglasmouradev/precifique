@@ -28,4 +28,19 @@ return [
     'pix_waiting' => 'Waiting for payment confirmation…',
     'copy_code' => 'Copy PIX code',
     'copied' => 'Copied!',
+
+    'pix_page' => [
+        'title' => 'Premium PIX',
+        'breadcrumb' => 'Subscription / PIX',
+        'heading' => 'Pay via PIX',
+        'amount' => 'Amount: :amount',
+        'qr_alt' => 'PIX QR Code',
+        'copy_paste' => 'Copy code',
+        'copy_paste_label' => 'Copy and paste',
+        'waiting_activation' => 'After payment, your Premium plan will be activated automatically.',
+        'payment_confirmed' => 'Payment confirmed! Redirecting…',
+        'checking_payment' => 'Checking payment every 5 seconds…',
+        'toast_confirmed' => 'Payment confirmed! Welcome to Premium.',
+        'back_dashboard' => '← Back to dashboard',
+    ],
 ];

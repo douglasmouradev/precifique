@@ -54,7 +54,31 @@ return [
     'ai_calculate' => 'Calculate with AI',
     'ai_using' => 'Using selected costs and margin…',
     'save_price' => 'Save price',
+    'save_and_calculate' => 'Save and calculate price',
     'section_stock' => '5. Stock',
     'stock_quantity' => 'Stock quantity',
     'stock_alert' => 'Low stock alert',
+    'download_quote_pdf' => 'Download quote PDF',
+    'variables_hint' => 'Variable costs (energy, gas, etc.)',
+    'additional_hint' => 'Additional (packaging, labels…)',
+    'margin_label' => 'Margin :percent%',
+
+    'niche_food' => [
+        'title' => 'Fields — Food',
+        'portion_yield' => 'Portion / yield',
+        'shelf_life' => 'Shelf life',
+        'storage_temp' => 'Storage temperature',
+        'nutrition_label' => 'Nutrition label',
+    ],
+    'niche_service' => [
+        'title' => 'Fields — Services',
+        'minimum_visit_fee' => 'Minimum visit fee (R$)',
+        'travel_cost' => 'Travel cost (R$)',
+        'tools_cost' => 'Tools cost (R$)',
+    ],
+    'niche_handmade' => [
+        'title' => 'Fields — Handmade',
+        'collection' => 'Collection',
+        'production_line' => 'Product line',
+    ],
 ];

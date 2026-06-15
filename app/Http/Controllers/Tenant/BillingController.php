@@ -51,14 +51,14 @@ class BillingController extends Controller
         $tenant = Auth::guard('tenant')->user();
 
         if ($tenant?->isPremium()) {
-            return redirect()->route('tenant.dashboard')->with('success', 'Pagamento confirmado! Bem-vindo ao Premium.');
+            return redirect()->route('tenant.dashboard')->with('success', __('messages.billing.payment_confirmed'));
         }
 
         if ($sessionId !== '' && $tenant && $this->payments->isStripeSessionPaid($sessionId, $tenant->id)) {
-            return redirect()->route('tenant.dashboard')->with('success', 'Pagamento recebido! Seu Premium será ativado em instantes.');
+            return redirect()->route('tenant.dashboard')->with('success', __('messages.billing.payment_received'));
         }
 
-        return redirect()->route('tenant.billing.upgrade')->with('warning', 'Pagamento em processamento. Aguarde a confirmação.');
+        return redirect()->route('tenant.billing.upgrade')->with('warning', __('messages.billing.payment_processing'));
     }
 
     public function pixStatus(): \Illuminate\Http\JsonResponse
@@ -72,7 +72,7 @@ class BillingController extends Controller
 
     public function cancel(): RedirectResponse
     {
-        return redirect()->route('tenant.billing.upgrade')->with('warning', 'Pagamento cancelado.');
+        return redirect()->route('tenant.billing.upgrade')->with('warning', __('messages.billing.payment_cancelled'));
     }
 
     public function portal(): RedirectResponse
@@ -81,7 +81,7 @@ class BillingController extends Controller
         $url = $this->payments->createStripePortalSession($tenant);
 
         if ($url === null) {
-            return back()->with('warning', 'Portal de assinatura indisponível no momento.');
+            return back()->with('warning', __('messages.billing.portal_unavailable'));
         }
 
         return redirect()->away($url);

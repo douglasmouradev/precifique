@@ -24,7 +24,7 @@ class TenantWelcomeMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Bem-vindo ao Precifique',
+            subject: __('mail.tenant_welcome.subject'),
         );
     }
 

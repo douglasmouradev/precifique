@@ -90,30 +90,30 @@
     @php $nf = $product->niche_fields ?? []; @endphp
     @if(!$beginner && $tenant->interface_mode === 'alimentos')
     <x-ui.card>
-        <h2 class="ui-section-title">Campos — Alimentos</h2>
+        <h2 class="ui-section-title">{{ __('pricing.niche_food.title') }}</h2>
         <div class="grid md:grid-cols-2 gap-4">
-            <div><label class="ui-label">Porção / rendimento</label><input name="niche_fields[portion_yield]" value="{{ $nf['portion_yield'] ?? '' }}" class="ui-input"></div>
-            <div><label class="ui-label">Validade</label><input name="niche_fields[shelf_life]" value="{{ $nf['shelf_life'] ?? '' }}" class="ui-input"></div>
-            <div><label class="ui-label">Temperatura armazenamento</label><input name="niche_fields[storage_temp]" value="{{ $nf['storage_temp'] ?? '' }}" class="ui-input"></div>
-            <div class="md:col-span-2"><label class="ui-label">Rótulo nutricional</label><textarea name="niche_fields[nutrition_label]" rows="2" class="ui-input">{{ $nf['nutrition_label'] ?? '' }}</textarea></div>
+            <div><label class="ui-label">{{ __('pricing.niche_food.portion_yield') }}</label><input name="niche_fields[portion_yield]" value="{{ $nf['portion_yield'] ?? '' }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.niche_food.shelf_life') }}</label><input name="niche_fields[shelf_life]" value="{{ $nf['shelf_life'] ?? '' }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.niche_food.storage_temp') }}</label><input name="niche_fields[storage_temp]" value="{{ $nf['storage_temp'] ?? '' }}" class="ui-input"></div>
+            <div class="md:col-span-2"><label class="ui-label">{{ __('pricing.niche_food.nutrition_label') }}</label><textarea name="niche_fields[nutrition_label]" rows="2" class="ui-input">{{ $nf['nutrition_label'] ?? '' }}</textarea></div>
         </div>
     </x-ui.card>
     @elseif(!$beginner && $tenant->interface_mode === 'servico')
     <x-ui.card>
-        <h2 class="ui-section-title">Campos — Serviços</h2>
+        <h2 class="ui-section-title">{{ __('pricing.niche_service.title') }}</h2>
         <div class="grid md:grid-cols-3 gap-4">
-            <div><label class="ui-label">Taxa mínima visita (R$)</label><input type="number" step="0.01" name="niche_fields[minimum_visit_fee]" value="{{ $nf['minimum_visit_fee'] ?? '' }}" class="ui-input"></div>
-            <div><label class="ui-label">Deslocamento (R$)</label><input type="number" step="0.01" name="niche_fields[travel_cost]" value="{{ $nf['travel_cost'] ?? '' }}" class="ui-input"></div>
-            <div><label class="ui-label">Ferramentas (R$)</label><input type="number" step="0.01" name="niche_fields[tools_cost]" value="{{ $nf['tools_cost'] ?? '' }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.niche_service.minimum_visit_fee') }}</label><input type="number" step="0.01" name="niche_fields[minimum_visit_fee]" value="{{ $nf['minimum_visit_fee'] ?? '' }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.niche_service.travel_cost') }}</label><input type="number" step="0.01" name="niche_fields[travel_cost]" value="{{ $nf['travel_cost'] ?? '' }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.niche_service.tools_cost') }}</label><input type="number" step="0.01" name="niche_fields[tools_cost]" value="{{ $nf['tools_cost'] ?? '' }}" class="ui-input"></div>
         </div>
-        <x-ui.button variant="outline" :href="route('tenant.quotes.pdf', $product)" class="mt-4">Baixar orçamento PDF</x-ui.button>
+        <x-ui.button variant="outline" :href="route('tenant.quotes.pdf', $product)" class="mt-4">{{ __('pricing.download_quote_pdf') }}</x-ui.button>
     </x-ui.card>
     @elseif(!$beginner && $tenant->interface_mode === 'artesanato')
     <x-ui.card>
-        <h2 class="ui-section-title">Campos — Artesanato</h2>
+        <h2 class="ui-section-title">{{ __('pricing.niche_handmade.title') }}</h2>
         <div class="grid md:grid-cols-2 gap-4">
-            <div><label class="ui-label">Coleção</label><input name="niche_fields[collection]" value="{{ $nf['collection'] ?? '' }}" class="ui-input"></div>
-            <div><label class="ui-label">Linha de produtos</label><input name="niche_fields[production_line]" value="{{ $nf['production_line'] ?? '' }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.niche_handmade.collection') }}</label><input name="niche_fields[collection]" value="{{ $nf['collection'] ?? '' }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.niche_handmade.production_line') }}</label><input name="niche_fields[production_line]" value="{{ $nf['production_line'] ?? '' }}" class="ui-input"></div>
         </div>
     </x-ui.card>
     @endif
@@ -141,7 +141,7 @@
     @if(!$beginner)
     <x-ui.card>
         <h2 class="ui-section-title">3. Custos variáveis e adicionais</h2>
-        <p class="text-sm text-slate-500 mb-3">Variáveis (energia, gás, etc.)</p>
+        <p class="text-sm text-slate-500 mb-3">{{ __('pricing.variables_hint') }}</p>
         <template x-for="(row, i) in variableCosts" :key="'v'+i">
             <div class="grid grid-cols-3 gap-2 mb-2">
                 <input :name="'variable_costs['+i+'][name]'" x-model="row.name" @input.debounce.400ms="updatePreview()" placeholder="Nome" class="ui-input col-span-2">
@@ -150,7 +150,7 @@
         </template>
         <button type="button" @click="variableCosts.push({name:'',amount:0})" class="text-brand text-sm font-semibold mb-6 block hover:text-brand-dark">+ Custo variável</button>
 
-        <p class="text-sm text-slate-500 mb-3">Adicionais (embalagem, etiqueta…)</p>
+        <p class="text-sm text-slate-500 mb-3">{{ __('pricing.additional_hint') }}</p>
         <template x-for="(row, i) in additionalCosts" :key="'a'+i">
             <div class="grid grid-cols-3 gap-2 mb-2">
                 <input :name="'additional_costs['+i+'][name]'" x-model="row.name" @input.debounce.400ms="updatePreview()" placeholder="Nome" class="ui-input col-span-2">
@@ -283,7 +283,7 @@
     @endif
 
     <div class="sticky bottom-4 z-20 flex justify-end">
-        <x-ui.button type="submit" class="py-3 px-10 shadow-lg shadow-brand/20 w-full md:w-auto">Salvar e calcular preço</x-ui.button>
+        <x-ui.button type="submit" class="py-3 px-10 shadow-lg shadow-brand/20 w-full md:w-auto">{{ __('pricing.save_and_calculate') }}</x-ui.button>
     </div>
 </form>
 </div>

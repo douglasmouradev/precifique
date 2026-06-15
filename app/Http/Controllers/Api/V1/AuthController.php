@@ -26,15 +26,15 @@ class AuthController extends Controller
 
         $tenant = Tenant::query()->where('email', $data['email'])->first();
         if (! $tenant || ! Hash::check($data['password'], $tenant->password)) {
-            return response()->json(['message' => 'Credenciais inválidas.'], 401);
+            return response()->json(['message' => __('messages.api.invalid_credentials')], 401);
         }
 
         if (! $tenant->is_active) {
-            return response()->json(['message' => 'Conta inativa.'], 403);
+            return response()->json(['message' => __('messages.api.inactive_account')], 403);
         }
 
         if (! $tenant->hasVerifiedEmail()) {
-            return response()->json(['message' => 'E-mail não verificado.'], 403);
+            return response()->json(['message' => __('messages.api.email_unverified')], 403);
         }
 
         $abilities = $data['abilities'] ?? TenantApiAbilities::defaultForLogin();

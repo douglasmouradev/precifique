@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <title>Orçamento — {{ $product->name }}</title>
+    <title>{{ __('quotes.quote.title', ['product' => $product->name]) }}</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #334155; margin: 0; padding: 32px; }
@@ -31,32 +31,32 @@
         </div>
     </div>
 
-    <h1>Orçamento — {{ $product->name }}</h1>
+    <h1>{{ __('quotes.quote.heading', ['product' => $product->name]) }}</h1>
     @if($product->description)
     <p class="product-desc">{{ $product->description }}</p>
     @endif
 
     <table>
         <thead>
-            <tr><th>Item</th><th style="text-align:right">Valor (R$)</th></tr>
+            <tr><th>{{ __('quotes.quote.item') }}</th><th style="text-align:right">{{ __('quotes.quote.value_brl') }}</th></tr>
         </thead>
         <tbody>
-            <tr><td>Custo de produção</td><td style="text-align:right">{{ number_format($breakdown['total_production'], 2, ',', '.') }}</td></tr>
-            <tr><td>Mão de obra</td><td style="text-align:right">{{ number_format($breakdown['labor_cost'], 2, ',', '.') }}</td></tr>
-            <tr><td>Margem de lucro ({{ $breakdown['profit_margin_pct'] }}%)</td><td style="text-align:right">{{ number_format($breakdown['profit_absolute'], 2, ',', '.') }}</td></tr>
+            <tr><td>{{ __('quotes.quote.production_cost') }}</td><td style="text-align:right">{{ number_format($breakdown['total_production'], 2, ',', '.') }}</td></tr>
+            <tr><td>{{ __('quotes.quote.labor') }}</td><td style="text-align:right">{{ number_format($breakdown['labor_cost'], 2, ',', '.') }}</td></tr>
+            <tr><td>{{ __('quotes.quote.profit_margin', ['pct' => $breakdown['profit_margin_pct']]) }}</td><td style="text-align:right">{{ number_format($breakdown['profit_absolute'], 2, ',', '.') }}</td></tr>
         </tbody>
     </table>
 
     <div class="total-box">
-        <p class="total-label">Valor proposto</p>
+        <p class="total-label">{{ __('quotes.quote.proposed_value') }}</p>
         <p class="total-value">R$ {{ number_format($breakdown['final_price'], 2, ',', '.') }}</p>
     </div>
 
-    <p class="validity">Orçamento válido por 7 dias a partir de {{ now()->format('d/m/Y') }}.</p>
+    <p class="validity">{{ __('quotes.quote.validity', ['date' => now()->format('d/m/Y')]) }}</p>
 
     <div class="footer">
-        Documento gerado pelo Precifique em {{ now()->format('d/m/Y H:i') }}.
-        @if($tenant->phone ?? false) · Contato: {{ $tenant->phone }} @endif
+        {{ __('quotes.quote.footer', ['datetime' => now()->format('d/m/Y H:i')]) }}
+        @if($tenant->phone ?? false) · {{ __('quotes.quote.contact') }} {{ $tenant->phone }} @endif
     </div>
 </body>
 </html>

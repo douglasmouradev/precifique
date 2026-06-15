@@ -116,7 +116,7 @@
                 type="button"
                 @click.stop="closeSidebar()"
                 class="shrink-0 p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors -mr-1 touch-manipulation"
-                aria-label="Fechar menu"
+                aria-label="{{ __('messages.sidebar.close_menu') }}"
             >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -143,14 +143,14 @@
                     @if($tenant?->isPremium())
                     <span class="ui-badge-premium">Premium</span>
                     @else
-                    <a href="{{ route('tenant.billing.upgrade') }}" class="ui-badge-brand hover:bg-brand/20 transition-colors">Fazer upgrade</a>
+                    <a href="{{ route('tenant.billing.upgrade') }}" class="ui-badge-brand hover:bg-brand/20 transition-colors">{{ __('app.account.upgrade') }}</a>
                     @endif
                 </div>
             </div>
             <div class="flex gap-2 text-xs">
-                <a href="{{ route('tenant.lgpd.portal') }}" class="ui-sidebar-link flex-1 justify-center py-2">Privacidade</a>
+                <a href="{{ route('tenant.lgpd.portal') }}" class="ui-sidebar-link flex-1 justify-center py-2">{{ __('app.nav.privacy') }}</a>
                 <form method="POST" action="{{ route('tenant.logout') }}" class="flex-1">@csrf
-                    <button type="submit" class="ui-sidebar-link w-full justify-center py-2 text-red-400/90 hover:text-red-300">Sair</button>
+                    <button type="submit" class="ui-sidebar-link w-full justify-center py-2 text-red-400/90 hover:text-red-300">{{ __('app.nav.logout') }}</button>
                 </form>
             </div>
         </div>
@@ -169,9 +169,9 @@
                         @click.stop="toggleSidebar()"
                         class="relative p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-colors touch-manipulation"
                         :aria-expanded="sidebarOpen"
-                        :aria-label="sidebarOpen ? 'Fechar menu' : 'Abrir menu'"
+                        :aria-label="sidebarOpen ? @js(__('messages.sidebar.close_menu')) : @js(__('messages.sidebar.open_menu'))"
                     >
-                        <span class="sr-only" x-text="sidebarOpen ? 'Fechar menu' : 'Abrir menu'"></span>
+                        <span class="sr-only" x-text="sidebarOpen ? @js(__('messages.sidebar.close_menu')) : @js(__('messages.sidebar.open_menu'))"></span>
                         <svg class="w-5 h-5 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 x-show="!sidebarOpen"
@@ -194,7 +194,7 @@
                     <x-ui.locale-switcher class="hidden sm:flex" />
                     <x-ui.notification-bell class="hidden sm:block" />
                     @if($tenant?->isPremium())
-                    <button @click="aiOpen=!aiOpen" class="ui-btn-outline px-3 py-2 text-xs hidden sm:inline-flex">Assistente</button>
+                    <button @click="aiOpen=!aiOpen" class="ui-btn-outline px-3 py-2 text-xs hidden sm:inline-flex">{{ __('messages.sidebar.assistant') }}</button>
                     @endif
                     @yield('header-actions')
                 </div>
@@ -209,9 +209,9 @@
         @endif
         @if(session()->has('impersonating_from_admin'))
         <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-violet-50 text-violet-900 text-sm border border-violet-200 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <span><strong>Modo suporte:</strong> você está visualizando a conta do cliente.</span>
+            <span>{{ __('messages.support_mode') }}</span>
             <form method="POST" action="{{ route('tenant.impersonate.stop') }}">@csrf
-                <button type="submit" class="text-sm font-semibold text-violet-700 hover:underline">Sair e voltar ao admin</button>
+                <button type="submit" class="text-sm font-semibold text-violet-700 hover:underline">{{ __('messages.support_exit') }}</button>
             </form>
         </div>
         @endif
