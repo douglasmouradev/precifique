@@ -98,8 +98,8 @@ class EnsureDemoTenantCommand extends Command
         );
 
         TechnicalSheet::where('product_id', $product->id)->delete();
-        TechnicalSheet::create(['product_id' => $product->id, 'material_name' => 'Chocolate', 'quantity' => 200, 'unit' => 'g', 'unit_cost' => 0.04]);
-        TechnicalSheet::create(['product_id' => $product->id, 'material_name' => 'Pote 250ml', 'quantity' => 1, 'unit' => 'un', 'unit_cost' => 1.20]);
+        TechnicalSheet::create(['tenant_id' => $tenant->id, 'product_id' => $product->id, 'material_name' => 'Chocolate', 'quantity' => 200, 'unit' => 'g', 'unit_cost' => 0.04]);
+        TechnicalSheet::create(['tenant_id' => $tenant->id, 'product_id' => $product->id, 'material_name' => 'Pote 250ml', 'quantity' => 1, 'unit' => 'un', 'unit_cost' => 1.20]);
 
         if ($product->sales()->count() === 0) {
             Sale::create([

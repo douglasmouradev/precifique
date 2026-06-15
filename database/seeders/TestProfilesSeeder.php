@@ -61,8 +61,8 @@ class TestProfilesSeeder extends Seeder
         );
 
         TechnicalSheet::where('product_id', $product->id)->delete();
-        TechnicalSheet::create(['product_id' => $product->id, 'material_name' => 'Chocolate', 'quantity' => 200, 'unit' => 'g', 'unit_cost' => 0.04]);
-        TechnicalSheet::create(['product_id' => $product->id, 'material_name' => 'Pote 250ml', 'quantity' => 1, 'unit' => 'un', 'unit_cost' => 1.20]);
+        TechnicalSheet::create(['tenant_id' => $tenant->id, 'product_id' => $product->id, 'material_name' => 'Chocolate', 'quantity' => 200, 'unit' => 'g', 'unit_cost' => 0.04]);
+        TechnicalSheet::create(['tenant_id' => $tenant->id, 'product_id' => $product->id, 'material_name' => 'Pote 250ml', 'quantity' => 1, 'unit' => 'un', 'unit_cost' => 1.20]);
 
         if ($tenant->sales()->count() === 0) {
             Sale::create([
@@ -199,8 +199,8 @@ class TestProfilesSeeder extends Seeder
         );
 
         TechnicalSheet::where('product_id', $product->id)->delete();
-        TechnicalSheet::create(['product_id' => $product->id, 'material_name' => 'Argila', 'quantity' => 1500, 'unit' => 'g', 'unit_cost' => 0.012]);
-        TechnicalSheet::create(['product_id' => $product->id, 'material_name' => 'Esmalte', 'quantity' => 100, 'unit' => 'ml', 'unit_cost' => 0.08]);
+        TechnicalSheet::create(['tenant_id' => $tenant->id, 'product_id' => $product->id, 'material_name' => 'Argila', 'quantity' => 1500, 'unit' => 'g', 'unit_cost' => 0.012]);
+        TechnicalSheet::create(['tenant_id' => $tenant->id, 'product_id' => $product->id, 'material_name' => 'Esmalte', 'quantity' => 100, 'unit' => 'ml', 'unit_cost' => 0.08]);
     }
 
     private function seedOnboardingPendente(): void
