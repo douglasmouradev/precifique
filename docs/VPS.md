@@ -159,25 +159,27 @@ chmod +x scripts/deploy-vps.sh
 
 ```bash
 cd /www/wwwroot/precifique.tdesksolutions.com.br
+chmod +x scripts/fix-production-500.sh
+./scripts/fix-production-500.sh
+```
+
+Ou manualmente:
+
+```bash
+cd /www/wwwroot/precifique.tdesksolutions.com.br
 tail -50 storage/logs/laravel.log
 
-# Limpar caches (ordem importa)
-/www/server/php/83/bin/php artisan optimize:clear
-/www/server/php/83/bin/php artisan config:cache
-/www/server/php/83/bin/php artisan view:cache
-
-# Permissões
 chown -R www:www storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# Se Redis não estiver rodando, use file no .env:
-# SESSION_DRIVER=file
-# CACHE_STORE=file
-# QUEUE_CONNECTION=sync
-# Depois: php artisan config:cache
-```
+/www/server/php/83/bin/php artisan optimize:clear
+/www/server/php/83/bin/php artisan config:cache
+/www/server/php/83/bin/php artisan route:cache
+/www/server/php/83/bin/php artisan view:cache
 
-Causas frequentes: **Redis parado** com `SESSION_DRIVER=redis`, cache de config desatualizado, ou `storage/` sem permissão de escrita.
+chown -R www:www storage bootstrap/cache
+/etc/init.d/php-fpm-83 restart
+```
 
 ### Corrigir `.env` já existente (rápido)
 

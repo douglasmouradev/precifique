@@ -37,12 +37,16 @@ php artisan storage:link --force 2>/dev/null || true
 php artisan precifique:ensure-plans
 php artisan precifique:ensure-admin
 php artisan precifique:preflight
+php artisan scripts/generate-icons.php 2>/dev/null || true
 
-sudo chown -R "$APP_USER:$APP_USER" storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
+chown -R "$APP_USER:$APP_USER" storage bootstrap/cache public/images public/apple-touch-icon.png public/apple-touch-icon-precomposed.png 2>/dev/null || true
+chmod -R 775 storage bootstrap/cache
 
+php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+
+chown -R "$APP_USER:$APP_USER" storage bootstrap/cache
 
 echo "==> Deploy concluído. Configure Nginx + Supervisor (veja docs/VPS.md)"
