@@ -37,7 +37,7 @@ php artisan storage:link --force 2>/dev/null || true
 php artisan precifique:ensure-plans
 php artisan precifique:ensure-admin
 php artisan precifique:preflight
-php artisan scripts/generate-icons.php 2>/dev/null || true
+php scripts/generate-icons.php 2>/dev/null || true
 
 chown -R "$APP_USER:$APP_USER" storage bootstrap/cache public/images public/apple-touch-icon.png public/apple-touch-icon-precomposed.png 2>/dev/null || true
 chmod -R 775 storage bootstrap/cache
