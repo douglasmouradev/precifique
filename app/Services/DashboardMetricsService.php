@@ -8,6 +8,7 @@ use App\Enums\PaymentMethod;
 use App\Models\MonthlyGoal;
 use App\Models\Sale;
 use App\Models\Tenant;
+use App\Support\SalePeriod;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -43,11 +44,11 @@ class DashboardMetricsService
     private function build(Tenant $tenant): array
     {
         $now = now();
+        [$monthStart, $monthEnd] = SalePeriod::bounds($now->year, $now->month);
 
         $monthStats = Sale::query()
             ->where('tenant_id', $tenant->id)
-            ->whereYear('sold_at', $now->year)
-            ->whereMonth('sold_at', $now->month)
+            ->whereBetween('sold_at', [$monthStart, $monthEnd])
             ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue, COUNT(*) as sales_count')
             ->first();
 
@@ -63,13 +64,14 @@ class DashboardMetricsService
         $goalAmount = (float) ($goal?->goal_amount ?? 0);
         $goalProgress = $goalAmount > 0 ? min(100, ($monthRevenue / $goalAmount) * 100) : 0;
 
-        $productsCount = $tenant->products()->where('is_active', true)->count();
-        $productsWithoutPrice = $tenant->products()
+        $productStats = $tenant->products()
             ->where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('selling_price')->orWhere('selling_price', '<=', 0);
-            })
-            ->count();
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw('SUM(CASE WHEN selling_price IS NULL OR selling_price <= 0 THEN 1 ELSE 0 END) as without_price')
+            ->first();
+
+        $productsCount = (int) ($productStats->total ?? 0);
+        $productsWithoutPrice = (int) ($productStats->without_price ?? 0);
         $fixedCostsCount = $tenant->fixedCosts()->where('is_active', true)->count();
 
         $onboardingSteps = [
@@ -114,8 +116,7 @@ class DashboardMetricsService
 
         $paymentCountsRaw = Sale::query()
             ->where('tenant_id', $tenant->id)
-            ->whereYear('sold_at', $now->year)
-            ->whereMonth('sold_at', $now->month)
+            ->whereBetween('sold_at', [$monthStart, $monthEnd])
             ->select('payment_method', DB::raw('COUNT(*) as count'))
             ->groupBy('payment_method')
             ->pluck('count', 'payment_method');
@@ -131,14 +132,13 @@ class DashboardMetricsService
 
         $topProducts = Sale::query()
             ->where('tenant_id', $tenant->id)
-            ->whereYear('sold_at', $now->year)
-            ->whereMonth('sold_at', $now->month)
+            ->whereBetween('sold_at', [$monthStart, $monthEnd])
             ->select('product_id', DB::raw('SUM(quantity) as qty'))
-            ->with('product:id,name')
             ->groupBy('product_id')
             ->orderByDesc('qty')
             ->limit(5)
-            ->get();
+            ->get()
+            ->load(['product:id,name']);
 
         $recentSales = Sale::query()
             ->where('tenant_id', $tenant->id)

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\MonthlyReportRequest;
 use App\Services\ReportService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -16,13 +16,10 @@ class ReportController extends Controller
         private readonly ReportService $reports,
     ) {}
 
-    public function monthly(Request $request): BinaryFileResponse
+    public function monthly(MonthlyReportRequest $request): BinaryFileResponse
     {
         $tenant = Auth::guard('tenant')->user();
-        $year = (int) $request->get('year', now()->year);
-        $month = (int) $request->get('month', now()->month);
-
-        $path = $this->reports->generateMonthlyReport($tenant, $year, $month);
+        $path = $this->reports->generateMonthlyReport($tenant, $request->year(), $request->month());
 
         return response()->download($path, basename($path));
     }

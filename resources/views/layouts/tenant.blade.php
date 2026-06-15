@@ -201,13 +201,13 @@
         </header>
 
         @if(session('success'))
-        <div class="px-4 md:px-8 pt-4 hidden" data-flash="success">{{ session('success') }}</div>
+        <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm border border-emerald-200 px-4 py-3" data-flash="success" role="status" aria-live="polite">{{ session('success') }}</div>
         @endif
         @if(session('warning'))
-        <div class="px-4 md:px-8 pt-4 hidden" data-flash="warning">{{ session('warning') }}</div>
+        <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-amber-50 text-amber-800 text-sm border border-amber-200 px-4 py-3" data-flash="warning" role="status" aria-live="polite">{{ session('warning') }}</div>
         @endif
         @if(session('error'))
-        <div class="px-4 md:px-8 pt-4 hidden" data-flash="error">{{ session('error') }}</div>
+        <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-red-50 text-red-800 text-sm border border-red-200 px-4 py-3" data-flash="error" role="alert" aria-live="assertive">{{ session('error') }}</div>
         @endif
 
         <main class="flex-1 px-4 md:px-8 py-6 md:py-8 app-shell-bg">

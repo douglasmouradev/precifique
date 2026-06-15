@@ -7,25 +7,57 @@ namespace App\Jobs;
 use App\Mail\LowStockAlertMail;
 use App\Models\Product;
 use App\Models\Tenant;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
-class LowStockAlertJob implements ShouldQueue
+class LowStockAlertJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
+    public int $tries = 3;
+
+    public int $uniqueFor = 3600;
+
+    public function uniqueId(): string
+    {
+        return 'low-stock-alert-'.now()->toDateString();
+    }
+
     public function handle(): void
     {
-        Tenant::where('is_active', true)->each(function (Tenant $tenant): void {
-            $lowStock = Product::where('tenant_id', $tenant->id)
-                ->where('is_active', true)
-                ->whereColumn('stock_quantity', '<=', 'min_stock_alert')
-                ->get();
+        $cacheKey = 'low_stock_alert_sent_'.now()->toDateString();
+        if (Cache::has($cacheKey)) {
+            return;
+        }
 
-            if ($lowStock->isNotEmpty()) {
-                Mail::to($tenant->email)->send(new LowStockAlertMail($tenant, $lowStock));
+        $lowStockByTenant = Product::query()
+            ->where('is_active', true)
+            ->whereColumn('stock_quantity', '<=', 'min_stock_alert')
+            ->whereIn('tenant_id', Tenant::query()->where('is_active', true)->select('id'))
+            ->get()
+            ->groupBy('tenant_id');
+
+        if ($lowStockByTenant->isEmpty()) {
+            Cache::put($cacheKey, true, now()->endOfDay());
+
+            return;
+        }
+
+        $tenants = Tenant::query()
+            ->whereIn('id', $lowStockByTenant->keys())
+            ->get()
+            ->keyBy('id');
+
+        foreach ($lowStockByTenant as $tenantId => $products) {
+            $tenant = $tenants->get($tenantId);
+            if ($tenant) {
+                Mail::to($tenant->email)->send(new LowStockAlertMail($tenant, $products));
             }
-        });
+        }
+
+        Cache::put($cacheKey, true, now()->endOfDay());
     }
 }

@@ -42,6 +42,7 @@ class TenantManagementController extends Controller
             'interface_mode' => $data['niche'] === 'outro' ? 'artesanato' : $data['niche'],
             'plan' => $data['plan'],
             'onboarding_completed' => true,
+            'profile_setup_completed' => true,
             'created_by' => Auth::id(),
             'trial_ends_at' => now()->addDays(14),
         ]);

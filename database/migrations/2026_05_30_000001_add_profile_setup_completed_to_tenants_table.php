@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,7 +15,7 @@ return new class extends Migration
             $table->boolean('profile_setup_completed')->default(false)->after('onboarding_completed');
         });
 
-        \Illuminate\Support\Facades\DB::table('tenants')
+        DB::table('tenants')
             ->where('onboarding_completed', true)
             ->update(['profile_setup_completed' => true]);
     }

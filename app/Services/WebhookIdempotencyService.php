@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class WebhookIdempotencyService
 {
     /**
-     * Processa o webhook apenas se o event_id ainda não foi registrado.
+     * Processa o webhook apenas se o event_id ainda não foi registrado com sucesso.
      *
      * @param  callable(): bool  $handler
      */
@@ -31,13 +31,17 @@ class WebhookIdempotencyService
                 return true;
             }
 
+            if (! $handler()) {
+                return false;
+            }
+
             WebhookEvent::create([
                 'provider' => $provider,
                 'event_id' => $eventId,
                 'processed_at' => now(),
             ]);
 
-            return $handler();
+            return true;
         });
     }
 }

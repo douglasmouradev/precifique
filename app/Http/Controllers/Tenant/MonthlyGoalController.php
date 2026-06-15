@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Events\TenantDashboardChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreMonthlyGoalRequest;
 use App\Models\MonthlyGoal;
-use App\Services\DashboardMetricsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class MonthlyGoalController extends Controller
 {
-    public function __construct(
-        private readonly DashboardMetricsService $dashboardMetrics,
-    ) {}
-
     public function edit(): View
     {
         $tenant = Auth::guard('tenant')->user();
@@ -35,7 +32,15 @@ class MonthlyGoalController extends Controller
     {
         $tenant = Auth::guard('tenant')->user();
 
-        MonthlyGoal::updateOrCreate(
+        $goal = new MonthlyGoal([
+            'tenant_id' => $tenant->id,
+            'year' => $request->integer('year'),
+            'month' => $request->integer('month'),
+        ]);
+
+        Gate::forUser($tenant)->authorize('update', $goal);
+
+        $goal = MonthlyGoal::updateOrCreate(
             [
                 'tenant_id' => $tenant->id,
                 'year' => $request->integer('year'),
@@ -44,7 +49,7 @@ class MonthlyGoalController extends Controller
             ['goal_amount' => $request->input('goal_amount')]
         );
 
-        $this->dashboardMetrics->forget($tenant);
+        TenantDashboardChanged::dispatch($tenant);
 
         return redirect()->route('tenant.dashboard')->with('success', 'Meta do mês definida.');
     }

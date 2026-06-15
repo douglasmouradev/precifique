@@ -20,7 +20,7 @@
     </header>
 
     @if(session('success'))
-    <div class="max-w-3xl mx-auto px-4 pt-4 hidden" data-flash="success">{{ session('success') }}</div>
+    <div class="max-w-3xl mx-auto px-4 pt-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm border border-emerald-200" data-flash="success" role="status">{{ session('success') }}</div>
     @endif
 
     <main>@yield('content')</main>

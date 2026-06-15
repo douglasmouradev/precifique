@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\TenantManagementController;
+use App\Http\Controllers\Admin\TwoFactorController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Tenant\BillingController;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
@@ -32,17 +36,17 @@ Route::get('/sitemap.xml', function () {
 Route::post('/webhooks/stripe', [BillingController::class, 'stripeWebhook'])
     ->middleware('throttle:webhooks')
     ->name('webhooks.stripe')
-    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    ->withoutMiddleware([VerifyCsrfToken::class]);
 
 Route::post('/webhooks/mercadopago', [BillingController::class, 'mercadopagoWebhook'])
     ->middleware('throttle:webhooks')
     ->name('webhooks.mercadopago')
-    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    ->withoutMiddleware([VerifyCsrfToken::class]);
 
 Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/two-factor', [\App\Http\Controllers\Admin\TwoFactorController::class, 'show'])->name('two-factor.show');
-    Route::post('/two-factor/confirm', [\App\Http\Controllers\Admin\TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
-    Route::delete('/two-factor', [\App\Http\Controllers\Admin\TwoFactorController::class, 'destroy'])->name('two-factor.destroy');
+    Route::get('/two-factor', [TwoFactorController::class, 'show'])->name('two-factor.show');
+    Route::post('/two-factor/confirm', [TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
+    Route::delete('/two-factor', [TwoFactorController::class, 'destroy'])->name('two-factor.destroy');
 });
 
 Route::middleware(['auth', 'superadmin', 'admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
@@ -52,9 +56,9 @@ Route::middleware(['auth', 'superadmin', 'admin.2fa'])->prefix('admin')->name('a
     Route::post('/tenants', [TenantManagementController::class, 'store'])->name('tenants.store');
     Route::patch('/tenants/{tenant}/toggle', [TenantManagementController::class, 'toggle'])->name('tenants.toggle');
     Route::get('/lgpd', [AdminDashboardController::class, 'lgpd'])->name('lgpd');
-    Route::get('/plans', [\App\Http\Controllers\Admin\PlanController::class, 'index'])->name('plans.index');
-    Route::patch('/plans/{plan}', [\App\Http\Controllers\Admin\PlanController::class, 'update'])->name('plans.update');
-    Route::get('/logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('logs.index');
+    Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
+    Route::patch('/plans/{plan}', [PlanController::class, 'update'])->name('plans.update');
+    Route::get('/logs', [AuditLogController::class, 'index'])->name('logs.index');
 });
 
 Route::middleware('auth')->get('/dashboard', function () {

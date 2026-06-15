@@ -33,8 +33,25 @@ class TenantApiToken extends Model
         return $this->belongsTo(Tenant::class);
     }
 
-    public static function issue(Tenant $tenant, string $name, array $abilities = ['*']): string
+    public static function issue(Tenant $tenant, string $name, array $abilities = ['dashboard:read']): string
     {
+        $max = (int) config('precifique.api.max_tokens_per_tenant', 10);
+        $activeCount = static::query()
+            ->where('tenant_id', $tenant->id)
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->count();
+
+        if ($activeCount >= $max) {
+            static::query()
+                ->where('tenant_id', $tenant->id)
+                ->orderBy('last_used_at')
+                ->orderBy('created_at')
+                ->limit($activeCount - $max + 1)
+                ->delete();
+        }
+
         $plain = Str::random(64);
 
         static::create([
@@ -46,6 +63,13 @@ class TenantApiToken extends Model
         ]);
 
         return $plain;
+    }
+
+    public function hasAbility(string $ability): bool
+    {
+        $abilities = $this->abilities ?? [];
+
+        return in_array('*', $abilities, true) || in_array($ability, $abilities, true);
     }
 
     public static function findByPlainToken(string $plain): ?self

@@ -10,12 +10,15 @@ return [
 
     'exports' => [
         'sales_async_threshold' => (int) env('SALES_EXPORT_ASYNC_THRESHOLD', 200),
+        'retention_days' => (int) env('EXPORT_RETENTION_DAYS', 30),
     ],
 
     'uploads' => [
         'product_image_max_kb' => (int) env('PRODUCT_IMAGE_MAX_KB', 4096),
         'product_image_max_width' => (int) env('PRODUCT_IMAGE_MAX_WIDTH', 4000),
         'product_image_max_height' => (int) env('PRODUCT_IMAGE_MAX_HEIGHT', 4000),
+        'product_image_display_max_width' => (int) env('PRODUCT_IMAGE_DISPLAY_MAX_WIDTH', 1200),
+        'product_image_jpeg_quality' => (int) env('PRODUCT_IMAGE_JPEG_QUALITY', 85),
         'allowed_mimes' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     ],
 
@@ -26,6 +29,10 @@ return [
     'monitoring' => [
         'sentry_dsn' => env('SENTRY_LARAVEL_DSN'),
         'health_token' => env('HEALTH_CHECK_TOKEN'),
+    ],
+
+    'api' => [
+        'max_tokens_per_tenant' => (int) env('API_MAX_TOKENS_PER_TENANT', 10),
     ],
 
 ];

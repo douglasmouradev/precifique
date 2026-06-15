@@ -13,6 +13,7 @@ use App\Http\Controllers\Tenant\LGPDController;
 use App\Http\Controllers\Tenant\MonthlyGoalController;
 use App\Http\Controllers\Tenant\PricingController;
 use App\Http\Controllers\Tenant\ProductController;
+use App\Http\Controllers\Tenant\ProfileSetupController;
 use App\Http\Controllers\Tenant\QuoteController;
 use App\Http\Controllers\Tenant\ReportController;
 use App\Http\Controllers\Tenant\SaleController;
@@ -37,7 +38,7 @@ Route::post('/sair', [TenantAuthController::class, 'logout'])
     ->name('tenant.logout');
 
 Route::middleware('auth:tenant')->group(function () {
-    Route::prefix('onboarding')->name('onboarding.')->group(function () {
+    Route::prefix('onboarding')->name('onboarding.')->middleware('throttle:tenant-onboarding')->group(function () {
         Route::get('/welcome', [OnboardingController::class, 'welcome'])->name('welcome');
         Route::get('/pular', [OnboardingController::class, 'skip'])->name('skip');
         Route::get('/niche', [OnboardingController::class, 'niche'])->name('niche');
@@ -54,14 +55,14 @@ Route::middleware('auth:tenant')->group(function () {
     Route::post('/lgpd/consentimento', [LGPDController::class, 'storeConsent'])->name('lgpd.consent.store');
 
     Route::prefix('app')->name('tenant.')->group(function () {
-        Route::get('/monte-seu-perfil', [\App\Http\Controllers\Tenant\ProfileSetupController::class, 'show'])->name('profile.setup');
-        Route::post('/monte-seu-perfil', [\App\Http\Controllers\Tenant\ProfileSetupController::class, 'store'])->name('profile.setup.store');
+        Route::get('/monte-seu-perfil', [ProfileSetupController::class, 'show'])->name('profile.setup');
+        Route::post('/monte-seu-perfil', [ProfileSetupController::class, 'store'])->name('profile.setup.store');
     });
 });
 
 Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->group(function () {
-    Route::get('/perfil', [\App\Http\Controllers\Tenant\ProfileSetupController::class, 'edit'])->name('profile.edit');
-    Route::put('/perfil', [\App\Http\Controllers\Tenant\ProfileSetupController::class, 'update'])->name('profile.update');
+    Route::get('/perfil', [ProfileSetupController::class, 'edit'])->name('profile.edit');
+    Route::put('/perfil', [ProfileSetupController::class, 'update'])->name('profile.update');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -97,12 +98,20 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
         ->name('ai.chat');
 
     Route::get('/lgpd/portal', [LGPDController::class, 'portal'])->name('lgpd.portal');
-    Route::get('/lgpd/export', [LGPDController::class, 'export'])->name('lgpd.export');
+    Route::get('/lgpd/export', [LGPDController::class, 'export'])
+        ->middleware('throttle:tenant-lgpd-export')
+        ->name('lgpd.export');
     Route::delete('/lgpd/account', [LGPDController::class, 'destroyAccount'])->name('lgpd.destroy');
 
     Route::get('/billing/upgrade', [BillingController::class, 'upgrade'])->name('billing.upgrade');
-    Route::post('/billing/stripe', [BillingController::class, 'stripeCheckout'])->name('billing.stripe');
-    Route::get('/billing/pix', [BillingController::class, 'pix'])->name('billing.pix');
-    Route::get('/billing/success', [BillingController::class, 'success'])->name('billing.success');
+    Route::post('/billing/stripe', [BillingController::class, 'stripeCheckout'])
+        ->middleware('throttle:tenant-billing')
+        ->name('billing.stripe');
+    Route::get('/billing/pix', [BillingController::class, 'pix'])
+        ->middleware('throttle:tenant-billing')
+        ->name('billing.pix');
+    Route::get('/billing/success', [BillingController::class, 'success'])
+        ->middleware('throttle:tenant-billing')
+        ->name('billing.success');
     Route::get('/billing/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
 });

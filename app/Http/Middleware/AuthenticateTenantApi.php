@@ -31,6 +31,7 @@ class AuthenticateTenantApi
         }
 
         $token->forceFill(['last_used_at' => now()])->save();
+        $request->attributes->set('tenant_api_token', $token);
         Auth::shouldUse('tenant');
         Auth::guard('tenant')->setUser($tenant);
         app()->instance('currentTenant', $tenant);

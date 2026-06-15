@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\LgpdConsent;
 use App\Models\Tenant;
+use App\Models\TenantApiToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -93,12 +94,14 @@ class LGPDService
             $tenant->lgpdConsents()->delete();
             $tenant->auditLogs()->delete();
             $tenant->subscription()?->delete();
+            TenantApiToken::query()->where('tenant_id', $tenant->id)->delete();
 
             if ($tenant->logo_path) {
                 Storage::disk('public')->delete($tenant->logo_path);
             }
 
             Storage::disk('local')->deleteDirectory('reports/'.$tenant->id);
+            Storage::disk('local')->deleteDirectory('exports/tenant-'.$tenant->id);
 
             $anonId = Str::uuid()->toString();
 

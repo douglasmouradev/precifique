@@ -9,6 +9,8 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\Stripe;
@@ -47,10 +49,10 @@ class PaymentService
         return $session->url ?? route('tenant.dashboard');
     }
 
-    public function verifyStripeSession(string $sessionId): bool
+    public function verifyStripeSession(string $sessionId, int $expectedTenantId): bool
     {
         $secret = (string) config('services.stripe.secret');
-        if ($secret === '' || $sessionId === '') {
+        if ($secret === '' || $sessionId === '' || $expectedTenantId <= 0) {
             return false;
         }
 
@@ -62,8 +64,18 @@ class PaymentService
                 return false;
             }
 
+            $sessionTenantId = (int) ($session->metadata->tenant_id ?? 0);
+            if ($sessionTenantId !== $expectedTenantId) {
+                Log::warning('Stripe session tenant mismatch', [
+                    'expected' => $expectedTenantId,
+                    'session_tenant' => $sessionTenantId,
+                ]);
+
+                return false;
+            }
+
             return $this->activatePremium(
-                (int) ($session->metadata->tenant_id ?? 0),
+                $sessionTenantId,
                 (int) ($session->metadata->plan_id ?? 0),
                 $session->subscription ?? null,
                 null,
@@ -87,7 +99,7 @@ class PaymentService
             return ['error' => 'Mercado Pago não configurado.'];
         }
 
-        $response = \Illuminate\Support\Facades\Http::withToken($accessToken)
+        $response = Http::withToken($accessToken)
             ->post('https://api.mercadopago.com/v1/payments', [
                 'transaction_amount' => (float) $plan->price_monthly,
                 'description' => "Precifique Premium — {$tenant->name}",
@@ -146,6 +158,12 @@ class PaymentService
 
     public function handleMercadoPagoWebhook(Request $request): bool
     {
+        if (! $this->validateMercadoPagoSignature($request)) {
+            Log::warning('Mercado Pago webhook rejected: invalid signature');
+
+            return false;
+        }
+
         $data = $request->all();
         $type = $data['type'] ?? $data['action'] ?? null;
 
@@ -165,7 +183,7 @@ class PaymentService
             return false;
         }
 
-        $response = \Illuminate\Support\Facades\Http::withToken($accessToken)
+        $response = Http::withToken($accessToken)
             ->get("https://api.mercadopago.com/v1/payments/{$paymentId}");
 
         if (! $response->successful()) {
@@ -291,41 +309,86 @@ class PaymentService
             $subscriptionEnds = now()->addDays((int) config('tenancy.pix_subscription_days', 30));
         }
 
-        $tenant->update(['plan' => PlanType::Premium]);
+        return DB::transaction(function () use ($tenant, $plan, $stripeSubscriptionId, $mercadopagoPaymentId, $subscriptionEnds) {
+            $tenant->update(['plan' => PlanType::Premium]);
 
-        Subscription::updateOrCreate(
-            ['tenant_id' => $tenant->id],
-            [
-                'plan_id' => $plan->id,
-                'status' => 'active',
-                'stripe_subscription_id' => $stripeSubscriptionId,
-                'mercadopago_payment_id' => $mercadopagoPaymentId,
-                'starts_at' => now(),
-                'ends_at' => $subscriptionEnds,
-            ]
-        );
+            Subscription::updateOrCreate(
+                ['tenant_id' => $tenant->id],
+                [
+                    'plan_id' => $plan->id,
+                    'status' => 'active',
+                    'stripe_subscription_id' => $stripeSubscriptionId,
+                    'mercadopago_payment_id' => $mercadopagoPaymentId,
+                    'starts_at' => now(),
+                    'ends_at' => $subscriptionEnds,
+                ]
+            );
 
-        return true;
+            AdminMetricsService::forgetCache();
+
+            return true;
+        });
     }
 
     private function deactivatePremium(Subscription $subscription): bool
     {
-        $subscription->update([
-            'status' => 'cancelled',
-            'ends_at' => $subscription->ends_at ?? now(),
-        ]);
+        return DB::transaction(function () use ($subscription) {
+            $subscription->update([
+                'status' => 'cancelled',
+                'ends_at' => $subscription->ends_at ?? now(),
+            ]);
 
-        $tenant = $subscription->tenant;
-        if (! $tenant) {
+            $tenant = $subscription->tenant;
+            if (! $tenant) {
+                return true;
+            }
+
+            if ($tenant->onTrial()) {
+                return true;
+            }
+
+            $tenant->update(['plan' => PlanType::Basic]);
+            AdminMetricsService::forgetCache();
+
             return true;
+        });
+    }
+
+    private function validateMercadoPagoSignature(Request $request): bool
+    {
+        $secret = (string) config('services.mercadopago.webhook_secret', '');
+
+        if ($secret === '') {
+            return ! app()->environment('production');
         }
 
-        if ($tenant->onTrial()) {
-            return true;
+        $xSignature = (string) $request->header('x-signature', '');
+        $xRequestId = (string) $request->header('x-request-id', '');
+        $dataId = (string) ($request->input('data.id') ?? '');
+
+        if ($xSignature === '' || $xRequestId === '' || $dataId === '') {
+            return false;
         }
 
-        $tenant->update(['plan' => PlanType::Basic]);
+        $ts = null;
+        $hash = null;
+        foreach (explode(',', $xSignature) as $part) {
+            [$key, $value] = array_pad(explode('=', trim($part), 2), 2, null);
+            if ($key === 'ts') {
+                $ts = $value;
+            }
+            if ($key === 'v1') {
+                $hash = $value;
+            }
+        }
 
-        return true;
+        if ($ts === null || $hash === null) {
+            return false;
+        }
+
+        $manifest = "id:{$dataId};request-id:{$xRequestId};ts:{$ts};";
+        $expected = hash_hmac('sha256', $manifest, $secret);
+
+        return hash_equals($expected, $hash);
     }
 }

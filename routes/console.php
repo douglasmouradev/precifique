@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Jobs\ExpireSubscriptionsJob;
-use App\Jobs\NotifyTrialExpiringJob;
 use App\Jobs\LowStockAlertJob;
+use App\Jobs\NotifyTrialExpiringJob;
 use App\Jobs\SendMonthlyGoalReminderJob;
 use App\Jobs\SendMonthlyReportJob;
 use Illuminate\Foundation\Inspiring;

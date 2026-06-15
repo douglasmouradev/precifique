@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Events\SaleRecorded;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreSaleRequest;
-use App\Events\SaleRecorded;
 use App\Jobs\ExportSalesCsvJob;
-use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleExportRequest;
 use App\Services\AuditService;
 use App\Services\SalesExportService;
+use App\Support\SalePeriod;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -30,26 +33,30 @@ class SaleController extends Controller
     public function index(Request $request): View
     {
         $tenant = Auth::guard('tenant')->user();
-        $query = $this->filteredSalesQuery($tenant, $request);
+        $filters = $request->only(['payment_method', 'month', 'year']);
+        $query = $this->filteredSalesQuery($tenant, $filters);
 
-        $sales = (clone $query)->paginate(15)->withQueryString();
+        $stats = (clone $query)
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as total_revenue, COUNT(*) as sales_count')
+            ->first();
 
-        $summaryQuery = $this->filteredSalesQuery($tenant, $request);
-        $totalRevenue = (float) (clone $summaryQuery)->sum('total_amount');
-        $salesCount = (clone $summaryQuery)->count();
-
-        $paymentBreakdown = (clone $summaryQuery)
+        $paymentBreakdown = (clone $query)
             ->selectRaw('payment_method, COUNT(*) as count, SUM(total_amount) as total')
             ->groupBy('payment_method')
             ->get()
             ->keyBy('payment_method');
 
+        $sales = (clone $query)
+            ->with('product:id,name')
+            ->paginate(15)
+            ->withQueryString();
+
         return view('sales.index', [
             'sales' => $sales,
-            'totalRevenue' => $totalRevenue,
-            'salesCount' => $salesCount,
+            'totalRevenue' => (float) ($stats->total_revenue ?? 0),
+            'salesCount' => (int) ($stats->sales_count ?? 0),
             'paymentBreakdown' => $paymentBreakdown,
-            'filters' => $request->only(['payment_method', 'month', 'year']),
+            'filters' => $filters,
         ]);
     }
 
@@ -57,7 +64,7 @@ class SaleController extends Controller
     {
         $tenant = Auth::guard('tenant')->user();
         $filters = $request->only(['payment_method', 'month', 'year']);
-        $count = $this->filteredSalesQuery($tenant, $request)->count();
+        $count = $this->filteredSalesQuery($tenant, $filters)->count();
         $threshold = (int) config('precifique.exports.sales_async_threshold', 200);
 
         if ($count > $threshold) {
@@ -114,24 +121,38 @@ class SaleController extends Controller
     public function store(StoreSaleRequest $request): RedirectResponse
     {
         $tenant = Auth::guard('tenant')->user();
-        $product = $tenant->products()->findOrFail($request->integer('product_id'));
+        $quantity = $request->integer('quantity');
 
-        $sale = Sale::create([
-            'tenant_id' => $tenant->id,
-            'product_id' => $product->id,
-            'quantity' => $request->integer('quantity'),
-            'unit_price' => $request->input('unit_price'),
-            'payment_method' => $request->input('payment_method'),
-            'sold_at' => $request->input('sold_at') ?? now(),
-            'notes' => $request->input('notes'),
-        ]);
+        $sale = DB::transaction(function () use ($tenant, $request, $quantity) {
+            $product = $tenant->products()->lockForUpdate()->findOrFail($request->integer('product_id'));
 
-        if ($product->stock_quantity > 0) {
-            $product->decrement('stock_quantity', min($product->stock_quantity, $request->integer('quantity')));
-        }
+            if ($product->stock_quantity > 0 && $product->stock_quantity < $quantity) {
+                throw ValidationException::withMessages([
+                    'quantity' => 'Estoque insuficiente para esta venda.',
+                ]);
+            }
+
+            $sale = Sale::create([
+                'tenant_id' => $tenant->id,
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'unit_price' => $request->input('unit_price'),
+                'payment_method' => $request->input('payment_method'),
+                'sold_at' => $request->input('sold_at') ?? now(),
+                'notes' => $request->input('notes'),
+            ]);
+
+            if ($product->stock_quantity > 0) {
+                $product->decrement('stock_quantity', $quantity);
+            }
+
+            return $sale;
+        });
+
+        $product = $tenant->products()->find($sale->product_id);
 
         $this->audit->log($tenant, 'sale.created', $sale, [
-            'product' => $product->name,
+            'product' => $product?->name,
             'total' => $sale->total_amount,
         ], $request);
 
@@ -145,31 +166,36 @@ class SaleController extends Controller
         $tenant = Auth::guard('tenant')->user();
         $this->authorize('delete', $sale);
 
-        SaleRecorded::dispatch($tenant, $sale);
-        $sale->delete();
+        DB::transaction(function () use ($sale, $tenant): void {
+            if ($sale->product_id) {
+                $product = $tenant->products()->lockForUpdate()->find($sale->product_id);
+                if ($product && $product->stock_quantity >= 0) {
+                    $product->increment('stock_quantity', $sale->quantity);
+                }
+            }
+
+            SaleRecorded::dispatch($tenant, $sale);
+            $sale->delete();
+        });
+
         $this->audit->log($tenant, 'sale.deleted', null, ['sale_id' => $sale->id]);
 
         return back()->with('success', 'Venda removida.');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Builder<Sale> */
-    private function filteredSalesQuery($tenant, Request $request)
+    /**
+     * @param  array<string, mixed>  $filters
+     * @return Builder<Sale>
+     */
+    private function filteredSalesQuery($tenant, array $filters)
     {
         $query = $tenant->sales()->latest('sold_at');
 
-        if ($request->filled('payment_method')) {
-            $query->where('payment_method', $request->string('payment_method'));
+        if (! empty($filters['payment_method'])) {
+            $query->where('payment_method', $filters['payment_method']);
         }
 
-        if ($request->filled('month')) {
-            $query->whereMonth('sold_at', (int) $request->input('month'));
-        }
-
-        if ($request->filled('year')) {
-            $query->whereYear('sold_at', (int) $request->input('year'));
-        } else {
-            $query->whereYear('sold_at', now()->year);
-        }
+        SalePeriod::applyFromFilters($query, $filters);
 
         return $query;
     }

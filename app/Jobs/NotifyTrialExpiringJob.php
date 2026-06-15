@@ -8,11 +8,14 @@ use App\Mail\TrialExpiringMail;
 use App\Models\Tenant;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
 class NotifyTrialExpiringJob implements ShouldQueue
 {
     use Queueable;
+
+    public int $tries = 3;
 
     public function handle(): void
     {
@@ -26,7 +29,13 @@ class NotifyTrialExpiringJob implements ShouldQueue
             ->where('is_active', true)
             ->chunkById(50, function ($tenants): void {
                 foreach ($tenants as $tenant) {
+                    $cacheKey = "trial_expiring_notified_{$tenant->id}_{$tenant->trial_ends_at?->toDateString()}";
+                    if (Cache::has($cacheKey)) {
+                        continue;
+                    }
+
                     Mail::to($tenant->email)->send(new TrialExpiringMail($tenant));
+                    Cache::put($cacheKey, true, now()->addDays(7));
                 }
             });
     }

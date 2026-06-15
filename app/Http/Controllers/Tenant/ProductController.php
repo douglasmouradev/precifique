@@ -6,11 +6,11 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Actions\Tenant\CreateProductAction;
 use App\Actions\Tenant\DuplicateProductAction;
+use App\Events\TenantDashboardChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreProductRequest;
 use App\Models\Product;
 use App\Services\AuditService;
-use App\Services\DashboardMetricsService;
 use App\Services\PlanLimitService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +24,6 @@ class ProductController extends Controller
         private readonly CreateProductAction $createProduct,
         private readonly DuplicateProductAction $duplicateProduct,
         private readonly AuditService $audit,
-        private readonly DashboardMetricsService $dashboardMetrics,
     ) {}
 
     public function index(): View
@@ -71,7 +70,7 @@ class ProductController extends Controller
             return redirect()->route('tenant.billing.upgrade')->with('warning', $e->getMessage());
         }
 
-        $this->dashboardMetrics->forget($tenant);
+        TenantDashboardChanged::dispatch($tenant);
 
         return redirect()->route('tenant.pricing.edit', $product);
     }
@@ -87,7 +86,7 @@ class ProductController extends Controller
         }
 
         $copy = $this->duplicateProduct->execute($tenant, $product);
-        $this->dashboardMetrics->forget($tenant);
+        TenantDashboardChanged::dispatch($tenant);
 
         return redirect()->route('tenant.pricing.edit', $copy)
             ->with('success', 'Produto duplicado. Ajuste o nome e salve o preço.');
@@ -100,7 +99,7 @@ class ProductController extends Controller
 
         $this->audit->log($tenant, 'product.deleted', $product, ['name' => $product->name]);
         $product->delete();
-        $this->dashboardMetrics->forget($tenant);
+        TenantDashboardChanged::dispatch($tenant);
 
         return redirect()->route('tenant.products.index')
             ->with('success', 'Produto removido.');

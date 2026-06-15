@@ -17,7 +17,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
     <title>@yield('title', 'Precifique')</title>
-    @vite(['resources/css/app.css', 'resources/js/landing.js'])
+    @vite(['resources/css/landing.css', 'resources/js/landing.js'])
     @stack('head')
     <script type="application/ld+json">
     {

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Events\TenantDashboardChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreFixedCostRequest;
 use App\Http\Requests\Tenant\UpdateFixedCostRequest;
 use App\Models\FixedCost;
 use App\Services\AuditService;
-use App\Services\DashboardMetricsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -18,7 +18,6 @@ class FixedCostController extends Controller
 {
     public function __construct(
         private readonly AuditService $audit,
-        private readonly DashboardMetricsService $dashboardMetrics,
     ) {}
 
     public function index(): View
@@ -35,7 +34,7 @@ class FixedCostController extends Controller
         $tenant = Auth::guard('tenant')->user();
         $cost = $tenant->fixedCosts()->create($request->validated());
         $this->audit->log($tenant, 'fixed_cost.created', $cost, [], $request);
-        $this->dashboardMetrics->forget($tenant);
+        TenantDashboardChanged::dispatch($tenant);
 
         return back()->with('success', 'Custo fixo adicionado.');
     }
@@ -47,6 +46,7 @@ class FixedCostController extends Controller
 
         $fixedCost->update($request->validated());
         $this->audit->log($tenant, 'fixed_cost.updated', $fixedCost, [], $request);
+        TenantDashboardChanged::dispatch($tenant);
 
         return back()->with('success', 'Custo fixo atualizado.');
     }
@@ -58,6 +58,7 @@ class FixedCostController extends Controller
 
         $fixedCost->delete();
         $this->audit->log($tenant, 'fixed_cost.deleted', null, ['id' => $fixedCost->id]);
+        TenantDashboardChanged::dispatch($tenant);
 
         return back()->with('success', 'Custo fixo removido.');
     }

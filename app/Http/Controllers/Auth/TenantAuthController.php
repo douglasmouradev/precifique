@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\TenantRegisterRequest;
 use App\Models\Tenant;
+use App\Support\TenantNicheMapper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class TenantAuthController extends Controller
@@ -32,7 +33,9 @@ class TenantAuthController extends Controller
             return redirect()->intended(route('tenant.dashboard'));
         }
 
-        return back()->withErrors(['email' => 'Credenciais inválidas.'])->onlyInput('email');
+        return back()
+            ->withErrors(['email' => __('auth.failed')])
+            ->onlyInput('email');
     }
 
     public function showRegister(): View
@@ -40,21 +43,18 @@ class TenantAuthController extends Controller
         return view('auth.tenant-register');
     }
 
-    public function register(Request $request): RedirectResponse
+    public function register(TenantRegisterRequest $request): RedirectResponse
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:tenants,email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'niche' => ['required', 'in:alimentos,servico,artesanato,outro'],
-        ]);
+        $data = $request->validated();
+        $niche = TenantNicheMapper::map($data);
 
         $tenant = Tenant::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
-            'niche' => $data['niche'],
-            'interface_mode' => $data['niche'] === 'outro' ? 'artesanato' : $data['niche'],
+            'niche' => $niche['niche'],
+            'interface_mode' => $niche['interface_mode'],
+            'niche_metadata' => $niche['niche_metadata'],
             'plan' => 'basic',
             'trial_ends_at' => now()->addDays((int) config('tenancy.trial_days', 14)),
         ]);

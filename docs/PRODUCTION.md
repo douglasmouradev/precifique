@@ -23,7 +23,7 @@ Preencha obrigatoriamente:
 | `DB_PASSWORD` | Senha forte MySQL |
 | `ADMIN_PASSWORD` | Senha do superadmin (nunca a padrão de dev) |
 | `MAIL_*` | SMTP real |
-| `STRIPE_*` / `MP_*` | Chaves e webhooks de produção |
+| `STRIPE_*` / `MP_*` | Chaves e webhooks de produção (`MP_WEBHOOK_SECRET` obrigatório para validar assinatura) |
 | `AWS_*` | Bucket S3 (`FILESYSTEM_DISK=s3`) |
 | `GEMINI_API_KEY` | Ou outro provedor de IA |
 | `TRUSTED_PROXIES` | `*` com Cloudflare ou IP do proxy |
@@ -84,7 +84,7 @@ SESSION_DRIVER=redis
 | `GET /up` | Health simples (Laravel) |
 | `GET /health` | JSON com DB, cache, Redis |
 
-Opcional: defina `HEALTH_CHECK_TOKEN` e chame com `Authorization: Bearer {token}`.
+Em produção, defina `HEALTH_CHECK_TOKEN` (obrigatório) e chame com `Authorization: Bearer {token}`.
 
 ## 6. Backup MySQL
 

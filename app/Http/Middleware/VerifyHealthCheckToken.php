@@ -14,6 +14,10 @@ class VerifyHealthCheckToken
     {
         $token = config('precifique.monitoring.health_token');
 
+        if (($token === null || $token === '') && app()->environment('production')) {
+            abort(503, 'Health check não configurado.');
+        }
+
         if ($token === null || $token === '') {
             return $next($request);
         }

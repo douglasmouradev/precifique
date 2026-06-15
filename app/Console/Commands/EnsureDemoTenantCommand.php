@@ -27,20 +27,19 @@ class EnsureDemoTenantCommand extends Command
         $email = (string) $this->option('email');
         $password = (string) $this->option('password');
 
-        $tenant = Tenant::updateOrCreate(
-            ['email' => $email],
-            [
-                'name' => 'Doceria da Ana (Demo)',
-                'password' => $password,
-                'niche' => 'alimentos',
-                'plan' => 'premium',
-                'interface_mode' => 'alimentos',
-                'usage_mode' => 'avancado',
-                'onboarding_completed' => true,
-                'profile_setup_completed' => true,
-                'is_active' => true,
-            ]
-        );
+        $tenant = Tenant::firstOrNew(['email' => $email]);
+        $tenant->fill([
+            'name' => 'Doceria da Ana (Demo)',
+            'niche' => 'alimentos',
+            'plan' => 'premium',
+            'interface_mode' => 'alimentos',
+            'usage_mode' => 'avancado',
+            'onboarding_completed' => true,
+            'profile_setup_completed' => true,
+            'is_active' => true,
+        ]);
+        $tenant->password = $password;
+        $tenant->save();
 
         $this->seedLgpdConsents($tenant);
 

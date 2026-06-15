@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\OnboardingCompleteRequest;
+use App\Http\Requests\Auth\OnboardingNicheRequest;
+use App\Http\Requests\Auth\OnboardingPlanRequest;
 use App\Models\FixedCost;
 use App\Models\Plan;
+use App\Services\ImageUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,8 +18,18 @@ use Illuminate\View\View;
 
 class OnboardingController extends Controller
 {
-    public function welcome(): View
+    public function __construct(
+        private readonly ImageUploadService $images,
+    ) {}
+
+    public function welcome(): RedirectResponse|View
     {
+        $tenant = Auth::guard('tenant')->user();
+
+        if ($tenant?->niche) {
+            return redirect()->route('onboarding.mode');
+        }
+
         return view('auth.onboarding.welcome');
     }
 
@@ -24,21 +38,9 @@ class OnboardingController extends Controller
         return view('auth.onboarding.niche');
     }
 
-    public function saveNiche(Request $request): RedirectResponse
+    public function saveNiche(OnboardingNicheRequest $request): RedirectResponse
     {
-        $data = $request->validate([
-            'niche' => ['required', 'in:alimentos,servico,artesanato,outro'],
-            'niche_other' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $tenant = Auth::guard('tenant')->user();
-        $interface = $data['niche'] === 'outro' ? 'artesanato' : $data['niche'];
-
-        $tenant->update([
-            'niche' => $data['niche'],
-            'interface_mode' => $interface,
-            'niche_metadata' => $data['niche_other'] ? ['other' => $data['niche_other']] : null,
-        ]);
+        Auth::guard('tenant')->user()->update($request->nicheAttributes());
 
         return redirect()->route('onboarding.mode');
     }
@@ -73,10 +75,9 @@ class OnboardingController extends Controller
         ]);
     }
 
-    public function savePlan(Request $request): RedirectResponse
+    public function savePlan(OnboardingPlanRequest $request): RedirectResponse
     {
-        $data = $request->validate(['plan' => ['required', 'in:basic,premium']]);
-        $request->session()->put('onboarding_selected_plan', $data['plan']);
+        $request->session()->put('onboarding_selected_plan', $request->validated('plan'));
         Auth::guard('tenant')->user()->update(['plan' => 'basic']);
 
         return redirect()->route('onboarding.setup');
@@ -87,23 +88,17 @@ class OnboardingController extends Controller
         return view('auth.onboarding.setup');
     }
 
-    public function complete(Request $request): RedirectResponse
+    public function complete(OnboardingCompleteRequest $request): RedirectResponse
     {
         $tenant = Auth::guard('tenant')->user();
-
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'fixed_cost_name' => ['required', 'string', 'max:255'],
-            'fixed_cost_amount' => ['required', 'numeric', 'min:0'],
-            'logo' => ['nullable', 'image', 'max:2048'],
-        ]);
+        $data = $request->validated();
 
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('logos/'.$tenant->id, 'public');
-            $tenant->logo_path = $path;
+            $tenant->logo_path = $this->images->storeLogo($request->file('logo'), $tenant->id);
         }
 
         $tenant->name = $data['name'];
+        $tenant->profile_setup_completed = true;
         $tenant->onboarding_completed = true;
         $tenant->save();
 
@@ -113,9 +108,13 @@ class OnboardingController extends Controller
             'amount' => $data['fixed_cost_amount'],
         ]);
 
-        $request->session()->put('guided_setup', true);
+        if ($request->session()->pull('onboarding_selected_plan') === 'premium') {
+            return redirect()->route('tenant.billing.upgrade')
+                ->with('success', 'Conta pronta! Finalize o pagamento para ativar o Premium.');
+        }
 
-        return redirect()->route('lgpd.consent')
-            ->with('success', 'Conta criada! Aceite os termos para continuar.');
+        return redirect()->route('tenant.dashboard')
+            ->with('success', 'Conta criada! Bem-vindo ao Precifique.')
+            ->with('guided_setup', true);
     }
 }

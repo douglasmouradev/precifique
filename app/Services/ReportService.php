@@ -6,9 +6,11 @@ namespace App\Services;
 
 use App\Enums\PaymentMethod;
 use App\Models\Tenant;
+use App\Support\SalePeriod;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ReportService
@@ -18,7 +20,7 @@ class ReportService
         $dir = storage_path('app/reports/'.$tenant->id);
         $this->purgeOldReports($dir);
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $brandColor = '00C896';
 
         $this->buildSummarySheet($spreadsheet, $tenant, $year, $month, $brandColor);
@@ -50,14 +52,14 @@ class ReportService
         $sheet->setCellValue('A2', $tenant->name);
         $sheet->setCellValue('A3', sprintf('%02d/%d', $month, $year));
 
-        $sales = $tenant->sales()
-            ->whereYear('sold_at', $year)
-            ->whereMonth('sold_at', $month);
+        $monthStats = SalePeriod::applyMonth($tenant->sales(), $year, $month)
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue, COUNT(*) as sales_count')
+            ->first();
 
         $sheet->setCellValue('A5', 'Faturamento');
-        $sheet->setCellValue('B5', (float) $sales->sum('total_amount'));
+        $sheet->setCellValue('B5', (float) ($monthStats->revenue ?? 0));
         $sheet->setCellValue('A6', 'Quantidade de vendas');
-        $sheet->setCellValue('B6', $sales->count());
+        $sheet->setCellValue('B6', (int) ($monthStats->sales_count ?? 0));
 
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $sheet->getStyle('A1:A3')->getFill()
@@ -66,13 +68,13 @@ class ReportService
         $sheet->getStyle('A1:A3')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
     }
 
-    private function buildProductsSheet(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, Tenant $tenant, string $color): void
+    private function buildProductsSheet(Worksheet $sheet, Tenant $tenant, string $color): void
     {
         $sheet->setTitle('Produtos');
         $sheet->fromArray(['Produto', 'Preço venda', 'Margem %', 'Estoque'], null, 'A1');
 
         $row = 2;
-        foreach ($tenant->products()->with('variableCosts')->get() as $product) {
+        foreach ($tenant->products()->get() as $product) {
             $sheet->fromArray([
                 $product->name,
                 $product->selling_price,
@@ -88,16 +90,14 @@ class ReportService
             ->getStartColor()->setARGB('FF'.$color);
     }
 
-    private function buildSalesSheet(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, Tenant $tenant, int $year, int $month, string $color): void
+    private function buildSalesSheet(Worksheet $sheet, Tenant $tenant, int $year, int $month, string $color): void
     {
         $sheet->setTitle('Vendas');
         $sheet->fromArray(['Data', 'Produto', 'Qtd', 'Valor unit.', 'Total', 'Pagamento'], null, 'A1');
 
         $row = 2;
-        $sales = $tenant->sales()
+        $sales = SalePeriod::applyMonth($tenant->sales(), $year, $month)
             ->with('product')
-            ->whereYear('sold_at', $year)
-            ->whereMonth('sold_at', $month)
             ->orderByDesc('sold_at')
             ->get();
 
@@ -119,14 +119,12 @@ class ReportService
             ->getStartColor()->setARGB('FF'.$color);
     }
 
-    private function buildCashFlowSheet(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, Tenant $tenant, int $year, int $month, string $color): void
+    private function buildCashFlowSheet(Worksheet $sheet, Tenant $tenant, int $year, int $month, string $color): void
     {
         $sheet->setTitle('Fluxo de Caixa');
         $sheet->fromArray(['Tipo', 'Descrição', 'Valor'], null, 'A1');
 
-        $revenue = (float) $tenant->sales()
-            ->whereYear('sold_at', $year)
-            ->whereMonth('sold_at', $month)
+        $revenue = (float) SalePeriod::applyMonth($tenant->sales(), $year, $month)
             ->sum('total_amount');
 
         $fixedCosts = (float) $tenant->fixedCosts()->where('is_active', true)->sum('amount');

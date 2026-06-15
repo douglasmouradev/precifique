@@ -205,3 +205,7 @@ Configure o cron: `* * * * * php artisan schedule:run`
 ## Variáveis importantes
 
 Veja `.env.example` para `AI_PROVIDER`, `GEMINI_*`, `GROQ_*`, `ANTHROPIC_*`, `STRIPE_*`, `MP_*`, `PIX_SUBSCRIPTION_DAYS`, AWS S3 e Redis.
+
+## API REST
+
+Documentação: [docs/API.md](docs/API.md)

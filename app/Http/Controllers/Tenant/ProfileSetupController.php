@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\StoreProfileSetupRequest;
 use App\Services\LGPDService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -25,31 +25,20 @@ class ProfileSetupController extends Controller
             return redirect()->route('lgpd.consent');
         }
 
+        if (! $tenant->onboarding_completed) {
+            return redirect()->route('onboarding.welcome');
+        }
+
         return view('tenant.profile-setup', [
             'tenant' => $tenant,
-            'selectedNiche' => old('niche', $tenant->niche instanceof \App\Enums\NicheType ? $tenant->niche->value : (string) $tenant->niche),
+            'selectedNiche' => old('niche', $tenant->niche?->value ?? (string) $tenant->niche),
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreProfileSetupRequest $request): RedirectResponse
     {
         $tenant = Auth::guard('tenant')->user();
-
-        $data = $request->validate([
-            'niche' => ['required', 'in:alimentos,servico,artesanato,outro'],
-            'niche_other' => ['nullable', 'string', 'max:255'],
-            'name' => ['required', 'string', 'max:255'],
-        ]);
-
-        $interface = $data['niche'] === 'outro' ? 'artesanato' : $data['niche'];
-
-        $tenant->update([
-            'name' => $data['name'],
-            'niche' => $data['niche'],
-            'interface_mode' => $interface,
-            'niche_metadata' => $data['niche_other'] ? ['other' => $data['niche_other']] : $tenant->niche_metadata,
-            'profile_setup_completed' => true,
-        ]);
+        $tenant->update($request->profileAttributes());
 
         return redirect()->route('tenant.dashboard')
             ->with('success', 'Perfil configurado! Bem-vindo ao Precifique.');
@@ -60,25 +49,10 @@ class ProfileSetupController extends Controller
         return $this->show();
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(StoreProfileSetupRequest $request): RedirectResponse
     {
         $tenant = Auth::guard('tenant')->user();
-
-        $data = $request->validate([
-            'niche' => ['required', 'in:alimentos,servico,artesanato,outro'],
-            'niche_other' => ['nullable', 'string', 'max:255'],
-            'name' => ['required', 'string', 'max:255'],
-        ]);
-
-        $interface = $data['niche'] === 'outro' ? 'artesanato' : $data['niche'];
-
-        $tenant->update([
-            'name' => $data['name'],
-            'niche' => $data['niche'],
-            'interface_mode' => $interface,
-            'niche_metadata' => $data['niche_other'] ? ['other' => $data['niche_other']] : $tenant->niche_metadata,
-            'profile_setup_completed' => true,
-        ]);
+        $tenant->update($request->profileAttributes());
 
         return redirect()->route('tenant.dashboard')
             ->with('success', 'Perfil atualizado com sucesso.');

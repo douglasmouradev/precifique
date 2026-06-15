@@ -6,6 +6,7 @@ namespace App\Listeners;
 
 use App\Events\ProductPriced;
 use App\Events\SaleRecorded;
+use App\Events\TenantDashboardChanged;
 use App\Services\DashboardMetricsService;
 
 class InvalidateDashboardCache
@@ -14,8 +15,14 @@ class InvalidateDashboardCache
         private readonly DashboardMetricsService $dashboardMetrics,
     ) {}
 
-    public function handle(SaleRecorded|ProductPriced $event): void
+    public function handle(SaleRecorded|ProductPriced|TenantDashboardChanged $event): void
     {
-        $this->dashboardMetrics->forget($event->tenant);
+        $tenant = match (true) {
+            $event instanceof TenantDashboardChanged => $event->tenant,
+            $event instanceof SaleRecorded => $event->tenant,
+            $event instanceof ProductPriced => $event->tenant,
+        };
+
+        $this->dashboardMetrics->forget($tenant);
     }
 }

@@ -7,7 +7,9 @@ namespace App\Services;
 use App\Enums\PaymentMethod;
 use App\Models\Sale;
 use App\Models\Tenant;
+use App\Support\SalePeriod;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesExportService
 {
@@ -16,19 +18,16 @@ class SalesExportService
      */
     public function generateToStorage(Tenant $tenant, array $filters): string
     {
-        $query = Sale::query()->where('tenant_id', $tenant->id)->with('product')->latest('sold_at');
+        $query = Sale::query()
+            ->where('tenant_id', $tenant->id)
+            ->with('product')
+            ->latest('sold_at');
 
         if (! empty($filters['payment_method'])) {
             $query->where('payment_method', $filters['payment_method']);
         }
-        if (! empty($filters['month'])) {
-            $query->whereMonth('sold_at', (int) $filters['month']);
-        }
-        if (! empty($filters['year'])) {
-            $query->whereYear('sold_at', (int) $filters['year']);
-        } else {
-            $query->whereYear('sold_at', now()->year);
-        }
+
+        SalePeriod::applyFromFilters($query, $filters);
 
         $filename = 'exports/tenant-'.$tenant->id.'/vendas-'.now()->format('Y-m-d-His').'.csv';
         $disk = config('filesystems.default') === 's3' ? 's3' : 'local';
@@ -55,38 +54,53 @@ class SalesExportService
         Storage::disk($disk)->put($filename, stream_get_contents($handle) ?: '');
         fclose($handle);
 
+        $this->purgeOldExports($tenant->id, $disk);
+
         return $filename;
+    }
+
+    public function purgeOldExports(int $tenantId, ?string $disk = null): void
+    {
+        $disk ??= config('filesystems.default') === 's3' ? 's3' : 'local';
+        $dir = 'exports/tenant-'.$tenantId;
+        $maxAgeDays = (int) config('precifique.exports.retention_days', 30);
+        $threshold = now()->subDays($maxAgeDays)->getTimestamp();
+
+        if (! Storage::disk($disk)->exists($dir)) {
+            return;
+        }
+
+        foreach (Storage::disk($disk)->files($dir) as $file) {
+            $lastModified = Storage::disk($disk)->lastModified($file);
+            if ($lastModified < $threshold) {
+                Storage::disk($disk)->delete($file);
+            }
+        }
     }
 
     /**
      * @param  array<string, mixed>  $filters
      */
-    public function streamDownload(Tenant $tenant, array $filters): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function streamDownload(Tenant $tenant, array $filters): StreamedResponse
     {
-        $sales = Sale::query()
+        $query = Sale::query()
             ->where('tenant_id', $tenant->id)
             ->with('product')
             ->latest('sold_at');
 
         if (! empty($filters['payment_method'])) {
-            $sales->where('payment_method', $filters['payment_method']);
+            $query->where('payment_method', $filters['payment_method']);
         }
-        if (! empty($filters['month'])) {
-            $sales->whereMonth('sold_at', (int) $filters['month']);
-        }
-        if (! empty($filters['year'])) {
-            $sales->whereYear('sold_at', (int) $filters['year']);
-        } else {
-            $sales->whereYear('sold_at', now()->year);
-        }
+
+        SalePeriod::applyFromFilters($query, $filters);
 
         $filename = 'vendas-'.now()->format('Y-m-d').'.csv';
 
-        return response()->streamDownload(function () use ($sales): void {
+        return response()->streamDownload(function () use ($query): void {
             $handle = fopen('php://output', 'w');
             fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
             fputcsv($handle, ['Data', 'Produto', 'Quantidade', 'Preço unitário', 'Total', 'Pagamento', 'Observações'], ';');
-            foreach ($sales->cursor() as $sale) {
+            foreach ($query->cursor() as $sale) {
                 fputcsv($handle, [
                     $sale->sold_at->format('d/m/Y H:i'),
                     $sale->product?->name ?? '—',

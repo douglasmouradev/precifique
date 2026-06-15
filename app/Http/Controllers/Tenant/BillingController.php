@@ -48,11 +48,12 @@ class BillingController extends Controller
     {
         $sessionId = (string) $request->query('session_id', '');
 
-        if ($sessionId !== '' && $this->payments->verifyStripeSession($sessionId)) {
+        $tenant = Auth::guard('tenant')->user();
+
+        if ($sessionId !== '' && $tenant && $this->payments->verifyStripeSession($sessionId, $tenant->id)) {
             return redirect()->route('tenant.dashboard')->with('success', 'Pagamento confirmado! Bem-vindo ao Premium.');
         }
 
-        $tenant = Auth::guard('tenant')->user();
         if ($tenant?->isPremium()) {
             return redirect()->route('tenant.dashboard')->with('success', 'Você já está no plano Premium.');
         }

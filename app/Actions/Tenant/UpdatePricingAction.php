@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Tenant;
 
+use App\Events\ProductPriced;
 use App\Http\Requests\Tenant\UpdatePricingRequest;
 use App\Models\AdditionalCost;
 use App\Models\LaborCost;
@@ -12,7 +13,6 @@ use App\Models\ProductPriceHistory;
 use App\Models\TechnicalSheet;
 use App\Models\Tenant;
 use App\Models\VariableCost;
-use App\Events\ProductPriced;
 use App\Services\AuditService;
 use App\Services\PricingCalculatorService;
 use Illuminate\Support\Facades\DB;

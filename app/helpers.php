@@ -1,6 +1,8 @@
 <?php
 
 declare(strict_types=1);
+use Illuminate\Support\Facades\DB;
+use Pdo\Mysql;
 
 /**
  * Opções PDO MySQL para SSL CA (compatível PHP 8.5+ e versões anteriores).
@@ -19,8 +21,8 @@ function mysql_pdo_ssl_options(): array
         return [];
     }
 
-    if (class_exists(\Pdo\Mysql::class)) {
-        return [\Pdo\Mysql::ATTR_SSL_CA => $sslCa];
+    if (class_exists(Mysql::class)) {
+        return [Mysql::ATTR_SSL_CA => $sslCa];
     }
 
     return [PDO::MYSQL_ATTR_SSL_CA => $sslCa];
@@ -31,7 +33,7 @@ function mysql_pdo_ssl_options(): array
  */
 function sql_year(string $column): string
 {
-    return match (\Illuminate\Support\Facades\DB::connection()->getDriverName()) {
+    return match (DB::connection()->getDriverName()) {
         'sqlite' => "CAST(strftime('%Y', {$column}) AS INTEGER)",
         'pgsql' => "EXTRACT(YEAR FROM {$column})::INTEGER",
         default => "YEAR({$column})",
@@ -43,7 +45,7 @@ function sql_year(string $column): string
  */
 function sql_month(string $column): string
 {
-    return match (\Illuminate\Support\Facades\DB::connection()->getDriverName()) {
+    return match (DB::connection()->getDriverName()) {
         'sqlite' => "CAST(strftime('%m', {$column}) AS INTEGER)",
         'pgsql' => "EXTRACT(MONTH FROM {$column})::INTEGER",
         default => "MONTH({$column})",

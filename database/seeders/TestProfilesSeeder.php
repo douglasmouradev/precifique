@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\FixedCost;
-use App\Models\TenantVariableCost;
 use App\Models\LgpdConsent;
 use App\Models\MonthlyGoal;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\TechnicalSheet;
 use App\Models\Tenant;
+use App\Models\TenantVariableCost;
 use Illuminate\Database\Seeder;
 
 class TestProfilesSeeder extends Seeder

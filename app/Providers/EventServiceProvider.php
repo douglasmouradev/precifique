@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Events\ProductPriced;
 use App\Events\SaleRecorded;
+use App\Events\TenantDashboardChanged;
 use App\Listeners\InvalidateDashboardCache;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -17,6 +18,9 @@ class EventServiceProvider extends ServiceProvider
             InvalidateDashboardCache::class,
         ],
         ProductPriced::class => [
+            InvalidateDashboardCache::class,
+        ],
+        TenantDashboardChanged::class => [
             InvalidateDashboardCache::class,
         ],
     ];

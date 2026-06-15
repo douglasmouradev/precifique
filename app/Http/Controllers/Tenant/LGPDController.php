@@ -45,6 +45,13 @@ class LGPDController extends Controller
                 ->with('success', 'Finalize o pagamento para ativar o Premium.');
         }
 
+        $tenant = Auth::guard('tenant')->user();
+
+        if ($tenant && ! $tenant->onboarding_completed) {
+            return redirect()->route('onboarding.welcome')
+                ->with('success', 'Termos aceitos! Vamos configurar sua conta.');
+        }
+
         $redirect = redirect()->route('tenant.dashboard');
 
         if (session()->pull('guided_setup')) {
@@ -67,7 +74,7 @@ class LGPDController extends Controller
         $data = $this->lgpd->exportTenantData($tenant);
 
         return response()->streamDownload(
-            fn () => print(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)),
+            fn () => print (json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)),
             'precifique-dados-'.$tenant->uuid.'.json',
             ['Content-Type' => 'application/json']
         );
@@ -75,11 +82,24 @@ class LGPDController extends Controller
 
     public function destroyAccount(Request $request): RedirectResponse
     {
-        $request->validate(['confirm' => ['required', 'in:EXCLUIR']]);
+        $request->validate([
+            'confirm' => ['required', 'in:EXCLUIR'],
+            'password' => ['required', 'string'],
+        ]);
+
         $tenant = Auth::guard('tenant')->user();
+
+        if (! Auth::guard('tenant')->validate([
+            'email' => $tenant->email,
+            'password' => $request->input('password'),
+        ])) {
+            return back()->withErrors(['password' => 'Senha incorreta.']);
+        }
 
         $this->lgpd->anonymizeTenant($tenant);
         Auth::guard('tenant')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect()->route('home')->with('success', 'Conta anonimizada conforme LGPD.');
     }

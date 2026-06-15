@@ -1,7 +1,10 @@
 <x-guest-layout>
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <h1 class="font-display text-xl font-semibold text-center text-slate-700 mb-6">Entrar como admin</h1>
+    <h1 class="font-display text-xl font-semibold text-center text-slate-700 mb-2">Entrar como admin</h1>
+    <p class="text-sm text-slate-500 text-center mb-6">
+        Conta de loja/tenant? <a href="{{ route('tenant.login') }}" class="text-brand font-medium hover:underline">Entrar em /entrar</a>
+    </p>
 
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf

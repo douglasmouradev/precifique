@@ -120,5 +120,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('health', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
+
+        RateLimiter::for('tenant-billing', fn (Request $request) => Limit::perMinute(10)->by(
+            (string) (auth('tenant')->id() ?? $request->ip())
+        ));
+
+        RateLimiter::for('tenant-onboarding', fn (Request $request) => Limit::perMinute(20)->by($request->ip()));
+
+        RateLimiter::for('tenant-lgpd-export', fn (Request $request) => Limit::perHour(3)->by(
+            (string) (auth('tenant')->id() ?? $request->ip())
+        ));
     }
 }

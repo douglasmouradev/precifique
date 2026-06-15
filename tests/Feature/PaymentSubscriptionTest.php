@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Plan;
-use App\Models\Product;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use App\Services\PaymentService;
+use Database\Seeders\PlanSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,7 +18,7 @@ class PaymentSubscriptionTest extends TestCase
 
     public function test_pix_subscription_expires_and_downgrades_tenant(): void
     {
-        $this->seed(\Database\Seeders\PlanSeeder::class);
+        $this->seed(PlanSeeder::class);
 
         $tenant = Tenant::factory()->create(['plan' => 'premium']);
         $plan = Plan::where('slug', 'premium')->firstOrFail();
@@ -41,7 +41,7 @@ class PaymentSubscriptionTest extends TestCase
 
     public function test_trial_tenant_keeps_premium_access_after_pix_expiry(): void
     {
-        $this->seed(\Database\Seeders\PlanSeeder::class);
+        $this->seed(PlanSeeder::class);
 
         $tenant = Tenant::factory()->create([
             'plan' => 'basic',

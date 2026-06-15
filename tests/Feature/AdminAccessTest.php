@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class AdminAccessTest extends TestCase
@@ -23,16 +24,16 @@ class AdminAccessTest extends TestCase
     public function test_admin_logout_route_is_registered(): void
     {
         $this->assertTrue(
-            \Illuminate\Support\Facades\Route::has('logout'),
+            Route::has('logout'),
             'A rota logout do admin (Breeze) deve existir.'
         );
     }
 
     public function test_tenant_logout_uses_separate_route(): void
     {
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('tenant.logout'));
+        $this->assertTrue(Route::has('tenant.logout'));
 
-        $tenantLogout = collect(\Illuminate\Support\Facades\Route::getRoutes())
+        $tenantLogout = collect(Route::getRoutes())
             ->first(fn ($route) => $route->getName() === 'tenant.logout');
 
         $this->assertSame('sair', $tenantLogout?->uri());

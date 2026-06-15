@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Tenant;
 use App\Models\TenantAiUsage;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\DB;
 
 class AiUsageLimiter
 {
@@ -19,20 +20,29 @@ class AiUsageLimiter
         }
 
         $limit = (int) config('precifique.ai.premium_daily_limit', 50);
-        $usage = TenantAiUsage::query()->firstOrCreate(
-            [
-                'tenant_id' => $tenant->id,
-                'usage_date' => now()->toDateString(),
-            ],
-            ['requests' => 0]
-        );
 
-        if ($usage->requests >= $limit) {
-            throw new HttpResponseException(response()->json([
-                'message' => "Limite diário de IA atingido ({$limit} consultas). Tente amanhã.",
-            ], 429));
-        }
+        DB::transaction(function () use ($tenant, $limit): void {
+            $usage = TenantAiUsage::query()
+                ->where('tenant_id', $tenant->id)
+                ->where('usage_date', now()->toDateString())
+                ->lockForUpdate()
+                ->first();
 
-        $usage->increment('requests');
+            if (! $usage) {
+                $usage = TenantAiUsage::create([
+                    'tenant_id' => $tenant->id,
+                    'usage_date' => now()->toDateString(),
+                    'requests' => 0,
+                ]);
+            }
+
+            if ($usage->requests >= $limit) {
+                throw new HttpResponseException(response()->json([
+                    'message' => "Limite diário de IA atingido ({$limit} consultas). Tente amanhã.",
+                ], 429));
+            }
+
+            $usage->increment('requests');
+        });
     }
 }

@@ -12,6 +12,8 @@ class ExpireSubscriptionsJob implements ShouldQueue
 {
     use Queueable;
 
+    public int $tries = 3;
+
     public function handle(PaymentService $payments): void
     {
         $payments->expireSubscriptions();
