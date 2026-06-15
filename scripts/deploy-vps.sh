@@ -22,8 +22,8 @@ composer --version
 cd "$APP_DIR"
 
 if [[ ! -f .env ]]; then
-  cp .env.production.example .env
-  echo "Edite .env antes de continuar."
+  cp .env.vps.example .env
+  echo "Edite .env (DB_HOST=127.0.0.1, ADMIN_PASSWORD, HEALTH_CHECK_TOKEN) antes de continuar."
   exit 1
 fi
 

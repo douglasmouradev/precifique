@@ -63,11 +63,24 @@ No painel do site, aponte o **document root** para:
 ## 4. Configurar `.env`
 
 ```bash
-cp .env.production.example .env
+cp .env.vps.example .env
 nano .env
 ```
 
-Preencha: `APP_URL`, `DB_*`, `REDIS_*`, `MAIL_*`, `ADMIN_PASSWORD`, `HEALTH_CHECK_TOKEN`, `STRIPE_*`, `MP_*`, `MP_WEBHOOK_SECRET`.
+**Obrigatório preencher:**
+
+| Variável | Exemplo |
+|----------|---------|
+| `APP_URL` | `https://seudominio.com.br` |
+| `DB_HOST` | `127.0.0.1` (nunca `mysql`) |
+| `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | credenciais do MySQL no aaPanel |
+| `REDIS_HOST` | `127.0.0.1` (ou use `file` se Redis não estiver instalado) |
+| `ADMIN_PASSWORD` | senha forte do superadmin |
+| `HEALTH_CHECK_TOKEN` | `openssl rand -hex 32` |
+
+Opcional: `MAIL_*`, `STRIPE_*`, `MP_*`, `MP_WEBHOOK_SECRET`.
+
+Crie o banco no aaPanel (**Database** → MySQL) antes do `migrate`.
 
 ## 5. Instalar dependências
 
@@ -132,8 +145,28 @@ chmod +x scripts/deploy-vps.sh
 
 | Erro | Solução |
 |------|---------|
+| `getaddrinfo for mysql failed` | `DB_HOST=127.0.0.1` no `.env` (não use `mysql`) |
+| `HEALTH_CHECK_TOKEN` / `ADMIN_PASSWORD` | Preencha no `.env` e rode `php artisan config:clear` |
+| `destination path already exists` | Use `git pull` em vez de `git clone` |
 | `composer-runtime-api 2.0` | Atualize Composer para 2.2+ |
 | `php >=8.4.1` no Symfony | `git pull` — lock compatível com 8.3 |
 | `npm: command not found` | Instale Node.js (passo 2) |
 | `vendor/autoload.php` missing | Rode `composer install` com sucesso primeiro |
-| Rodar como root | Crie usuário `deploy`, use `www-data` para o app |
+
+### Corrigir `.env` já existente (rápido)
+
+```bash
+cd /www/wwwroot/precifique
+git pull
+nano .env
+# DB_HOST=127.0.0.1
+# REDIS_HOST=127.0.0.1
+# ADMIN_PASSWORD=SuaSenhaForte123!
+# HEALTH_CHECK_TOKEN=$(openssl rand -hex 32)
+
+php artisan config:clear
+php artisan migrate --force
+php artisan precifique:ensure-admin
+php artisan precifique:preflight
+php artisan config:cache
+```
