@@ -19,7 +19,7 @@ chmod -R 775 storage bootstrap/cache
 "${PHP_BIN}" artisan migrate --force
 "${PHP_BIN}" scripts/generate-icons.php 2>/dev/null || true
 
-chown -R "${APP_USER}:${APP_USER}" storage bootstrap/cache public/apple-touch-icon.png public/apple-touch-icon-precomposed.png public/images
+chown -R "${APP_USER}:${APP_USER}" storage bootstrap/cache public/pwa-icon.png public/apple-touch-icon.png public/apple-touch-icon-precomposed.png public/images
 
 "${PHP_BIN}" artisan config:cache
 "${PHP_BIN}" artisan route:cache

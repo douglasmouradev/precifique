@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * Gera PNGs da logo (hexágono verde) para PWA, iOS e e-mails.
- * iOS exige fundo opaco e também busca /apple-touch-icon.png na raiz do domínio.
+ * Gera PNGs da logo para PWA e iOS.
+ * Usa nome pwa-icon.png na raiz para forçar o iPhone a baixar o ícone novo (cache antigo do P preto).
  * Uso: php scripts/generate-icons.php
  */
 
@@ -19,9 +19,11 @@ if (! is_readable($svgPath)) {
 
 $targets = [
     180 => [
-        $imagesDir.'/apple-touch-icon.png',
+        $imagesDir.'/pwa-icon-180.png',
+        $root.'/public/pwa-icon.png',
         $root.'/public/apple-touch-icon.png',
         $root.'/public/apple-touch-icon-precomposed.png',
+        $imagesDir.'/apple-touch-icon.png',
     ],
     192 => [$imagesDir.'/icon-192.png'],
     512 => [$imagesDir.'/icon-512.png'],
@@ -60,11 +62,11 @@ function renderFromSvg(int $size, string $outPath, string $svgPath): bool
     try {
         $logo = new Imagick();
         $logo->setBackgroundColor(new ImagickPixel('transparent'));
-        $logo->setResolution(384, 384);
+        $logo->setResolution(512, 512);
         $logo->readImage($svgPath);
         $logo->setImageFormat('png32');
 
-        $logoSize = (int) round($size * 0.82);
+        $logoSize = (int) round($size * 0.92);
         $logo->resizeImage($logoSize, $logoSize, Imagick::FILTER_LANCZOS, 1, true);
 
         $canvas = new Imagick();
@@ -96,7 +98,7 @@ function renderWithGd(int $size, string $outPath): bool
     $ink = imagecolorallocate($img, 13, 13, 13);
 
     $center = $size / 2;
-    $radius = $size * 0.38;
+    $radius = $size * 0.44;
     imagefilledpolygon($img, hexagonPoints($center, $center, $radius), $green);
     imagefilledpolygon($img, hexagonPoints($center, $center, $radius * 0.9), $greenDark);
 
