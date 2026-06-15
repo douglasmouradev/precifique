@@ -26,9 +26,9 @@
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
     <style @if(is_string($cspNonce) && $cspNonce !== '') nonce="{{ $cspNonce }}" @endif>
         [data-scroll-3d-hero] { background-color: #0D0D0D; min-height: 70vh; }
-        .scroll-reveal { opacity: 1 !important; transform: none !important; visibility: visible !important; }
         html.landing-intro-seen #landing-intro-overlay { display: none !important; }
         #landing-intro-overlay { background-color: #0D0D0D; }
+        html.reveal-fallback .scroll-reveal { opacity: 1 !important; transform: none !important; }
     </style>
     @if(is_string($cspNonce) && $cspNonce !== '')
     <script nonce="{{ $cspNonce }}">

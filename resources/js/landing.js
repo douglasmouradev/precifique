@@ -1,5 +1,5 @@
 import './bootstrap';
-// Scroll 3D desativado — causava opacidade/transform que escondia o conteúdo em alguns browsers
+import './landing-scroll-3d';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -21,7 +21,7 @@ window.precifiqueCloseIntroOverlay = function precifiqueCloseIntroOverlay() {
     if (overlay) {
         overlay.classList.add('landing-intro--hidden');
         overlay.setAttribute('aria-hidden', 'true');
-        window.setTimeout(() => overlay.remove(), 350);
+        window.setTimeout(() => overlay.remove(), 700);
     }
 
     document.body.style.overflow = '';
@@ -121,6 +121,33 @@ function initScrollProgressBar() {
     update();
 }
 
+function initRevealAnimations() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+
+    document.documentElement.classList.add('js-reveal-active');
+
+    const vh = window.innerHeight;
+    document.querySelectorAll('.scroll-reveal').forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < vh * 0.92 && rect.bottom > 0) {
+            el.classList.add('is-visible');
+        }
+    });
+
+    window.setTimeout(() => {
+        if (document.documentElement.classList.contains('reveal-fallback')) {
+            return;
+        }
+
+        document.documentElement.classList.add('reveal-fallback');
+        document.querySelectorAll('.scroll-reveal:not(.is-visible)').forEach((el) => {
+            el.classList.add('is-visible');
+        });
+    }, 2800);
+}
+
 function bootLanding() {
     initLandingIntro();
     initScrollProgressBar();
@@ -134,6 +161,7 @@ if (document.readyState === 'loading') {
 
 window.Alpine = Alpine;
 Alpine.start();
+initRevealAnimations();
 
 window.setTimeout(() => {
     const overlay = document.getElementById('landing-intro-overlay');

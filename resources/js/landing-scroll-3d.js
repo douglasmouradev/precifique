@@ -37,7 +37,8 @@ function createState() {
 function applyState(el, s) {
     if (el.dataset.scroll3dPricing !== undefined) {
         el.style.transform = `translate3d(${s.trx}px, 0, 0) rotateY(${s.try}deg) scale(${s.s.toFixed(4)})`;
-        el.style.opacity = s.op.toFixed(3);
+        el.style.opacity = Math.max(0.88, s.op).toFixed(3);
+
         return;
     }
 
@@ -45,8 +46,9 @@ function applyState(el, s) {
         `rotateX(${s.rx.toFixed(2)}deg) rotateY(${s.ry.toFixed(2)}deg) ` +
         `translate3d(0, ${s.ty.toFixed(1)}px, ${s.tz.toFixed(0)}px) scale(${s.s.toFixed(4)})`;
 
+    /* Hero: só transform — nunca reduz opacidade do texto */
     if (el.dataset.scroll3dHero !== undefined) {
-        el.style.opacity = s.op.toFixed(3);
+        el.style.opacity = '1';
     }
 }
 
