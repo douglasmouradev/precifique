@@ -5,7 +5,9 @@
     <title>Precificação — {{ $product->name }}</title>
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #334155; padding: 28px; }
-        .brand { color: #00C896; font-size: 18px; font-weight: bold; }
+        .brand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .brand-logo { width: 36px; height: 36px; }
+        .brand { color: #00C896; font-size: 18px; font-weight: bold; margin: 0; }
         h1 { font-size: 16px; color: #0D0D0D; margin: 16px 0 8px; }
         table { width: 100%; border-collapse: collapse; margin: 12px 0; }
         th, td { padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: left; }
@@ -15,7 +17,10 @@
     </style>
 </head>
 <body>
-    <p class="brand">Precifique</p>
+    <div class="brand-row">
+        <img class="brand-logo" src="{{ public_path('images/icon-192.png') }}" alt="">
+        <p class="brand">Preci$ique</p>
+    </div>
     <p><strong>{{ $tenant->name }}</strong></p>
     <h1>Ficha de precificação — {{ $product->name }}</h1>
 

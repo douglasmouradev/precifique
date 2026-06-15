@@ -6,7 +6,8 @@
     <style>
         * { box-sizing: border-box; }
         body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #334155; margin: 0; padding: 32px; }
-        .header { border-bottom: 3px solid #00C896; padding-bottom: 16px; margin-bottom: 24px; }
+        .header { border-bottom: 3px solid #00C896; padding-bottom: 16px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 40px; height: 40px; }
         .brand { color: #00C896; font-size: 20px; font-weight: bold; margin: 0; }
         .tenant { margin: 8px 0 0; color: #64748b; font-size: 10px; }
         h1 { font-size: 18px; color: #0D0D0D; margin: 0 0 8px; }
@@ -23,8 +24,11 @@
 </head>
 <body>
     <div class="header">
-        <p class="brand">Precifique</p>
-        <p class="tenant"><strong>{{ $tenant->name }}</strong> · {{ $tenant->email }}</p>
+        <img class="brand-logo" src="{{ public_path('images/icon-192.png') }}" alt="">
+        <div>
+            <p class="brand">Preci$ique</p>
+            <p class="tenant"><strong>{{ $tenant->name }}</strong> · {{ $tenant->email }}</p>
+        </div>
     </div>
 
     <h1>Orçamento — {{ $product->name }}</h1>

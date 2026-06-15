@@ -3,75 +3,110 @@
 declare(strict_types=1);
 
 /**
- * Gera PNGs da logo (P branco em fundo escuro) para PWA e iOS.
+ * Gera PNGs da logo (hexágono verde) para PWA, iOS e e-mails.
  * Uso: php scripts/generate-icons.php
  */
 
 $root = dirname(__DIR__);
 $outDir = $root.'/public/images';
+$svgPath = $outDir.'/logo-icon.svg';
 
-if (! extension_loaded('gd')) {
-    fwrite(STDERR, "Extensão GD não disponível.\n");
-    exit(1);
-}
-
-$fontCandidates = [
-    'C:/Windows/Fonts/arialbd.ttf',
-    'C:/Windows/Fonts/segoeuib.ttf',
-    '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-    '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
-];
-
-$fontFile = null;
-foreach ($fontCandidates as $candidate) {
-    if (is_readable($candidate)) {
-        $fontFile = $candidate;
-        break;
-    }
-}
-
-if ($fontFile === null) {
-    fwrite(STDERR, "Nenhuma fonte TrueType encontrada para gerar os ícones.\n");
+if (! is_readable($svgPath)) {
+    fwrite(STDERR, "Arquivo não encontrado: {$svgPath}\n");
     exit(1);
 }
 
 foreach ([180 => 'apple-touch-icon.png', 192 => 'icon-192.png', 512 => 'icon-512.png'] as $size => $filename) {
-    renderIcon($size, $outDir.'/'.$filename, $fontFile);
-    echo "Gerado: {$filename} ({$size}x{$size})\n";
+    $outPath = $outDir.'/'.$filename;
+
+    if (renderFromSvg($size, $outPath, $svgPath) || renderWithGd($size, $outPath)) {
+        echo "Gerado: {$filename} ({$size}x{$size})\n";
+        continue;
+    }
+
+    fwrite(STDERR, "Falha ao gerar {$filename}\n");
+    exit(1);
 }
 
-function renderIcon(int $size, string $path, string $fontFile): void
+function renderFromSvg(int $size, string $outPath, string $svgPath): bool
 {
+    if (! extension_loaded('imagick')) {
+        return false;
+    }
+
+    try {
+        $imagick = new Imagick();
+        $imagick->setBackgroundColor(new ImagickPixel('transparent'));
+        $imagick->setResolution(384, 384);
+        $imagick->readImage($svgPath);
+        $imagick->setImageFormat('png32');
+        $imagick->resizeImage($size, $size, Imagick::FILTER_LANCZOS, 1, true);
+        $imagick->writeImage($outPath);
+
+        return true;
+    } catch (Throwable) {
+        return false;
+    }
+}
+
+function renderWithGd(int $size, string $outPath): bool
+{
+    if (! extension_loaded('gd')) {
+        return false;
+    }
+
     $img = imagecreatetruecolor($size, $size);
     imagesavealpha($img, true);
 
     $transparent = imagecolorallocatealpha($img, 0, 0, 0, 127);
     imagefill($img, 0, 0, $transparent);
 
-    $bg = imagecolorallocate($img, 26, 26, 26);
+    $green = imagecolorallocate($img, 0, 200, 150);
+    $greenDark = imagecolorallocate($img, 0, 166, 125);
     $white = imagecolorallocate($img, 255, 255, 255);
-    $radius = (int) round($size * 0.23);
+    $ink = imagecolorallocate($img, 13, 13, 13);
 
-    filledRoundedRect($img, 0, 0, $size - 1, $size - 1, $radius, $bg);
+    $center = $size / 2;
+    $radius = $size * 0.46;
+    $hex = hexagonPoints($center, $center, $radius);
+    imagefilledpolygon($img, $hex, $green);
 
-    $fontSize = $size * 0.46;
-    $text = 'P';
-    $box = imagettfbbox($fontSize, 0, $fontFile, $text);
-    $textWidth = $box[2] - $box[0];
-    $textHeight = $box[1] - $box[7];
-    $x = (int) round(($size - $textWidth) / 2 - $box[0]);
-    $y = (int) round(($size + $textHeight) / 2 - $box[1]);
+    $inner = hexagonPoints($center, $center, $radius * 0.9);
+    imagefilledpolygon($img, $inner, $greenDark);
 
-    imagettftext($img, $fontSize, 0, $x, $y, $white, $fontFile, $text);
-    imagepng($img, $path);
+    $tagScale = $size / 48;
+    $tagX = (int) round(17.5 * $tagScale);
+    $tagY = (int) round(19.5 * $tagScale);
+    $tagW = (int) round(10.5 * $tagScale);
+    $tagH = (int) round(9 * $tagScale);
+    imagefilledrectangle($img, $tagX, $tagY, $tagX + $tagW, $tagY + $tagH, $white);
+
+    $holeX = (int) round(20 * $tagScale);
+    $holeY = (int) round(24 * $tagScale);
+    imagefilledellipse($img, $holeX, $holeY, (int) round(2.4 * $tagScale), (int) round(2.4 * $tagScale), $greenDark);
+
+    imagesetthickness($img, max(1, (int) round(1.8 * $tagScale)));
+    imageline($img, (int) round(27 * $tagScale), (int) round(26.5 * $tagScale), (int) round(30 * $tagScale), (int) round(23.5 * $tagScale), $ink);
+    imageline($img, (int) round(30 * $tagScale), (int) round(23.5 * $tagScale), (int) round(33 * $tagScale), (int) round(26.5 * $tagScale), $ink);
+    imageline($img, (int) round(30 * $tagScale), (int) round(23.5 * $tagScale), (int) round(30 * $tagScale), (int) round(30 * $tagScale), $ink);
+
+    imagepng($img, $outPath);
+
+    return true;
 }
 
-function filledRoundedRect($img, int $x1, int $y1, int $x2, int $y2, int $radius, int $color): void
+/**
+ * @return list<int>
+ */
+function hexagonPoints(float $cx, float $cy, float $radius): array
 {
-    imagefilledrectangle($img, $x1 + $radius, $y1, $x2 - $radius, $y2, $color);
-    imagefilledrectangle($img, $x1, $y1 + $radius, $x2, $y2 - $radius, $color);
-    imagefilledellipse($img, $x1 + $radius, $y1 + $radius, $radius * 2, $radius * 2, $color);
-    imagefilledellipse($img, $x2 - $radius, $y1 + $radius, $radius * 2, $radius * 2, $color);
-    imagefilledellipse($img, $x1 + $radius, $y2 - $radius, $radius * 2, $radius * 2, $color);
-    imagefilledellipse($img, $x2 - $radius, $y2 - $radius, $radius * 2, $radius * 2, $color);
+    $points = [];
+
+    for ($i = 0; $i < 6; $i++) {
+        $angle = deg2rad(60 * $i - 90);
+        $points[] = (int) round($cx + $radius * cos($angle));
+        $points[] = (int) round($cy + $radius * sin($angle));
+    }
+
+    return $points;
 }
