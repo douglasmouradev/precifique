@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\HealthController;
 use App\Http\Middleware\AuthenticateTenantApi;
+use App\Http\Middleware\AuthenticateTenantOrMember;
 use App\Http\Middleware\CheckTenantApiAbility;
 use App\Http\Middleware\EnsureAdminTwoFactor;
 use App\Http\Middleware\EnsureTenantApiReady;
 use App\Http\Middleware\EnsureTenantEmailVerified;
 use App\Http\Middleware\EnsureTenantTwoFactor;
+use App\Http\Middleware\GenerateCspNonce;
 use App\Http\Middleware\PlanMiddleware;
 use App\Http\Middleware\SecurityHeadersMiddleware;
 use App\Http\Middleware\SetLocale;
@@ -45,8 +47,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant.api.ability' => CheckTenantApiAbility::class,
             'verified.tenant' => EnsureTenantEmailVerified::class,
             'tenant.2fa' => EnsureTenantTwoFactor::class,
+            'auth.tenant_or_member' => AuthenticateTenantOrMember::class,
         ]);
         $middleware->web(prepend: [
+            GenerateCspNonce::class,
             SetLocale::class,
         ]);
         $middleware->append(SecurityHeadersMiddleware::class);

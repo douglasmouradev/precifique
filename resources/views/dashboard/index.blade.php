@@ -1,33 +1,33 @@
 @extends('layouts.tenant')
 
-@section('title', 'Dashboard')
-@section('breadcrumb') Dashboard @endsection
+@section('title', __('dashboard.title'))
+@section('breadcrumb') {{ __('dashboard.breadcrumb') }} @endsection
 
 @section('content')
-<x-ui.page-header title="Olá, {{ $tenant->name }}" :subtitle="'Resumo de '.now()->translatedFormat('F Y')">
+<x-ui.page-header :title="__('dashboard.greeting', ['name' => $tenant->name])" :subtitle="__('dashboard.subtitle', ['month' => now()->translatedFormat('F Y')])">
     <x-slot:actions>
-        <x-ui.button variant="outline" :href="route('tenant.goals.edit')">Meta</x-ui.button>
-        <x-ui.button :href="route('tenant.sales.create')">Nova venda</x-ui.button>
+        <x-ui.button variant="outline" :href="route('tenant.goals.edit')">{{ __('dashboard.goal') }}</x-ui.button>
+        <x-ui.button :href="route('tenant.sales.create')">{{ __('dashboard.new_sale') }}</x-ui.button>
         @if($tenant->isPremium())
-        <x-ui.button variant="secondary" :href="route('tenant.reports.monthly')">Exportar Excel</x-ui.button>
+        <x-ui.button variant="secondary" :href="route('tenant.reports.monthly')">{{ __('dashboard.export_excel') }}</x-ui.button>
         @endif
     </x-slot:actions>
 </x-ui.page-header>
 
 @if(session('guided_setup'))
 <x-ui.card class="mb-8 border-brand bg-gradient-to-r from-brand/15 to-brand/5">
-    <h2 class="font-display text-xl font-bold text-ink mb-2">Bem-vindo ao Precifique!</h2>
-    <p class="text-sm text-slate-600 mb-4">Siga os passos abaixo para calcular seu primeiro preço com confiança.</p>
+    <h2 class="font-display text-xl font-bold text-ink mb-2">{{ __('dashboard.welcome_title') }}</h2>
+    <p class="text-sm text-slate-600 mb-4">{{ __('dashboard.welcome_text') }}</p>
     <div class="flex flex-wrap gap-3">
-        <x-ui.button :href="route('tenant.products.create')">Criar primeiro produto</x-ui.button>
-        <x-ui.button variant="outline" :href="route('tenant.fixed-costs.index')">Revisar custos fixos</x-ui.button>
+        <x-ui.button :href="route('tenant.products.create')">{{ __('dashboard.create_first_product') }}</x-ui.button>
+        <x-ui.button variant="outline" :href="route('tenant.fixed-costs.index')">{{ __('dashboard.review_fixed_costs') }}</x-ui.button>
     </div>
 </x-ui.card>
 @endif
 
 @if(!$onboardingComplete)
 <x-ui.card class="mb-8 border-brand/20 bg-gradient-to-br from-brand/[0.04] to-transparent">
-    <h2 class="ui-section-title mb-4">Primeiros passos</h2>
+    <h2 class="ui-section-title mb-4">{{ __('dashboard.first_steps') }}</h2>
     <ul class="space-y-3">
         @foreach($onboardingSteps as $step)
         <li class="flex items-center gap-3">
@@ -47,19 +47,21 @@
 
 @if($tenant->onTrial())
 <x-ui.alert type="warning" class="mb-6">
-    Trial Premium até <strong>{{ $tenant->trial_ends_at->format('d/m/Y') }}</strong>.
-    <a href="{{ route('tenant.billing.upgrade') }}" class="underline font-semibold ml-1">Fazer upgrade</a>
+    {!! __('dashboard.trial_until', ['date' => '<strong>'.$tenant->trial_ends_at->format('d/m/Y').'</strong>']) !!}
+    <a href="{{ route('tenant.billing.upgrade') }}" class="underline font-semibold ml-1">{{ __('dashboard.upgrade') }}</a>
 </x-ui.alert>
 @elseif(!$tenant->isPremium() && $tenant->trial_ends_at && $tenant->trial_ends_at->isPast())
 <x-ui.alert type="warning" class="mb-6">
-    Seu trial encerrou. <a href="{{ route('tenant.billing.upgrade') }}" class="underline font-semibold">Ative o Premium</a> para produtos ilimitados e IA.
+    {{ __('dashboard.trial_ended') }}
+    <a href="{{ route('tenant.billing.upgrade') }}" class="underline font-semibold">{{ __('dashboard.activate_premium') }}</a>
+    {{ __('dashboard.trial_ended_suffix') }}
 </x-ui.alert>
 @endif
 
 @if($productsWithoutPrice > 0)
 <x-ui.alert type="warning" class="mb-6">
-    <strong>{{ $productsWithoutPrice }}</strong> produto(s) ainda sem preço de venda.
-    <a href="{{ route('tenant.products.index') }}" class="font-semibold underline ml-1">Precificar agora</a>
+    <strong>{{ $productsWithoutPrice }}</strong> {{ __('dashboard.products_without_price') }}
+    <a href="{{ route('tenant.products.index') }}" class="font-semibold underline ml-1">{{ __('dashboard.price_now') }}</a>
 </x-ui.alert>
 @endif
 
@@ -74,21 +76,21 @@
         @endfor
     </div>
     <div x-show="ready" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5 [&>div]:shadow-sm">
-    <x-ui.stat label="Faturamento do mês" icon="revenue" accent="brand"
+    <x-ui.stat :label="__('dashboard.revenue_month')" icon="revenue" accent="brand"
         :value="'R$ '.number_format($monthRevenue, 2, ',', '.')"
-        :trend="$goalAmount > 0 ? number_format($goalProgress, 0).'% da meta' : ''" />
-    <x-ui.stat label="Produtos ativos" icon="products" accent="blue" :value="(string) $productsCount" />
-    <x-ui.stat label="Vendas do mês" icon="sales" accent="violet" :value="(string) $salesCount" />
-    <x-ui.stat label="Meta mensal" icon="goals" accent="amber"
+        :trend="$goalAmount > 0 ? __('dashboard.goal_percent', ['percent' => number_format($goalProgress, 0)]) : ''" />
+    <x-ui.stat :label="__('dashboard.active_products')" icon="products" accent="blue" :value="(string) $productsCount" />
+    <x-ui.stat :label="__('dashboard.sales_month')" icon="sales" accent="violet" :value="(string) $salesCount" />
+    <x-ui.stat :label="__('dashboard.monthly_goal')" icon="goals" accent="amber"
         :value="'R$ '.number_format($goalAmount, 2, ',', '.')"
-        :trend="$goalAmount > 0 ? 'Progresso: '.number_format(min(100, $goalProgress), 0).'%' : 'Defina sua meta'" />
+        :trend="$goalAmount > 0 ? __('dashboard.goal_progress', ['percent' => number_format(min(100, $goalProgress), 0)]) : __('dashboard.set_goal')" />
     </div>
 </div>
 
 @if($goalAmount > 0)
 <div class="ui-card p-4 mb-8">
     <div class="flex justify-between text-sm mb-2">
-        <span class="font-medium text-slate-600">Progresso da meta</span>
+        <span class="font-medium text-slate-600">{{ __('dashboard.goal_progress_title') }}</span>
         <span class="font-semibold text-brand-dark">{{ number_format(min(100, $goalProgress), 0) }}%</span>
     </div>
     <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
@@ -104,7 +106,7 @@
             <x-ui.nav-icon name="spark" class="w-5 h-5" />
         </div>
         <div>
-            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Insight do dia</p>
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{{ __('dashboard.insight_title') }}</p>
             <p class="text-slate-700 leading-relaxed text-sm">{{ $aiTip }}</p>
         </div>
     </div>
@@ -114,22 +116,22 @@
 <div class="grid lg:grid-cols-3 gap-5 mb-8">
     <x-ui.card class="lg:col-span-2">
         <x-slot:header>
-            <h2 class="ui-section-title mb-0">Faturamento — 6 meses</h2>
+            <h2 class="ui-section-title mb-0">{{ __('dashboard.revenue_chart') }}</h2>
         </x-slot:header>
         <canvas id="revenueChart" height="100"></canvas>
     </x-ui.card>
     <x-ui.card>
         <x-slot:header>
             <div class="flex items-center justify-between gap-2">
-                <h2 class="ui-section-title mb-0">Pagamentos</h2>
-                <span class="text-xs text-slate-400">mês atual</span>
+                <h2 class="ui-section-title mb-0">{{ __('dashboard.payments') }}</h2>
+                <span class="text-xs text-slate-400">{{ __('dashboard.current_month') }}</span>
             </div>
         </x-slot:header>
         <canvas id="paymentChart" height="200"></canvas>
         @if($paymentSalesTotal === 0)
         <p class="text-center text-sm text-slate-400 mt-3">
-            Nenhuma venda neste mês.
-            <a href="{{ route('tenant.sales.create') }}" class="font-semibold text-brand-dark hover:underline">Registrar →</a>
+            {{ __('dashboard.no_sales_month') }}
+            <a href="{{ route('tenant.sales.create') }}" class="font-semibold text-brand-dark hover:underline">{{ __('dashboard.register_sale') }} →</a>
         </p>
         @endif
     </x-ui.card>
@@ -138,17 +140,17 @@
 <div class="grid lg:grid-cols-2 gap-5">
     <x-ui.card>
         <x-slot:header>
-            <h2 class="ui-section-title mb-0">Top produtos</h2>
+            <h2 class="ui-section-title mb-0">{{ __('dashboard.top_products') }}</h2>
         </x-slot:header>
         <canvas id="topProductsChart" height="160"></canvas>
     </x-ui.card>
     <x-ui.card :padding="false" class="overflow-hidden">
         <x-slot:header>
-            <h2 class="ui-section-title mb-0">Últimas vendas</h2>
+            <h2 class="ui-section-title mb-0">{{ __('dashboard.recent_sales') }}</h2>
         </x-slot:header>
         <div class="overflow-x-auto">
             <table class="ui-table">
-                <thead><tr><th>Produto</th><th>Total</th><th>Data</th></tr></thead>
+                <thead><tr><th>{{ __('dashboard.product') }}</th><th>{{ __('dashboard.total') }}</th><th>{{ __('dashboard.date') }}</th></tr></thead>
                 <tbody>
                 @forelse($recentSales as $sale)
                 <tr>
@@ -157,7 +159,7 @@
                     <td class="text-slate-500">{{ $sale->sold_at->format('d/m') }}</td>
                 </tr>
                 @empty
-                <tr><td colspan="3" class="text-center text-slate-400 py-8">Nenhuma venda ainda. <a href="{{ route('tenant.sales.create') }}" class="text-brand-dark font-medium">Registrar →</a></td></tr>
+                <tr><td colspan="3" class="text-center text-slate-400 py-8">{{ __('dashboard.no_sales_yet') }} <a href="{{ route('tenant.sales.create') }}" class="text-brand-dark font-medium">{{ __('dashboard.register_sale') }} →</a></td></tr>
                 @endforelse
                 </tbody>
             </table>

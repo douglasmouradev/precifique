@@ -95,5 +95,21 @@
                 </ul>
             </x-ui.card>
         </div>
+
+        <x-ui.card>
+            <h3 class="ui-section-title">Cadastros — 6 meses</h3>
+            <div class="space-y-2">
+                @php $maxSignups = max(1, collect($signupTrend)->max('count')); @endphp
+                @foreach($signupTrend as $point)
+                <div class="flex items-center gap-3 text-sm">
+                    <span class="w-14 text-slate-500 shrink-0">{{ $point['month'] }}</span>
+                    <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-brand rounded-full" style="width: {{ ($point['count'] / $maxSignups) * 100 }}%"></div>
+                    </div>
+                    <span class="w-8 text-right tabular-nums">{{ $point['count'] }}</span>
+                </div>
+                @endforeach
+            </div>
+        </x-ui.card>
     </div>
 </x-app-layout>

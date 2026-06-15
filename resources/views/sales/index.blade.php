@@ -1,12 +1,12 @@
 @extends('layouts.tenant')
-@section('title', 'Vendas')
-@section('breadcrumb') Vendas @endsection
+@section('title', __('sales.title'))
+@section('breadcrumb') {{ __('sales.title') }} @endsection
 
 @section('content')
-<x-ui.page-header title="Vendas" subtitle="Histórico, filtros e exportação profissional">
+<x-ui.page-header :title="__('sales.title')" :subtitle="__('sales.subtitle')">
     <x-slot:actions>
-        <x-ui.button variant="outline" :href="route('tenant.sales.export', request()->query())">Exportar CSV</x-ui.button>
-        <x-ui.button :href="route('tenant.sales.create')">+ Nova venda</x-ui.button>
+        <x-ui.button variant="outline" :href="route('tenant.sales.export', request()->query())">{{ __('sales.export_csv') }}</x-ui.button>
+        <x-ui.button :href="route('tenant.sales.create')">+ {{ __('sales.new_sale') }}</x-ui.button>
     </x-slot:actions>
 </x-ui.page-header>
 

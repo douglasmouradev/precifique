@@ -26,8 +26,10 @@ use App\Http\Controllers\Tenant\QuoteController;
 use App\Http\Controllers\Tenant\ReportController;
 use App\Http\Controllers\Tenant\SaleController;
 use App\Http\Controllers\Tenant\StockController;
+use App\Http\Controllers\Tenant\TeamMemberController;
 use App\Http\Controllers\Tenant\TenantVariableCostController;
 use App\Http\Controllers\Tenant\TwoFactorController;
+use App\Http\Controllers\Tenant\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:tenant')->group(function () {
@@ -82,7 +84,7 @@ Route::middleware('auth:tenant')->group(function () {
     });
 });
 
-Route::middleware(['auth:tenant', 'tenant', 'verified.tenant', 'tenant.2fa'])->prefix('app')->name('tenant.')->group(function () {
+Route::middleware(['auth.tenant_or_member', 'tenant', 'verified.tenant', 'tenant.2fa'])->prefix('app')->name('tenant.')->group(function () {
     Route::get('/conta', [AccountController::class, 'index'])->name('account.index');
     Route::put('/conta/perfil', [AccountController::class, 'updateProfile'])->name('account.profile');
     Route::put('/conta/senha', [AccountController::class, 'updatePassword'])->name('account.password');
@@ -92,6 +94,10 @@ Route::middleware(['auth:tenant', 'tenant', 'verified.tenant', 'tenant.2fa'])->p
     Route::get('/conta/two-factor', [TwoFactorController::class, 'show'])->name('account.two-factor');
     Route::post('/conta/two-factor', [TwoFactorController::class, 'confirm'])->name('account.two-factor.confirm');
     Route::delete('/conta/two-factor', [TwoFactorController::class, 'destroy'])->name('account.two-factor.destroy');
+    Route::post('/conta/membros', [TeamMemberController::class, 'store'])->name('account.members.store');
+    Route::delete('/conta/membros/{member}', [TeamMemberController::class, 'destroy'])->name('account.members.destroy');
+    Route::post('/conta/webhooks', [WebhookController::class, 'store'])->name('account.webhooks.store');
+    Route::delete('/conta/webhooks/{webhook}', [WebhookController::class, 'destroy'])->name('account.webhooks.destroy');
 
     Route::redirect('/perfil', '/app/conta')->name('profile.edit');
     Route::put('/perfil', [AccountController::class, 'updateProfile']);
@@ -100,6 +106,7 @@ Route::middleware(['auth:tenant', 'tenant', 'verified.tenant', 'tenant.2fa'])->p
     Route::post('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
     Route::get('/menu', MenuController::class)->name('menu');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/stream', [NotificationController::class, 'stream'])->name('notifications.stream');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 

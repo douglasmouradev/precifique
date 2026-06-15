@@ -15,6 +15,10 @@ class EnsureTenantEmailVerified
     {
         $tenant = Auth::guard('tenant')->user();
 
+        if (! $tenant) {
+            $tenant = Auth::guard('tenant_member')->user()?->tenant;
+        }
+
         if ($tenant && ! $tenant->hasVerifiedEmail() && ! $request->routeIs(
             'tenant.verification.*',
             'tenant.logout',

@@ -11,6 +11,7 @@
         phraseVisible: false,
         loadingDone: false,
         scrollProgress: 0,
+        focusTrapHandler: null,
         init() {
             this.initScrollProgress();
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -20,6 +21,11 @@
             }
             if (!this.showIntro) return;
             document.body.style.overflow = 'hidden';
+            this.$nextTick(() => {
+                this.$refs.introDialog?.focus();
+                this.focusTrapHandler = (e) => this.handleFocusTrap(e);
+                document.addEventListener('keydown', this.focusTrapHandler);
+            });
             const duration = 1600;
             const start = performance.now();
             const easeOut = (t) => 1 - Math.pow(1 - t, 3);
@@ -51,37 +57,58 @@
             sessionStorage.setItem('precifique_intro_seen', '1');
             this.showIntro = false;
             document.body.style.overflow = '';
+            if (this.focusTrapHandler) {
+                document.removeEventListener('keydown', this.focusTrapHandler);
+                this.focusTrapHandler = null;
+            }
+        },
+        handleFocusTrap(e) {
+            if (!this.showIntro) return;
+            if (e.key === 'Escape') { this.closeIntro(); return; }
+            if (e.key !== 'Tab') return;
+            const container = this.$refs.introDialog;
+            if (!container) return;
+            const focusable = container.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
         }
     }"
 >
     <x-landing.scroll-progress />
     <div
         x-show="showIntro"
+        x-ref="introDialog"
+        tabindex="-1"
         x-transition:leave="transition ease-in duration-700"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink text-white px-6"
+        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink text-white px-6 outline-none"
         role="dialog"
-        aria-label="Carregando"
+        aria-modal="true"
+        :aria-label="@js(__('landing.intro_loading'))"
         aria-busy="true"
     >
+        <button type="button" @click="closeIntro()" class="absolute top-6 right-6 z-20 text-sm text-gray-400 hover:text-white underline focus:outline-none focus:ring-2 focus:ring-brand rounded px-2 py-1">{{ __('landing.intro_skip') }}</button>
         <div class="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,#00C896_0%,transparent_65%)]"></div>
 
         <div class="relative z-10 flex flex-col items-center w-full max-w-2xl">
             <x-ui.logo variant="full" size="xl" dark class="mb-12" />
 
-            <p class="text-brand text-xs font-semibold tracking-[0.25em] uppercase mb-6">Carregando</p>
+            <p class="text-brand text-xs font-semibold tracking-[0.25em] uppercase mb-6">{{ __('landing.intro_loading') }}</p>
 
             <p
                 class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center leading-snug min-h-[4.5rem] sm:min-h-[5.5rem] transition-all duration-700 ease-out"
                 :class="phraseVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
             >
-                Você sabe quanto vale o que você produz?
+                {{ __('landing.intro_question') }}
             </p>
 
             <div class="w-full mt-10">
                 <div class="flex justify-between text-xs text-gray-500 mb-2 tabular-nums">
-                    <span x-text="loadingDone ? 'Pronto!' : 'Preparando sua experiência…'"></span>
+                    <span x-text="loadingDone ? @js(__('landing.intro_ready')) : @js(__('landing.intro_preparing'))"></span>
                     <span x-text="progress + '%'"></span>
                 </div>
                 <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
@@ -111,10 +138,10 @@
             <x-ui.logo variant="full" size="lg" dark />
         </a>
         <nav class="hidden md:flex gap-6 text-sm text-gray-300">
-            <a href="#problema" class="hover:text-brand">Problema</a>
-            <a href="#solucao" class="hover:text-brand">Solução</a>
-            <a href="#planos" class="hover:text-brand">Planos</a>
-            <a href="#faq" class="hover:text-brand">FAQ</a>
+            <a href="#problema" class="hover:text-brand">{{ __('landing.nav_problem') }}</a>
+            <a href="#solucao" class="hover:text-brand">{{ __('landing.nav_solution') }}</a>
+            <a href="#planos" class="hover:text-brand">{{ __('landing.nav_plans') }}</a>
+            <a href="#faq" class="hover:text-brand">{{ __('landing.faq') }}</a>
         </nav>
         <div class="hidden md:flex gap-3 items-center">
             <x-ui.locale-switcher />
@@ -126,7 +153,7 @@
             class="md:hidden p-2 text-white hover:text-brand rounded-lg"
             @click="menuOpen = !menuOpen"
             :aria-expanded="menuOpen"
-            aria-label="Abrir menu"
+            aria-label="{{ __('landing.open_menu') }}"
         >
             <svg x-show="!menuOpen" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             <svg x-show="menuOpen" x-cloak class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -139,13 +166,13 @@
         @click.outside="menuOpen = false"
         class="md:hidden border-t border-white/10 bg-ink/95 backdrop-blur-xl px-4 py-4 space-y-3"
     >
-        <a href="#problema" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">Problema</a>
-        <a href="#solucao" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">Solução</a>
-        <a href="#planos" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">Planos</a>
-        <a href="#faq" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">FAQ</a>
+        <a href="#problema" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_problem') }}</a>
+        <a href="#solucao" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_solution') }}</a>
+        <a href="#planos" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_plans') }}</a>
+        <a href="#faq" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.faq') }}</a>
         <div class="pt-3 border-t border-white/10 flex flex-col gap-2">
-            <a href="{{ route('tenant.login') }}" class="text-center py-2.5 text-white border border-white/20 rounded-lg">Entrar</a>
-            <a href="{{ route('tenant.register') }}" class="text-center py-2.5 bg-brand text-ink rounded-lg font-semibold">Começar Grátis</a>
+            <a href="{{ route('tenant.login') }}" class="text-center py-2.5 text-white border border-white/20 rounded-lg">{{ __('landing.login') }}</a>
+            <a href="{{ route('tenant.register') }}" class="text-center py-2.5 bg-brand text-ink rounded-lg font-semibold">{{ __('landing.register') }}</a>
         </div>
     </div>
 </header>
@@ -157,23 +184,23 @@
         <div class="hero-orb absolute top-[18%] right-[12%] w-64 h-64 md:w-80 md:h-80 rounded-full bg-brand/25 blur-3xl pointer-events-none" aria-hidden="true"></div>
         <div class="scroll-3d-section__inner max-w-6xl mx-auto px-4 relative">
             <div>
-                <p class="text-brand font-semibold mb-4 tracking-wide uppercase text-sm">Precificação para pequenos negócios</p>
+                <p class="text-brand font-semibold mb-4 tracking-wide uppercase text-sm">{{ __('landing.hero_eyebrow') }}</p>
                 <h1 class="font-display text-4xl md:text-5xl font-bold leading-tight max-w-3xl">
-                    Pare de chutar preços. Cobre o valor justo.
+                    {{ __('landing.hero_headline') }}
                 </h1>
-                <p class="mt-6 text-gray-300 text-lg max-w-xl">Calcule custos reais, margem de lucro e venda com confiança — com ou sem IA.</p>
+                <p class="mt-6 text-gray-300 text-lg max-w-xl">{{ __('landing.hero_desc') }}</p>
                 <div class="mt-10 flex flex-wrap gap-4">
-                    <a href="{{ route('tenant.register') }}" class="bg-brand text-ink px-8 py-4 rounded-xl font-bold text-lg hover:bg-brand-dark transition">Começar Grátis</a>
-                    <a href="#solucao" class="border border-white/30 px-8 py-4 rounded-xl font-semibold hover:border-brand transition-colors">Ver como funciona</a>
+                    <a href="{{ route('tenant.register') }}" class="bg-brand text-ink px-8 py-4 rounded-xl font-bold text-lg hover:bg-brand-dark transition">{{ __('landing.register') }}</a>
+                    <a href="#solucao" class="border border-white/30 px-8 py-4 rounded-xl font-semibold hover:border-brand transition-colors">{{ __('landing.see_how') }}</a>
                 </div>
                 <p class="mt-8 text-gray-400 text-sm">
-                    <span class="text-brand font-semibold">{{ config('tenancy.trial_days', 14) }} dias de trial Premium</span>
-                    · Sem cartão no cadastro · Feito para MEIs e pequenos negócios
+                    <span class="text-brand font-semibold">{{ __('landing.trial_badge', ['days' => config('tenancy.trial_days', 14)]) }}</span>
+                    · {{ __('landing.trial_footer') }}
                 </p>
             </div>
         </div>
         <div class="absolute bottom-8 inset-x-0 flex flex-col items-center gap-2 text-gray-500 pointer-events-none animate-bounce" aria-hidden="true">
-            <span class="text-[10px] uppercase tracking-[0.2em]">Role</span>
+            <span class="text-[10px] uppercase tracking-[0.2em]">{{ __('landing.scroll_hint') }}</span>
             <svg class="w-5 h-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
         </div>
     </section>
@@ -182,17 +209,14 @@
     <x-landing.scroll-3d-section id="problema" intensity="medium" class="py-20 bg-white">
         <div class="max-w-6xl mx-auto px-4">
             <x-landing.reveal>
-            <h2 class="font-display text-3xl font-bold text-center mb-12">Precificar errado = prejuízo</h2>
+            <h2 class="font-display text-3xl font-bold text-center mb-12">{{ __('landing.problem_title') }}</h2>
             </x-landing.reveal>
             <div class="grid md:grid-cols-3 gap-8">
-                @foreach([
-                    ['icon' => 'trend-down', 'title' => 'Vende barato demais', 'text' => 'Não considera custos fixos e acaba trabalhando de graça.'],
-                    ['icon' => 'money', 'title' => 'Perde clientes', 'text' => 'Preço alto sem justificativa afasta compradores.'],
-                    ['icon' => 'alert', 'title' => 'Decisão no achismo', 'text' => 'Planilhas confusas e medo de cobrar o valor justo.'],
-                ] as $i => $card)
+                @php $problemIcons = ['trend-down', 'money', 'alert']; @endphp
+                @foreach(__('landing.problem_cards') as $i => $card)
                 <x-landing.reveal :delay="$i * 100" class="card-3d p-6 rounded-2xl border border-gray-100 shadow-sm">
                     <div class="w-12 h-12 rounded-xl bg-brand/10 text-brand flex items-center justify-center mb-4">
-                        <x-ui.nav-icon :name="$card['icon']" class="w-6 h-6" />
+                        <x-ui.nav-icon :name="$problemIcons[$i]" class="w-6 h-6" />
                     </div>
                     <h3 class="font-display font-bold text-xl mb-2">{{ $card['title'] }}</h3>
                     <p class="text-gray-600">{{ $card['text'] }}</p>
@@ -206,9 +230,9 @@
     <x-landing.scroll-3d-section id="solucao" intensity="medium" class="py-20 bg-paper">
         <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
             <x-landing.reveal :delay="0">
-                <h2 class="font-display text-3xl font-bold mb-6">Tudo em um só lugar</h2>
+                <h2 class="font-display text-3xl font-bold mb-6">{{ __('landing.solution_title') }}</h2>
                 <ul class="space-y-4">
-                    @foreach(['Ficha técnica de materiais', 'Rateio de custos fixos', 'Mão de obra e embalagem', 'Margens visuais de lucro', 'Dashboard e relatórios'] as $f)
+                    @foreach(__('landing.solution_features') as $f)
                     <li class="flex items-center gap-3"><span class="w-6 h-6 bg-brand rounded-full flex items-center justify-center text-ink text-xs">✓</span>{{ $f }}</li>
                     @endforeach
                 </ul>
@@ -218,9 +242,9 @@
                 margin: 50,
                 get profit() { return this.cost * (this.margin / 100); },
                 get price() { return this.cost + this.profit; },
-                fmt(n) { return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+                fmt(n) { return n.toLocaleString(document.documentElement.lang || 'pt-BR', { style: 'currency', currency: 'BRL' }); }
             }">
-                <p class="text-xs text-gray-400 mb-3">Simule a margem — arraste</p>
+                <p class="text-xs text-gray-400 mb-3">{{ __('landing.demo_hint') }}</p>
                 <div class="flex gap-2 mb-4">
                     <template x-for="m in [30, 50, 70, 100]" :key="m">
                         <button type="button" @click="margin = m"
@@ -230,12 +254,12 @@
                     </template>
                 </div>
                 <div class="bg-brand/20 rounded-xl p-4 mb-4">
-                    <p class="text-sm text-gray-400">Preço final</p>
+                    <p class="text-sm text-gray-400">{{ __('landing.demo_final_price') }}</p>
                     <p class="font-display text-4xl font-bold text-brand" x-text="fmt(price)"></p>
                 </div>
                 <div class="space-y-2 text-sm text-gray-300">
-                    <div class="flex justify-between"><span>Custo produção</span><span x-text="fmt(cost)"></span></div>
-                    <div class="flex justify-between text-brand font-semibold"><span x-text="'Lucro (' + margin + '%)'"></span><span x-text="'+ ' + fmt(profit)"></span></div>
+                    <div class="flex justify-between"><span>{{ __('landing.demo_production_cost') }}</span><span x-text="fmt(cost)"></span></div>
+                    <div class="flex justify-between text-brand font-semibold"><span x-text="'{{ __('landing.demo_profit') }} (' + margin + '%)'"></span><span x-text="'+ ' + fmt(profit)"></span></div>
                 </div>
             </x-landing.reveal>
         </div>
@@ -245,16 +269,17 @@
     <x-landing.scroll-3d-section intensity="medium" class="py-20 bg-white">
         <div class="max-w-6xl mx-auto px-4 text-center">
             <x-landing.reveal>
-            <h2 class="font-display text-3xl font-bold mb-12">Feito para o seu nicho</h2>
+            <h2 class="font-display text-3xl font-bold mb-12">{{ __('landing.niches_title') }}</h2>
             </x-landing.reveal>
             <div class="grid md:grid-cols-3 gap-8">
-                @foreach([['food','Alimentos','Doces, marmitas, produtos artesanais alimentícios.'],['service','Serviços','Valor/hora, deslocamento e taxa mínima.'],['craft','Artesanato','Materiais, tempo de produção e coleções.']] as $i => $n)
+                @php $nicheIcons = ['food', 'service', 'craft']; @endphp
+                @foreach(__('landing.niches') as $i => $n)
                 <x-landing.reveal :delay="$i * 100" class="card-3d p-8 rounded-2xl bg-paper border-2 border-transparent hover:border-brand transition-colors">
                     <div class="w-14 h-14 rounded-2xl bg-brand/10 text-brand flex items-center justify-center mb-4 mx-auto">
-                        <x-ui.nav-icon :name="$n[0]" class="w-7 h-7" />
+                        <x-ui.nav-icon :name="$nicheIcons[$i]" class="w-7 h-7" />
                     </div>
-                    <h3 class="font-display font-bold text-xl">{{ $n[1] }}</h3>
-                    <p class="text-gray-600 mt-2">{{ $n[2] }}</p>
+                    <h3 class="font-display font-bold text-xl">{{ $n['title'] }}</h3>
+                    <p class="text-gray-600 mt-2">{{ $n['text'] }}</p>
                 </x-landing.reveal>
                 @endforeach
             </div>
@@ -265,7 +290,7 @@
     <x-landing.scroll-3d-section id="planos" intensity="medium" class="py-20 bg-ink text-white">
         <div class="max-w-6xl mx-auto px-4">
             <x-landing.reveal>
-            <h2 class="font-display text-3xl font-bold text-center mb-12">Escolha seu plano</h2>
+            <h2 class="font-display text-3xl font-bold text-center mb-12">{{ __('landing.plans_title') }}</h2>
             </x-landing.reveal>
             <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 @forelse($plans as $i => $plan)
@@ -276,7 +301,7 @@
                     data-direction="{{ $i % 2 === 0 ? 'left' : 'right' }}"
                 >
                     @if($plan->slug === 'premium')
-                    <span class="text-xs font-bold uppercase bg-ink text-brand px-2 py-1 rounded">IA Incluída</span>
+                    <span class="text-xs font-bold uppercase bg-ink text-brand px-2 py-1 rounded">{{ __('landing.plans_ai') }}</span>
                     @endif
                     <h3 class="font-display text-2xl font-bold mt-4">{{ $plan->name }}</h3>
                     <p class="text-3xl font-bold mt-2">R$ {{ number_format($plan->price_monthly, 2, ',', '.') }}<span class="text-base font-normal">/mês</span></p>
@@ -286,11 +311,11 @@
                         @endforeach
                     </ul>
                     <a href="{{ route('tenant.register') }}" class="mt-8 block text-center py-3 rounded-xl font-bold {{ $plan->slug === 'premium' ? 'bg-ink text-white' : 'bg-brand text-ink' }}">
-                        {{ $plan->price_monthly > 0 ? 'Assinar Premium' : 'Começar Grátis' }}
+                        {{ $plan->price_monthly > 0 ? __('landing.plans_subscribe') : __('landing.register') }}
                     </a>
                 </x-landing.reveal>
                 @empty
-                <p class="col-span-2 text-center text-gray-400">Planos em configuração.</p>
+                <p class="col-span-2 text-center text-gray-400">{{ __('landing.plans_configuring') }}</p>
                 @endforelse
             </div>
         </div>
@@ -300,29 +325,31 @@
     <x-landing.scroll-3d-section intensity="subtle" class="py-16 bg-white border-y border-slate-100">
         <div class="max-w-6xl mx-auto px-4">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                @foreach([['3 nichos','Alimentos, serviços e artesanato'],['Ficha técnica','Custos por material'],['Margens visuais','30% até 150%'],['LGPD','Dados protegidos']] as $stat)
+                @foreach(__('landing.stats') as $stat)
                 <div class="p-4">
-                    <p class="font-display text-2xl font-bold text-brand-dark">{{ $stat[0] }}</p>
-                    <p class="text-sm text-slate-500 mt-1">{{ $stat[1] }}</p>
+                    <p class="font-display text-2xl font-bold text-brand-dark">{{ $stat['value'] }}</p>
+                    <p class="text-sm text-slate-500 mt-1">{{ $stat['label'] }}</p>
                 </div>
                 @endforeach
             </div>
         </div>
     </x-landing.scroll-3d-section>
 
-    {{-- Depoimentos --}}
+    {{-- Casos de uso --}}
     <x-landing.scroll-3d-section intensity="subtle" class="py-20 bg-paper">
         <div class="max-w-6xl mx-auto px-4">
             <x-landing.reveal>
-            <h2 class="font-display text-3xl font-bold text-center mb-3">Quem usa, recomenda</h2>
-            <p class="text-center text-slate-500 mb-12 max-w-xl mx-auto">Histórias de quem parou de chutar preço e passou a cobrar com confiança.</p>
+            <h2 class="font-display text-3xl font-bold text-center mb-3">{{ __('landing.use_cases_title') }}</h2>
+            <p class="text-center text-slate-500 mb-12 max-w-xl mx-auto">{{ __('landing.use_cases_subtitle') }}</p>
             </x-landing.reveal>
             <div class="grid md:grid-cols-3 gap-8">
-                @foreach([['Doceria','Finalmente consigo ver quanto custa cada bolo de pote, incluindo embalagem.'],['Eletricista','Orçamentos com valor/hora e deslocamento, sem planilha solta.'],['Artesanato','A ficha técnica de materiais deixou clara a margem de cada peça.']] as $i => $t)
-                <x-landing.reveal :delay="$i * 100" as="blockquote" class="card-3d bg-white p-6 rounded-2xl shadow-sm">
-                    <div class="text-brand/30 mb-3"><x-ui.nav-icon name="quote" class="w-8 h-8" /></div>
-                    <p class="text-gray-600 italic">"{{ $t[1] }}"</p>
-                    <footer class="mt-4 font-semibold text-slate-700">{{ $t[0] }}</footer>
+                @foreach(__('landing.use_cases') as $i => $t)
+                <x-landing.reveal :delay="$i * 100" class="card-3d bg-white p-6 rounded-2xl shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-brand/10 text-brand flex items-center justify-center mb-4">
+                        <x-ui.nav-icon name="spark" class="w-5 h-5" />
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-slate-800 mb-2">{{ $t['title'] }}</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">{{ $t['text'] }}</p>
                 </x-landing.reveal>
                 @endforeach
             </div>
@@ -333,24 +360,18 @@
     <x-landing.scroll-3d-section id="faq" intensity="subtle" class="py-20 bg-white">
         <div class="max-w-3xl mx-auto px-4" x-data="{ open: null }">
             <x-landing.reveal>
-            <h2 class="font-display text-3xl font-bold text-center mb-12">Perguntas frequentes</h2>
+            <h2 class="font-display text-3xl font-bold text-center mb-12">{{ __('landing.faq') }}</h2>
             </x-landing.reveal>
-            @foreach([
-                ['O Basic é realmente grátis?', 'Sim! Até 5 produtos e 3 margens de lucro, sem cartão.'],
-                ['Preciso de conhecimento contábil?', 'Não. O modo iniciante guia cada passo.'],
-                ['Como funciona a IA?', 'No Premium, a IA analisa seus custos e sugere estratégias de preço.'],
-                ['Posso exportar relatórios?', 'Relatório Excel completo no plano Premium.'],
-                ['É seguro (LGPD)?', 'Sim. Consentimento, exportação e exclusão de dados integrados.'],
-            ] as $i => $faq)
+            @foreach(__('landing.faq_items') as $i => $faq)
             <x-landing.reveal :delay="$i * 60" class="border-b border-gray-200">
                 <button type="button" id="faq-btn-{{ $i }}" @click="open = open === {{ $i }} ? null : {{ $i }}"
                     class="w-full py-4 text-left font-semibold flex justify-between"
                     :aria-expanded="open === {{ $i }}"
                     aria-controls="faq-panel-{{ $i }}">
-                    {{ $faq[0] }}
+                    {{ $faq['q'] }}
                     <span aria-hidden="true" x-text="open === {{ $i }} ? '−' : '+'"></span>
                 </button>
-                <div id="faq-panel-{{ $i }}" x-show="open === {{ $i }}" x-collapse class="pb-4 text-gray-600" role="region" aria-labelledby="faq-btn-{{ $i }}">{{ $faq[1] }}</div>
+                <div id="faq-panel-{{ $i }}" x-show="open === {{ $i }}" x-collapse class="pb-4 text-gray-600" role="region" aria-labelledby="faq-btn-{{ $i }}">{{ $faq['a'] }}</div>
             </x-landing.reveal>
             @endforeach
         </div>
@@ -360,8 +381,8 @@
     <x-landing.scroll-3d-section intensity="subtle" class="py-20 bg-brand">
         <div class="max-w-3xl mx-auto px-4 text-center">
             <x-landing.reveal>
-            <h2 class="font-display text-3xl font-bold text-ink">Comece agora e pare de perder dinheiro</h2>
-            <a href="{{ route('tenant.register') }}" class="mt-8 inline-block bg-ink text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 transition-colors">Criar conta grátis</a>
+            <h2 class="font-display text-3xl font-bold text-ink">{{ __('landing.cta_final_title') }}</h2>
+            <a href="{{ route('tenant.register') }}" class="mt-8 inline-block bg-ink text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-slate-800 transition-colors">{{ __('landing.cta_final_button') }}</a>
             </x-landing.reveal>
         </div>
     </x-landing.scroll-3d-section>
@@ -371,11 +392,11 @@
     <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between gap-6">
         <x-ui.logo variant="full" size="md" dark />
         <nav class="flex gap-6 text-sm">
-            <a href="{{ route('privacy') }}" class="hover:text-brand">Privacidade</a>
-            <a href="{{ route('terms') }}" class="hover:text-brand">Termos</a>
-            <a href="{{ route('tenant.login') }}" class="hover:text-brand">Entrar</a>
+            <a href="{{ route('privacy') }}" class="hover:text-brand">{{ __('landing.footer_privacy') }}</a>
+            <a href="{{ route('terms') }}" class="hover:text-brand">{{ __('landing.footer_terms') }}</a>
+            <a href="{{ route('tenant.login') }}" class="hover:text-brand">{{ __('landing.login') }}</a>
         </nav>
-        <p class="text-sm">© {{ date('Y') }} Precifique. Todos os direitos reservados.</p>
+        <p class="text-sm">© {{ date('Y') }} Precifique. {{ __('landing.footer_rights') }}</p>
     </div>
 </footer>
 </div>{{-- fim abertura --}}

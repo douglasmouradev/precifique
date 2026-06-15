@@ -73,6 +73,7 @@ class AdminMetricsService
 
         $mrrTrend = $this->mrrTrend();
         $funnel = $this->onboardingFunnel();
+        $signupTrend = $this->signupTrend();
 
         return compact(
             'totalTenants',
@@ -87,7 +88,25 @@ class AdminMetricsService
             'recentTenants',
             'mrrTrend',
             'funnel',
+            'signupTrend',
         );
+    }
+
+    /** @return list<array{month: string, count: int}> */
+    private function signupTrend(): array
+    {
+        $trend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $trend[] = [
+                'month' => $month->translatedFormat('M/y'),
+                'count' => Tenant::whereYear('created_at', $month->year)
+                    ->whereMonth('created_at', $month->month)
+                    ->count(),
+            ];
+        }
+
+        return $trend;
     }
 
     /** @return list<array{month: string, mrr: float}> */

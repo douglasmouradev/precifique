@@ -13,11 +13,11 @@ return [
     'csp' => env('SECURITY_CSP_ENABLED', true),
 
     'csp_policy' => "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; "
-        ."script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+        ."script-src 'self' 'nonce-{nonce}' 'unsafe-inline' https://www.googletagmanager.com https://plausible.io; "
         ."style-src 'self' 'unsafe-inline'; "
         ."font-src 'self' data:; "
         ."img-src 'self' data: blob: https:; "
-        ."connect-src 'self'; "
+        ."connect-src 'self' https://www.google-analytics.com https://plausible.io; "
         ."object-src 'none';",
 
     'hsts' => env('SECURITY_HSTS_ENABLED', env('APP_ENV') === 'production'),

@@ -7,6 +7,7 @@
         unread: 0,
         items: [],
         loading: false,
+        es: null,
         async fetchNotifications() {
             this.loading = true;
             try {
@@ -16,6 +17,21 @@
                 this.items = d.notifications ?? [];
             } catch (e) {}
             finally { this.loading = false; }
+        },
+        connectStream() {
+            if (!window.EventSource) return;
+            this.es?.close();
+            this.es = new EventSource('{{ route('tenant.notifications.stream') }}');
+            this.es.onmessage = (e) => {
+                try {
+                    const d = JSON.parse(e.data);
+                    if (d.unread_count !== undefined) this.unread = d.unread_count;
+                } catch (err) {}
+            };
+            this.es.onerror = () => {
+                this.es?.close();
+                setTimeout(() => this.connectStream(), 5000);
+            };
         },
         async markRead(id) {
             await fetch(`{{ url('/app/notifications') }}/${id}/read`, {
@@ -29,14 +45,14 @@
             if (this.open) this.fetchNotifications();
         },
     }"
-    x-init="fetchNotifications(); setInterval(() => fetchNotifications(), 60000)"
+    x-init="fetchNotifications(); connectStream(); document.addEventListener('visibilitychange', () => { if (document.hidden) { es?.close(); } else { connectStream(); fetchNotifications(); } })"
     @click.outside="open = false"
 >
     <button
         type="button"
         @click="toggle()"
         class="relative p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
-        aria-label="Notificações"
+        aria-label="{{ __('notifications.aria') }}"
         :aria-expanded="open"
     >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -49,14 +65,14 @@
         class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] ui-card shadow-lg z-[70] overflow-hidden"
     >
         <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-            <p class="font-semibold text-sm text-ink">Notificações</p>
+            <p class="font-semibold text-sm text-ink">{{ __('notifications.title') }}</p>
             <form method="POST" action="{{ route('tenant.notifications.read-all') }}">@csrf
-                <button type="submit" class="text-xs text-brand font-semibold hover:underline">Marcar todas</button>
+                <button type="submit" class="text-xs text-brand font-semibold hover:underline">{{ __('notifications.mark_all') }}</button>
             </form>
         </div>
         <div class="max-h-72 overflow-y-auto">
             <template x-if="items.length === 0">
-                <p class="p-4 text-sm text-slate-500 text-center">Nenhuma notificação.</p>
+                <p class="p-4 text-sm text-slate-500 text-center">{{ __('notifications.empty') }}</p>
             </template>
             <template x-for="item in items" :key="item.id">
                 <a

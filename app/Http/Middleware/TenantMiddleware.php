@@ -21,6 +21,15 @@ class TenantMiddleware
     {
         $tenant = Auth::guard('tenant')->user();
 
+        if (! $tenant) {
+            $member = Auth::guard('tenant_member')->user();
+            $tenant = $member?->tenant;
+            if ($member && (! $member->is_active || ! $tenant?->is_active)) {
+                return redirect()->route('tenant.login')
+                    ->withErrors(['email' => 'Conta inativa ou não encontrada.']);
+            }
+        }
+
         if (! $tenant || ! $tenant->is_active) {
             return redirect()->route('tenant.login')
                 ->withErrors(['email' => 'Conta inativa ou não encontrada.']);
@@ -28,7 +37,6 @@ class TenantMiddleware
 
         App::instance('currentTenant', $tenant);
         App::instance('tenant.scope.required', true);
-        Auth::shouldUse('tenant');
 
         if (! $this->lgpdService->hasRequiredConsents($tenant)) {
             return redirect()->route('lgpd.consent');

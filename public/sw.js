@@ -3,6 +3,7 @@ const PRECIFIQUE_ASSETS = [
     '/images/favicon.svg',
     '/apple-touch-icon.png',
     '/manifest.json',
+    '/offline.html',
 ];
 
 const PRECIFIQUE_SHELL = [
@@ -31,6 +32,14 @@ self.addEventListener('fetch', (event) => {
     }
 
     const url = new URL(event.request.url);
+
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request).catch(() => caches.match('/offline.html'))
+        );
+
+        return;
+    }
 
     if (PRECIFIQUE_SHELL.some((path) => url.pathname === path)) {
         event.respondWith(

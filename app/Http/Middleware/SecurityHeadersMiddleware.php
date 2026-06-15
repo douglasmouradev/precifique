@@ -24,7 +24,12 @@ class SecurityHeadersMiddleware
         );
 
         if (config('security.csp')) {
-            $response->headers->set('Content-Security-Policy', (string) config('security.csp_policy'));
+            $nonce = $request->attributes->get('csp_nonce');
+            $policy = (string) config('security.csp_policy');
+            if (is_string($nonce) && $nonce !== '') {
+                $policy = str_replace('{nonce}', $nonce, $policy);
+            }
+            $response->headers->set('Content-Security-Policy', $policy);
         }
 
         if (config('security.hsts') && $request->secure()) {

@@ -173,5 +173,59 @@
         <x-ui.button :href="route('tenant.account.two-factor')">{{ __('app.account.enable_2fa') }}</x-ui.button>
         @endif
     </x-ui.card>
+
+    @if($isOwner)
+    <x-ui.card class="lg:col-span-2">
+        <h2 class="ui-section-title">{{ __('members.title') }}</h2>
+        <p class="text-sm text-slate-500 mb-4">{{ __('members.subtitle') }}</p>
+        <form method="POST" action="{{ route('tenant.account.members.store') }}" class="grid sm:grid-cols-2 gap-4 mb-6">
+            @csrf
+            <div><label class="ui-label">{{ __('members.name') }}</label><input name="name" required class="ui-input"></div>
+            <div><label class="ui-label">{{ __('members.email') }}</label><input type="email" name="email" required class="ui-input"></div>
+            <div><label class="ui-label">{{ __('members.password') }}</label><input type="password" name="password" required minlength="8" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('members.role') }}</label>
+                <select name="role" class="ui-input">
+                    @foreach(__('members.roles') as $val => $label)
+                    <option value="{{ $val }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="sm:col-span-2"><x-ui.button type="submit">{{ __('members.invite') }}</x-ui.button></div>
+        </form>
+        @if($members->isEmpty())
+        <p class="text-sm text-slate-500">{{ __('members.no_members') }}</p>
+        @else
+        <ul class="divide-y divide-slate-100">
+            @foreach($members as $member)
+            <li class="py-2 flex justify-between items-center text-sm">
+                <span>{{ $member->name }} &lt;{{ $member->email }}&gt; — {{ __('members.roles.'.$member->role) }}</span>
+                <form method="POST" action="{{ route('tenant.account.members.destroy', $member) }}">@csrf @method('DELETE')
+                    <button type="submit" class="text-red-600 text-xs">{{ __('members.remove') }}</button>
+                </form>
+            </li>
+            @endforeach
+        </ul>
+        @endif
+    </x-ui.card>
+
+    <x-ui.card class="lg:col-span-2">
+        <h2 class="ui-section-title">{{ __('members.webhooks_title') }}</h2>
+        <p class="text-sm text-slate-500 mb-4">{{ __('members.webhooks_desc') }}</p>
+        <form method="POST" action="{{ route('tenant.account.webhooks.store') }}" class="grid sm:grid-cols-2 gap-4 mb-4">
+            @csrf
+            <div class="sm:col-span-2"><label class="ui-label">{{ __('members.webhook_url') }}</label><input type="url" name="url" required class="ui-input" placeholder="https://"></div>
+            <div class="sm:col-span-2"><label class="ui-label">{{ __('members.webhook_secret') }}</label><input name="secret" class="ui-input"></div>
+            <div><x-ui.button type="submit">{{ __('members.add_webhook') }}</x-ui.button></div>
+        </form>
+        @foreach($webhooks as $hook)
+        <div class="flex justify-between items-center py-2 border-t border-slate-100 text-sm">
+            <code class="text-xs break-all">{{ $hook->url }}</code>
+            <form method="POST" action="{{ route('tenant.account.webhooks.destroy', $hook) }}">@csrf @method('DELETE')
+                <button type="submit" class="text-red-600 text-xs">{{ __('members.remove') }}</button>
+            </form>
+        </div>
+        @endforeach
+    </x-ui.card>
+    @endif
 </div>
 @endsection

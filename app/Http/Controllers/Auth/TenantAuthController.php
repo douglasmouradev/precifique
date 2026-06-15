@@ -7,10 +7,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\TenantRegisterRequest;
 use App\Models\Tenant;
+use App\Models\TenantMember;
 use App\Support\TenantNicheMapper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class TenantAuthController extends Controller
@@ -40,6 +42,18 @@ class TenantAuthController extends Controller
 
             $request->session()->regenerate();
             session(['tenant_two_factor_verified_at' => now()->timestamp]);
+
+            return redirect()->intended(route('tenant.dashboard'));
+        }
+
+        $member = TenantMember::query()
+            ->where('email', $credentials['email'])
+            ->where('is_active', true)
+            ->first();
+
+        if ($member && Hash::check($credentials['password'], $member->password)) {
+            Auth::guard('tenant_member')->login($member, $request->boolean('remember'));
+            $request->session()->regenerate();
 
             return redirect()->intended(route('tenant.dashboard'));
         }
@@ -80,6 +94,7 @@ class TenantAuthController extends Controller
     public function logout(Request $request): RedirectResponse
     {
         Auth::guard('tenant')->logout();
+        Auth::guard('tenant_member')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

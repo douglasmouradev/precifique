@@ -227,15 +227,16 @@
         </main>
     </div>
 
-    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-[55] bg-white border-t border-slate-200 px-2 py-2 flex justify-around safe-area-pb" aria-label="Navegação principal">
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-[55] bg-white border-t border-slate-200 px-1 py-2 flex justify-around safe-area-pb" aria-label="{{ __('app.nav.menu') }}">
         @foreach([
-            ['route' => 'tenant.dashboard', 'label' => 'Início', 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
-            ['route' => 'tenant.products.index', 'label' => 'Produtos', 'icon' => 'products', 'match' => 'tenant.products.*'],
-            ['route' => 'tenant.sales.index', 'label' => 'Vendas', 'icon' => 'sales', 'match' => 'tenant.sales.*'],
-            ['route' => 'tenant.menu', 'label' => 'Mais', 'icon' => 'menu', 'match' => 'tenant.menu'],
+            ['route' => 'tenant.dashboard', 'label' => __('app.nav.dashboard'), 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
+            ['route' => 'tenant.sales.create', 'label' => '+', 'icon' => 'sales', 'match' => 'tenant.sales.create', 'accent' => true],
+            ['route' => 'tenant.products.index', 'label' => __('app.nav.products'), 'icon' => 'products', 'match' => 'tenant.products.*'],
+            ['route' => 'tenant.sales.index', 'label' => __('app.nav.sales'), 'icon' => 'sales', 'match' => 'tenant.sales.index'],
+            ['route' => 'tenant.menu', 'label' => __('app.nav.menu'), 'icon' => 'menu', 'match' => 'tenant.menu'],
         ] as $tab)
         <a href="{{ route($tab['route']) }}"
-           class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-medium min-w-[4rem] {{ request()->routeIs($tab['match']) ? 'text-brand-dark' : 'text-slate-500' }}"
+           class="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg text-[10px] font-medium min-w-[3.5rem] {{ request()->routeIs($tab['match']) ? 'text-brand-dark' : 'text-slate-500' }} {{ ($tab['accent'] ?? false) ? '!text-brand-dark font-bold text-sm' : '' }}"
            @if(request()->routeIs($tab['match'])) aria-current="page" @endif>
             <x-ui.nav-icon :name="$tab['icon']" class="w-5 h-5" />
             {{ $tab['label'] }}

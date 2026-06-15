@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant;
 use App\Models\TenantNotification;
 use App\Services\TenantNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class NotificationController extends Controller
 {
@@ -19,7 +21,8 @@ class NotificationController extends Controller
 
     public function index(): JsonResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = $this->resolveTenant();
+        abort_unless($tenant, 401);
 
         $items = $tenant->notifications()
             ->latest()
@@ -41,10 +44,38 @@ class NotificationController extends Controller
         ]);
     }
 
+    public function stream(): StreamedResponse
+    {
+        $tenant = $this->resolveTenant();
+        abort_unless($tenant, 401);
+
+        return response()->stream(function () use ($tenant): void {
+            for ($i = 0; $i < 6; $i++) {
+                if (connection_aborted()) {
+                    break;
+                }
+
+                echo 'data: '.json_encode([
+                    'unread_count' => $this->notifications->unreadCount($tenant),
+                ])."\n\n";
+
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+                sleep(10);
+            }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
     public function markRead(TenantNotification $notification): JsonResponse
     {
-        $tenant = Auth::guard('tenant')->user();
-        abort_unless($notification->tenant_id === $tenant->id, 403);
+        $tenant = $this->resolveTenant();
+        abort_unless($tenant && $notification->tenant_id === $tenant->id, 403);
 
         $notification->markAsRead();
 
@@ -53,7 +84,9 @@ class NotificationController extends Controller
 
     public function markAllRead(): RedirectResponse|JsonResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = $this->resolveTenant();
+        abort_unless($tenant, 401);
+
         $this->notifications->markAllRead($tenant);
 
         if (request()->expectsJson()) {
@@ -61,5 +94,14 @@ class NotificationController extends Controller
         }
 
         return back();
+    }
+
+    private function resolveTenant(): ?Tenant
+    {
+        $tenant = Auth::guard('tenant')->user();
+
+        return $tenant instanceof Tenant
+            ? $tenant
+            : Auth::guard('tenant_member')->user()?->tenant;
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Tenant;
+use App\Models\TenantMember;
 use App\Models\User;
 
 return [
@@ -47,6 +48,10 @@ return [
             'driver' => 'session',
             'provider' => 'tenants',
         ],
+        'tenant_member' => [
+            'driver' => 'session',
+            'provider' => 'tenant_members',
+        ],
     ],
 
     /*
@@ -74,6 +79,10 @@ return [
         'tenants' => [
             'driver' => 'eloquent',
             'model' => Tenant::class,
+        ],
+        'tenant_members' => [
+            'driver' => 'eloquent',
+            'model' => TenantMember::class,
         ],
     ],
 

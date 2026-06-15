@@ -1,27 +1,27 @@
 @extends('layouts.tenant')
-@section('title', 'Precificar — '.$product->name)
-@section('breadcrumb') Produtos / {{ $product->name }} @endsection
+@section('title', __('pricing.title', ['name' => $product->name]))
+@section('breadcrumb') {{ __('pricing.breadcrumb', ['name' => $product->name]) }} @endsection
 
 @section('content')
 @php $beginner = ($tenant->usage_mode ?? 'avancado') === 'iniciante'; @endphp
-<x-ui.page-header :title="'Precificação: '.$product->name" :subtitle="$beginner ? 'Modo iniciante — preencha o essencial e calcule seu preço' : 'Preencha as etapas e calcule o preço ideal'">
+<x-ui.page-header :title="__('pricing.page_title', ['name' => $product->name])" :subtitle="$beginner ? __('pricing.subtitle_beginner') : __('pricing.subtitle_advanced')">
     <x-slot:actions>
         @if($product->selling_price)
-        <x-ui.button variant="outline" :href="route('tenant.quotes.pdf', $product)">Exportar PDF</x-ui.button>
+        <x-ui.button variant="outline" :href="route('tenant.quotes.pdf', $product)">{{ __('pricing.export_pdf') }}</x-ui.button>
         @endif
-        <x-ui.button variant="outline" :href="route('tenant.products.index')">← Voltar</x-ui.button>
+        <x-ui.button variant="outline" :href="route('tenant.products.index')">{{ __('pricing.back') }}</x-ui.button>
     </x-slot:actions>
 </x-ui.page-header>
 
 @if($beginner)
 <x-ui.alert class="mb-6">
-    <strong>Modo iniciante:</strong> focamos nos campos essenciais. Custos variáveis, adicionais e estoque ficam disponíveis no modo avançado.
+    <strong>{{ __('pricing.beginner_alert') }}</strong> {{ __('pricing.beginner_alert_text') }}
 </x-ui.alert>
 @endif
 
 @if($tenant->onTrial())
 <x-ui.alert type="warning" class="mb-6">
-    Você está no trial Premium até {{ $tenant->trial_ends_at->format('d/m/Y') }}. Aproveite IA e produtos ilimitados.
+    {{ __('pricing.trial_alert', ['date' => $tenant->trial_ends_at->format('d/m/Y')]) }}
 </x-ui.alert>
 @endif
 
@@ -29,8 +29,8 @@
 <div x-data="pricingWizard">
 @php
     $wizardSteps = $beginner
-        ? ['Básico', 'Materiais', 'Mão de obra', 'Margem']
-        : ['Básico', 'Nicho', 'Materiais', 'Custos', 'Margem', 'Estoque'];
+        ? [__('pricing.steps.basic'), __('pricing.steps.materials'), __('pricing.steps.labor'), __('pricing.steps.margin')]
+        : [__('pricing.steps.basic'), __('pricing.steps.niche'), __('pricing.steps.materials'), __('pricing.steps.costs'), __('pricing.steps.margin'), __('pricing.steps.stock')];
 @endphp
 <div class="ui-card p-4 mb-8 overflow-x-auto">
     <div class="flex min-w-max gap-2 text-xs font-semibold">
@@ -52,10 +52,10 @@
 
 @if($product->priceHistories->isNotEmpty())
 <x-ui.card class="mb-8">
-    <h2 class="ui-section-title">Histórico de preços</h2>
+    <h2 class="ui-section-title">{{ __('pricing.price_history') }}</h2>
     <div class="overflow-x-auto">
         <table class="ui-table text-sm">
-            <thead><tr><th>Data</th><th>Preço</th><th>Margem</th><th>Custo produção</th></tr></thead>
+            <thead><tr><th>{{ __('pricing.history_date') }}</th><th>{{ __('pricing.history_price') }}</th><th>{{ __('pricing.history_margin') }}</th><th>{{ __('pricing.history_cost') }}</th></tr></thead>
             <tbody>
             @foreach($product->priceHistories->take(8) as $history)
             <tr>
@@ -75,14 +75,14 @@
     @csrf @method('PUT')
 
     <x-ui.card>
-        <h2 class="ui-section-title">1. Informações básicas</h2>
+        <h2 class="ui-section-title">{{ __('pricing.section_basic') }}</h2>
         <div class="grid md:grid-cols-2 gap-4">
-            <div><label class="ui-label">Nome</label><input name="name" value="{{ $product->name }}" required class="ui-input"></div>
-            <div><label class="ui-label">Tempo produção (min)</label><input type="number" name="production_time_minutes" value="{{ $product->production_time_minutes }}" class="ui-input"></div>
-            <div class="md:col-span-2"><label class="ui-label">Descrição</label><textarea name="description" rows="2" class="ui-input">{{ $product->description }}</textarea></div>
+            <div><label class="ui-label">{{ __('pricing.name') }}</label><input name="name" value="{{ $product->name }}" required class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.production_time') }}</label><input type="number" name="production_time_minutes" value="{{ $product->production_time_minutes }}" class="ui-input"></div>
+            <div class="md:col-span-2"><label class="ui-label">{{ __('pricing.description') }}</label><textarea name="description" rows="2" class="ui-input">{{ $product->description }}</textarea></div>
             <label class="flex items-center gap-2 text-sm text-slate-600 md:col-span-2">
                 <input type="checkbox" name="is_custom_order" value="1" @checked($product->is_custom_order) class="rounded border-slate-300 text-brand focus:ring-brand/30">
-                Encomenda sob demanda
+                {{ __('pricing.custom_order') }}
             </label>
         </div>
     </x-ui.card>
@@ -163,19 +163,19 @@
 
     <x-ui.card>
         <h2 class="ui-section-title">
-            @if($beginner)3. @endif Mão de obra
+            @if($beginner)3. @endif {{ __('pricing.section_labor') }}
             @if($beginner)
-            <span class="text-slate-400 font-normal text-sm">— quanto vale seu tempo?</span>
+            <span class="text-slate-400 font-normal text-sm">{{ __('pricing.labor_hint') }}</span>
             @endif
         </h2>
         <div class="grid md:grid-cols-2 gap-4">
-            <div><label class="ui-label">Valor/hora (R$)</label><input name="hourly_rate" x-model="hourlyRate" @input.debounce.400ms="updatePreview()" type="number" step="0.01" class="ui-input"></div>
-            <div><label class="ui-label">Horas gastas</label><input name="hours_spent" x-model="hoursSpent" @input.debounce.400ms="updatePreview()" type="number" step="0.01" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.hourly_rate') }}</label><input name="hourly_rate" x-model="hourlyRate" @input.debounce.400ms="updatePreview()" type="number" step="0.01" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.hours_spent') }}</label><input name="hours_spent" x-model="hoursSpent" @input.debounce.400ms="updatePreview()" type="number" step="0.01" class="ui-input"></div>
         </div>
     </x-ui.card>
 
     <x-ui.card class="border-brand/20 bg-gradient-to-br from-brand/[0.03] to-transparent">
-        <h2 class="ui-section-title">4. Margem e preço final</h2>
+        <h2 class="ui-section-title">{{ __('pricing.section_margin') }}</h2>
         <div class="flex flex-wrap gap-2 mb-6">
             @foreach($margins as $margin)
             <label class="cursor-pointer">
@@ -197,8 +197,8 @@
 
         <div class="mb-6">
             <button type="button" @click="compareMargins()" :disabled="compareLoading" class="text-sm font-semibold text-brand-dark hover:text-brand inline-flex items-center gap-2">
-                <span x-show="!compareLoading">Comparar todas as margens</span>
-                <span x-show="compareLoading" x-cloak>Comparando…</span>
+                <span x-show="!compareLoading">{{ __('pricing.compare_margins') }}</span>
+                <span x-show="compareLoading" x-cloak>{{ __('pricing.comparing') }}</span>
             </button>
         </div>
         <div x-show="compareScenarios.length" x-cloak class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">

@@ -20,6 +20,11 @@ class AccountController extends Controller
     public function index(TenantNotificationPreferences $preferences): View
     {
         $tenant = Auth::guard('tenant')->user();
+        if (! $tenant) {
+            $tenant = Auth::guard('tenant_member')->user()?->tenant;
+        }
+        abort_unless($tenant, 401);
+
         $subscription = Subscription::query()
             ->where('tenant_id', $tenant->id)
             ->where('status', 'active')
@@ -36,6 +41,9 @@ class AccountController extends Controller
             'apiTokens' => $tokens,
             'apiAbilities' => TenantApiAbilities::all(),
             'notificationPrefs' => $preferences->for($tenant),
+            'members' => $tenant->members()->latest()->get(),
+            'webhooks' => $tenant->webhooks()->latest()->get(),
+            'isOwner' => Auth::guard('tenant')->check(),
         ]);
     }
 

@@ -23,6 +23,10 @@ class EnsureTenantTwoFactor
             return $next($request);
         }
 
+        if (Auth::guard('tenant_member')->check()) {
+            return $next($request);
+        }
+
         $tenant = Auth::guard('tenant')->user();
 
         if ($tenant?->hasTwoFactorEnabled() && ! session('tenant_two_factor_verified_at')) {

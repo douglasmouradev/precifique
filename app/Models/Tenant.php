@@ -134,6 +134,16 @@ class Tenant extends Authenticatable implements CanResetPasswordContract, MustVe
         return $this->hasMany(TenantNotification::class);
     }
 
+    public function members(): HasMany
+    {
+        return $this->hasMany(TenantMember::class);
+    }
+
+    public function webhooks(): HasMany
+    {
+        return $this->hasMany(TenantWebhook::class);
+    }
+
     public function isPremium(): bool
     {
         if ($this->plan === PlanType::Premium) {

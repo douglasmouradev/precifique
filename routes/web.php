@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 Route::get('/docs/api', ApiDocsController::class)->name('docs.api');
+Route::get('/openapi.yaml', fn () => response()->file(public_path('openapi.yaml'), ['Content-Type' => 'application/yaml']))->name('openapi');
 Route::get('/precificacao-alimentos', [LandingController::class, 'nicheFood'])->name('landing.niche.food');
 Route::get('/precificacao-servicos', [LandingController::class, 'nicheService'])->name('landing.niche.service');
 Route::get('/precificacao-artesanato', [LandingController::class, 'nicheCraft'])->name('landing.niche.craft');
