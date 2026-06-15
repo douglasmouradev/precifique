@@ -15,6 +15,9 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="{{ asset('images/og-precifique.svg') }}">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('og_title', 'Precifique — Precificação inteligente')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Pare de chutar preços. Calcule custos, margem e lucro com confiança.')">
+    <meta name="twitter:image" content="{{ asset('images/og-precifique.svg') }}">
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
     <title>@yield('title', 'Precifique')</title>
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])

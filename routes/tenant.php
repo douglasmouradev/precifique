@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Auth\OnboardingController;
 use App\Http\Controllers\Auth\TenantAuthController;
 use App\Http\Controllers\Auth\TenantPasswordResetController;
+use App\Http\Controllers\Tenant\AccountController;
 use App\Http\Controllers\Tenant\AIController;
 use App\Http\Controllers\Tenant\BillingController;
 use App\Http\Controllers\Tenant\DashboardController;
@@ -61,8 +62,12 @@ Route::middleware('auth:tenant')->group(function () {
 });
 
 Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->group(function () {
-    Route::get('/perfil', [ProfileSetupController::class, 'edit'])->name('profile.edit');
-    Route::put('/perfil', [ProfileSetupController::class, 'update'])->name('profile.update');
+    Route::get('/conta', [AccountController::class, 'index'])->name('account.index');
+    Route::put('/conta/perfil', [AccountController::class, 'updateProfile'])->name('account.profile');
+    Route::put('/conta/senha', [AccountController::class, 'updatePassword'])->name('account.password');
+
+    Route::redirect('/perfil', '/app/conta')->name('profile.edit');
+    Route::put('/perfil', [AccountController::class, 'updateProfile']);
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -114,4 +119,7 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
         ->middleware('throttle:tenant-billing')
         ->name('billing.success');
     Route::get('/billing/cancel', [BillingController::class, 'cancel'])->name('billing.cancel');
+    Route::get('/billing/portal', [BillingController::class, 'portal'])
+        ->middleware('throttle:tenant-billing')
+        ->name('billing.portal');
 });

@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -32,7 +33,7 @@ class TenantManagementController extends Controller
             'plan' => ['required', 'in:basic,premium'],
         ]);
 
-        $password = Str::password(12);
+        $password = Str::password(16);
 
         $tenant = Tenant::create([
             'name' => $data['name'],
@@ -59,7 +60,10 @@ class TenantManagementController extends Controller
             }
         }
 
-        Mail::to($tenant->email)->send(new TenantWelcomeMail($tenant, $password));
+        $token = Password::broker('tenants')->createToken($tenant);
+        $resetUrl = route('tenant.password.reset', ['token' => $token, 'email' => $tenant->email]);
+
+        Mail::to($tenant->email)->send(new TenantWelcomeMail($tenant, $resetUrl));
 
         return redirect()->route('admin.tenants.index')
             ->with('success', 'Tenant criado e e-mail enviado.');

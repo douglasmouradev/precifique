@@ -33,6 +33,20 @@ Route::get('/sitemap.xml', function () {
     return response($xml, 200, ['Content-Type' => 'application/xml']);
 })->name('sitemap');
 
+Route::get('/robots.txt', function () {
+    $lines = [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /app/',
+        'Disallow: /admin/',
+        'Disallow: /onboarding/',
+        'Disallow: /lgpd/',
+        'Sitemap: '.route('sitemap'),
+    ];
+
+    return response(implode("\n", $lines), 200, ['Content-Type' => 'text/plain']);
+})->name('robots');
+
 Route::post('/webhooks/stripe', [BillingController::class, 'stripeWebhook'])
     ->middleware('throttle:webhooks')
     ->name('webhooks.stripe')

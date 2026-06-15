@@ -45,6 +45,17 @@
 </x-ui.card>
 @endif
 
+@if($tenant->onTrial())
+<x-ui.alert type="warning" class="mb-6">
+    Trial Premium até <strong>{{ $tenant->trial_ends_at->format('d/m/Y') }}</strong>.
+    <a href="{{ route('tenant.billing.upgrade') }}" class="underline font-semibold ml-1">Fazer upgrade</a>
+</x-ui.alert>
+@elseif(!$tenant->isPremium() && $tenant->trial_ends_at && $tenant->trial_ends_at->isPast())
+<x-ui.alert type="warning" class="mb-6">
+    Seu trial encerrou. <a href="{{ route('tenant.billing.upgrade') }}" class="underline font-semibold">Ative o Premium</a> para produtos ilimitados e IA.
+</x-ui.alert>
+@endif
+
 @if($productsWithoutPrice > 0)
 <x-ui.alert type="warning" class="mb-6">
     <strong>{{ $productsWithoutPrice }}</strong> produto(s) ainda sem preço de venda.

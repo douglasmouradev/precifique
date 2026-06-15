@@ -18,7 +18,7 @@ class TenantWelcomeMail extends Mailable implements ShouldQueue
 
     public function __construct(
         public readonly Tenant $tenant,
-        public readonly string $plainPassword,
+        public readonly string $resetUrl,
     ) {}
 
     public function envelope(): Envelope

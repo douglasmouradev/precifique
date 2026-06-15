@@ -1,14 +1,15 @@
 <x-mail::message>
 # Bem-vindo ao Precifique, {{ $tenant->name }}!
 
-Sua conta foi criada.
+Sua conta foi criada pelo administrador.
 
 **E-mail:** {{ $tenant->email }}
-**Senha temporária:** {{ $plainPassword }}
 
-<x-mail::button :url="route('tenant.login')">
-Acessar o sistema
+Para definir sua senha, use o link abaixo (válido por tempo limitado):
+
+<x-mail::button :url="$resetUrl">
+Definir senha e entrar
 </x-mail::button>
 
-Altere sua senha após o primeiro acesso.
+Se você não solicitou esta conta, ignore este e-mail.
 </x-mail::message>

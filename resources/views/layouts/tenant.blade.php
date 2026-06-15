@@ -23,7 +23,7 @@
         ['route' => 'tenant.variable-costs.index', 'label' => 'Custos variáveis', 'icon' => 'variable-costs', 'match' => 'tenant.variable-costs.*'],
         ['route' => 'tenant.stock.index', 'label' => 'Estoque', 'icon' => 'stock', 'match' => 'tenant.stock.*'],
         ['route' => 'tenant.goals.edit', 'label' => 'Meta', 'icon' => 'goals', 'match' => 'tenant.goals.*'],
-        ['route' => 'tenant.profile.edit', 'label' => 'Monte seu perfil', 'icon' => 'edit', 'match' => 'tenant.profile.*'],
+        ['route' => 'tenant.account.index', 'label' => 'Minha conta', 'icon' => 'edit', 'match' => 'tenant.account.*'],
     ];
     if ($tenant?->isPremium()) {
         $nav[] = ['route' => 'tenant.reports.monthly', 'label' => 'Relatório', 'icon' => 'reports', 'match' => 'tenant.reports.*'];
@@ -210,13 +210,29 @@
         <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-red-50 text-red-800 text-sm border border-red-200 px-4 py-3" data-flash="error" role="alert" aria-live="assertive">{{ session('error') }}</div>
         @endif
 
-        <main class="flex-1 px-4 md:px-8 py-6 md:py-8 app-shell-bg">
+        <main class="flex-1 px-4 md:px-8 py-6 md:py-8 pb-24 lg:pb-8 app-shell-bg">
             @isset($setupProgress)
             <x-ui.setup-progress :progress="$setupProgress" />
             @endisset
             @yield('content')
         </main>
     </div>
+
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-[55] bg-white border-t border-slate-200 px-2 py-2 flex justify-around safe-area-pb" aria-label="Navegação principal">
+        @foreach([
+            ['route' => 'tenant.dashboard', 'label' => 'Início', 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
+            ['route' => 'tenant.products.index', 'label' => 'Produtos', 'icon' => 'products', 'match' => 'tenant.products.*'],
+            ['route' => 'tenant.sales.index', 'label' => 'Vendas', 'icon' => 'sales', 'match' => 'tenant.sales.*'],
+            ['route' => 'tenant.account.index', 'label' => 'Conta', 'icon' => 'edit', 'match' => 'tenant.account.*'],
+        ] as $tab)
+        <a href="{{ route($tab['route']) }}"
+           class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg text-[10px] font-medium min-w-[4rem] {{ request()->routeIs($tab['match']) ? 'text-brand-dark' : 'text-slate-500' }}"
+           @if(request()->routeIs($tab['match'])) aria-current="page" @endif>
+            <x-ui.nav-icon :name="$tab['icon']" class="w-5 h-5" />
+            {{ $tab['label'] }}
+        </a>
+        @endforeach
+    </nav>
 
     @if($tenant?->isPremium())
     <div x-show="aiOpen" x-cloak x-transition class="fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-md">

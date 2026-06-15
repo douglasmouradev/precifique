@@ -5,7 +5,7 @@ Seu período de teste Premium do Precifique termina em **{{ $tenant->trial_ends_
 
 Para continuar com produtos ilimitados, IA e relatórios:
 
-<x-mail::button :url="url('/app/billing/upgrade')">
+<x-mail::button :url="route('tenant.billing.upgrade')">
 Fazer upgrade
 </x-mail::button>
 

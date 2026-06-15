@@ -72,12 +72,12 @@
 
             <p class="text-brand text-xs font-semibold tracking-[0.25em] uppercase mb-6">Carregando</p>
 
-            <h1
+            <p
                 class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center leading-snug min-h-[4.5rem] sm:min-h-[5.5rem] transition-all duration-700 ease-out"
                 :class="phraseVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
             >
                 Você sabe quanto vale o que você produz?
-            </h1>
+            </p>
 
             <div class="w-full mt-10">
                 <div class="flex justify-between text-xs text-gray-500 mb-2 tabular-nums">
@@ -157,9 +157,9 @@
         <div class="scroll-3d-section__inner max-w-6xl mx-auto px-4 relative">
             <div>
                 <p class="text-brand font-semibold mb-4 tracking-wide uppercase text-sm">Precificação para pequenos negócios</p>
-                <h2 class="font-display text-4xl md:text-5xl font-bold leading-tight max-w-3xl">
+                <h1 class="font-display text-4xl md:text-5xl font-bold leading-tight max-w-3xl">
                     Pare de chutar preços. Cobre o valor justo.
-                </h2>
+                </h1>
                 <p class="mt-6 text-gray-300 text-lg max-w-xl">Calcule custos reais, margem de lucro e venda com confiança — com ou sem IA.</p>
                 <div class="mt-10 flex flex-wrap gap-4">
                     <a href="{{ route('tenant.register') }}" class="bg-brand text-ink px-8 py-4 rounded-xl font-bold text-lg hover:bg-brand-dark transition">Começar Grátis</a>
@@ -342,11 +342,14 @@
                 ['É seguro (LGPD)?', 'Sim. Consentimento, exportação e exclusão de dados integrados.'],
             ] as $i => $faq)
             <x-landing.reveal :delay="$i * 60" class="border-b border-gray-200">
-                <button @click="open = open === {{ $i }} ? null : {{ $i }}" class="w-full py-4 text-left font-semibold flex justify-between">
+                <button type="button" id="faq-btn-{{ $i }}" @click="open = open === {{ $i }} ? null : {{ $i }}"
+                    class="w-full py-4 text-left font-semibold flex justify-between"
+                    :aria-expanded="open === {{ $i }}"
+                    aria-controls="faq-panel-{{ $i }}">
                     {{ $faq[0] }}
-                    <span x-text="open === {{ $i }} ? '−' : '+'"></span>
+                    <span aria-hidden="true" x-text="open === {{ $i }} ? '−' : '+'"></span>
                 </button>
-                <div x-show="open === {{ $i }}" x-collapse class="pb-4 text-gray-600">{{ $faq[1] }}</div>
+                <div id="faq-panel-{{ $i }}" x-show="open === {{ $i }}" x-collapse class="pb-4 text-gray-600" role="region" aria-labelledby="faq-btn-{{ $i }}">{{ $faq[1] }}</div>
             </x-landing.reveal>
             @endforeach
         </div>

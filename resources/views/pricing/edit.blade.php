@@ -25,7 +25,8 @@
 </x-ui.alert>
 @endif
 
-{{-- Indicador de etapas --}}
+{{-- Indicador de etapas + formulário --}}
+<div x-data="pricingWizard">
 @php
     $wizardSteps = $beginner
         ? ['Básico', 'Materiais', 'Mão de obra', 'Margem']
@@ -70,28 +71,7 @@
 </x-ui.card>
 @endif
 
-@if($product->priceHistories->isNotEmpty())
-<x-ui.card class="mb-8">
-    <h2 class="ui-section-title">Histórico de preços</h2>
-    <div class="overflow-x-auto">
-        <table class="ui-table text-sm">
-            <thead><tr><th>Data</th><th>Preço</th><th>Margem</th><th>Custo produção</th></tr></thead>
-            <tbody>
-            @foreach($product->priceHistories->take(8) as $history)
-            <tr>
-                <td class="text-slate-500">{{ $history->created_at->format('d/m/Y H:i') }}</td>
-                <td class="font-semibold text-brand-dark">R$ {{ number_format($history->selling_price, 2, ',', '.') }}</td>
-                <td>{{ $history->profit_margin_percent ? number_format($history->profit_margin_percent, 0).'%' : '—' }}</td>
-                <td>{{ $history->production_cost ? 'R$ '.number_format($history->production_cost, 2, ',', '.') : '—' }}</td>
-            </tr>
-            @endforeach
-            </tbody>
-        </table>
-    </div>
-</x-ui.card>
-@endif
-
-<form method="POST" action="{{ route('tenant.pricing.update', $product) }}" x-data="pricingWizard" class="space-y-6 animate-fade-in">
+<form method="POST" action="{{ route('tenant.pricing.update', $product) }}" class="space-y-6 animate-fade-in">
     @csrf @method('PUT')
 
     <x-ui.card>
@@ -285,6 +265,7 @@
         <x-ui.button type="submit" class="py-3 px-10 shadow-lg shadow-brand/20 w-full md:w-auto">Salvar e calcular preço</x-ui.button>
     </div>
 </form>
+</div>
 @endsection
 
 @push('scripts')

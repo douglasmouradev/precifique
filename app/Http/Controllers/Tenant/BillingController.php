@@ -21,9 +21,10 @@ class BillingController extends Controller
 
     public function upgrade(): View
     {
+        $tenant = Auth::guard('tenant')->user()->load('subscription');
         $plan = Plan::where('slug', 'premium')->first();
 
-        return view('billing.upgrade', compact('plan'));
+        return view('billing.upgrade', compact('plan', 'tenant'));
     }
 
     public function stripeCheckout(): RedirectResponse
@@ -64,6 +65,18 @@ class BillingController extends Controller
     public function cancel(): RedirectResponse
     {
         return redirect()->route('tenant.billing.upgrade')->with('warning', 'Pagamento cancelado.');
+    }
+
+    public function portal(): RedirectResponse
+    {
+        $tenant = Auth::guard('tenant')->user();
+        $url = $this->payments->createStripePortalSession($tenant);
+
+        if ($url === null) {
+            return back()->with('warning', 'Portal de assinatura indisponível no momento.');
+        }
+
+        return redirect()->away($url);
     }
 
     public function stripeWebhook(Request $request): Response

@@ -3,6 +3,19 @@
 @section('breadcrumb') Assinatura @endsection
 
 @section('content')
+@if($tenant->isPremium())
+<div class="max-w-4xl mx-auto py-8">
+    <x-ui.page-header title="Assinatura Premium" subtitle="Seu plano está ativo">
+        <x-slot:actions>
+            @if($tenant->subscription?->stripe_subscription_id)
+            <x-ui.button :href="route('tenant.billing.portal')">Gerenciar no Stripe</x-ui.button>
+            @endif
+            <x-ui.button variant="outline" :href="route('tenant.account.index')">Minha conta</x-ui.button>
+        </x-slot:actions>
+    </x-ui.page-header>
+    <x-ui.alert type="success">Você tem acesso a todos os recursos Premium.</x-ui.alert>
+</div>
+@else
 <div class="max-w-4xl mx-auto py-8">
     <div class="text-center mb-10">
         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand/20 to-amber-100 mb-6 ring-1 ring-brand/20">
@@ -44,4 +57,5 @@
         </x-ui.card>
     </div>
 </div>
+@endif
 @endsection

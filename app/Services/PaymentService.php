@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Stripe\BillingPortal\Session as StripePortalSession;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\Stripe;
 use Stripe\Webhook;
@@ -121,6 +122,46 @@ class PaymentService
             'qr_code' => $data['point_of_interaction']['transaction_data']['qr_code'] ?? null,
             'qr_code_base64' => $data['point_of_interaction']['transaction_data']['qr_code_base64'] ?? null,
         ];
+    }
+
+    public function createStripePortalSession(Tenant $tenant): ?string
+    {
+        $secret = (string) config('services.stripe.secret');
+        if ($secret === '') {
+            return null;
+        }
+
+        $subscription = Subscription::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('status', 'active')
+            ->whereNotNull('stripe_subscription_id')
+            ->first();
+
+        if (! $subscription?->stripe_subscription_id) {
+            return null;
+        }
+
+        try {
+            Stripe::setApiKey($secret);
+            $session = StripePortalSession::create([
+                'customer' => $this->resolveStripeCustomerId($subscription->stripe_subscription_id),
+                'return_url' => route('tenant.account.index'),
+            ]);
+
+            return $session->url ?? null;
+        } catch (\Throwable $e) {
+            Log::warning('Stripe portal failed', ['message' => $e->getMessage()]);
+
+            return null;
+        }
+    }
+
+    private function resolveStripeCustomerId(string $stripeSubscriptionId): string
+    {
+        Stripe::setApiKey((string) config('services.stripe.secret'));
+        $sub = \Stripe\Subscription::retrieve($stripeSubscriptionId);
+
+        return (string) $sub->customer;
     }
 
     public function handleStripeWebhook(Request $request): bool

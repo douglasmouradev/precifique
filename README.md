@@ -126,7 +126,8 @@ GEMINI_API_KEY=sua-chave
 
 ## Produção
 
-**Guia completo:** [docs/PRODUCTION.md](docs/PRODUCTION.md)
+**Guia completo:** [docs/PRODUCTION.md](docs/PRODUCTION.md)  
+**VPS (Nginx + PHP):** [docs/VPS.md](docs/VPS.md)
 
 ```bash
 cp .env.production.example .env
