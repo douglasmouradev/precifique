@@ -6,21 +6,26 @@
 {{-- Abertura com carregamento --}}
 <div
     x-data="{
-        showIntro: !sessionStorage.getItem('precifique_intro_seen'),
+        showIntro: (() => { try { return !sessionStorage.getItem('precifique_intro_seen'); } catch (e) { return false; } })(),
         progress: 0,
         phraseVisible: false,
         loadingDone: false,
         scrollProgress: 0,
         focusTrapHandler: null,
+        failsafeTimer: null,
+        introReady: @json(__('landing.intro_ready')),
+        introPreparing: @json(__('landing.intro_preparing')),
         init() {
             this.initScrollProgress();
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                this.showIntro = false;
-                sessionStorage.setItem('precifique_intro_seen', '1');
+                this.closeIntro();
                 return;
             }
             if (!this.showIntro) return;
             document.body.style.overflow = 'hidden';
+            this.failsafeTimer = setTimeout(() => {
+                if (this.showIntro) this.closeIntro();
+            }, 4500);
             this.$nextTick(() => {
                 this.$refs.introDialog?.focus();
                 this.focusTrapHandler = (e) => this.handleFocusTrap(e);
@@ -39,7 +44,7 @@
                     requestAnimationFrame(step);
                 } else {
                     this.loadingDone = true;
-                    setTimeout(() => this.closeIntro(), 700);
+                    setTimeout(() => this.closeIntro(), 500);
                 }
             };
             requestAnimationFrame(step);
@@ -54,9 +59,17 @@
             update();
         },
         closeIntro() {
-            sessionStorage.setItem('precifique_intro_seen', '1');
+            if (this.failsafeTimer) {
+                clearTimeout(this.failsafeTimer);
+                this.failsafeTimer = null;
+            }
             this.showIntro = false;
-            document.body.style.overflow = '';
+            if (typeof window.precifiqueCloseIntroOverlay === 'function') {
+                window.precifiqueCloseIntroOverlay();
+            } else {
+                try { sessionStorage.setItem('precifique_intro_seen', '1'); } catch (e) {}
+                document.body.style.overflow = '';
+            }
             if (this.focusTrapHandler) {
                 document.removeEventListener('keydown', this.focusTrapHandler);
                 this.focusTrapHandler = null;
@@ -79,19 +92,25 @@
 >
     <x-landing.scroll-progress />
     <div
+        id="landing-intro-overlay"
         x-show="showIntro"
+        x-cloak
         x-ref="introDialog"
         tabindex="-1"
-        x-transition:leave="transition ease-in duration-700"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
         class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink text-white px-6 outline-none"
         role="dialog"
         aria-modal="true"
-        :aria-label="@js(__('landing.intro_loading'))"
+        :aria-label="introPreparing"
         aria-busy="true"
     >
-        <button type="button" @click="closeIntro()" class="absolute top-6 right-6 z-20 text-sm text-gray-400 hover:text-white underline focus:outline-none focus:ring-2 focus:ring-brand rounded px-2 py-1">{{ __('landing.intro_skip') }}</button>
+        <button
+            type="button"
+            id="landing-intro-skip"
+            @click="closeIntro()"
+            onclick="window.precifiqueCloseIntroOverlay && window.precifiqueCloseIntroOverlay()"
+            style="position:fixed;top:1rem;right:1rem;z-index:110"
+            class="text-sm font-semibold text-white bg-black/50 hover:bg-black/70 border border-white/25 px-4 py-2 rounded-lg backdrop-blur-sm shadow-lg"
+        >{{ __('landing.intro_skip') }}</button>
         <div class="absolute inset-0 opacity-25 bg-[radial-gradient(ellipse_at_center,#00C896_0%,transparent_65%)]"></div>
 
         <div class="relative z-10 flex flex-col items-center w-full max-w-2xl">
@@ -108,7 +127,7 @@
 
             <div class="w-full mt-10">
                 <div class="flex justify-between text-xs text-gray-500 mb-2 tabular-nums">
-                    <span x-text="loadingDone ? @js(__('landing.intro_ready')) : @js(__('landing.intro_preparing'))"></span>
+                    <span x-text="loadingDone ? introReady : introPreparing"></span>
                     <span x-text="progress + '%'"></span>
                 </div>
                 <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
