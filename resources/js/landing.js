@@ -221,12 +221,46 @@ function initLandingHeaderScroll() {
     update();
 }
 
+function initCookieConsent() {
+    const banner = document.getElementById('landing-cookie-banner');
+    const accept = document.getElementById('landing-cookie-accept');
+    if (!banner || !accept) {
+        return;
+    }
+
+    const hide = () => {
+        try {
+            localStorage.setItem('precifique_cookies', '1');
+        } catch (_) {
+            /* storage bloqueado */
+        }
+        document.documentElement.classList.add('cookies-accepted');
+        banner.remove();
+    };
+
+    try {
+        if (localStorage.getItem('precifique_cookies') === '1') {
+            hide();
+
+            return;
+        }
+    } catch (_) {
+        /* ignora */
+    }
+
+    accept.addEventListener('click', (event) => {
+        event.preventDefault();
+        hide();
+    });
+}
+
 function bootLanding() {
     initLandingIntro();
     initScrollProgressBar();
     initScrollReveal();
     initLandingMobileMenu();
     initLandingHeaderScroll();
+    initCookieConsent();
 }
 
 if (document.readyState === 'loading') {

@@ -29,10 +29,14 @@
         .scroll-reveal { opacity: 1; transform: none; }
         html.landing-intro-seen #landing-intro-overlay { display: none !important; }
         #landing-intro-overlay { background-color: #0D0D0D; }
+        html.cookies-accepted #landing-cookie-banner { display: none !important; }
     </style>
     @if(is_string($cspNonce) && $cspNonce !== '')
     <script nonce="{{ $cspNonce }}">
         try {
+            if (localStorage.getItem('precifique_cookies') === '1') {
+                document.documentElement.classList.add('cookies-accepted');
+            }
             if (sessionStorage.getItem('precifique_intro_seen')) {
                 document.documentElement.classList.add('landing-intro-seen');
                 document.addEventListener('DOMContentLoaded', function () {
@@ -42,6 +46,17 @@
                 });
             }
         } catch (e) {}
+        document.addEventListener('DOMContentLoaded', function () {
+            var acceptBtn = document.getElementById('landing-cookie-accept');
+            var banner = document.getElementById('landing-cookie-banner');
+            if (!acceptBtn || !banner) return;
+            acceptBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                try { localStorage.setItem('precifique_cookies', '1'); } catch (err) {}
+                document.documentElement.classList.add('cookies-accepted');
+                banner.remove();
+            });
+        });
     </script>
     @endif
     <x-analytics />
@@ -58,13 +73,22 @@
     }
     </script>
 </head>
-<body class="landing-page bg-paper text-ink font-sans antialiased overflow-x-hidden" x-data="{ cookieAccepted: localStorage.getItem('precifique_cookies') === '1' }">
+<body class="landing-page bg-paper text-ink font-sans antialiased overflow-x-hidden">
     @yield('content')
 
-    <div x-show="!cookieAccepted" x-cloak class="fixed bottom-0 inset-x-0 z-50 bg-ink text-white p-4 shadow-2xl">
+    <div
+        id="landing-cookie-banner"
+        class="fixed bottom-0 inset-x-0 z-[120] bg-ink text-white p-4 shadow-2xl pointer-events-auto"
+        role="dialog"
+        aria-label="{{ __('landing.cookie_message') }}"
+    >
         <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <p class="text-sm">{{ __('landing.cookie_message') }} <a href="{{ route('privacy') }}" class="text-brand underline">{{ __('app.nav.privacy') }}</a></p>
-            <button @click="localStorage.setItem('precifique_cookies','1'); cookieAccepted=true" class="bg-brand hover:bg-brand-dark px-6 py-2 rounded-lg font-semibold text-ink">{{ __('landing.cookie_accept') }}</button>
+            <button
+                type="button"
+                id="landing-cookie-accept"
+                class="bg-brand hover:bg-brand-dark px-6 py-3 min-h-[2.75rem] rounded-lg font-semibold text-ink touch-manipulation shrink-0"
+            >{{ __('landing.cookie_accept') }}</button>
         </div>
     </div>
     @stack('scripts')
