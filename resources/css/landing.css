@@ -27,11 +27,16 @@
 
 @layer utilities {
     .scroll-reveal {
-        opacity: 0;
-        transform: translate3d(0, 2rem, 0) scale(0.98);
+        opacity: 1;
+        transform: none;
         transition:
             opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
             transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    html.alpine-ready .scroll-reveal:not(.is-visible) {
+        opacity: 0;
+        transform: translate3d(0, 2rem, 0) scale(0.98);
         will-change: opacity, transform;
     }
 
@@ -207,4 +212,29 @@
     .card-3d:not([data-scroll-3d-pricing]):hover {
         transform: none;
     }
+}
+
+/* Intro da landing — vanilla JS (não depende de Alpine) */
+html.landing-intro-seen #landing-intro-overlay {
+    display: none !important;
+}
+
+#landing-intro-overlay {
+    transition: opacity 0.35s ease;
+}
+
+#landing-intro-overlay.landing-intro--hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#landing-intro-phrase {
+    opacity: 0;
+    transform: translateY(1rem);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+#landing-intro-phrase.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }

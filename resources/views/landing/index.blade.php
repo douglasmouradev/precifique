@@ -3,29 +3,22 @@
 @section('title', 'Precifique — Precificação inteligente')
 
 @section('content')
-{{-- Abertura com carregamento — lógica em resources/js/landing.js (Alpine.data landingIntro) --}}
-<div
-    x-data="landingIntro"
-    data-intro-copy='@json(['ready' => __('landing.intro_ready'), 'preparing' => __('landing.intro_preparing')])'
->
+{{-- Intro + página — intro usa JS vanilla em landing.js --}}
+<div id="landing-page">
     <x-landing.scroll-progress />
     <div
         id="landing-intro-overlay"
-        x-show="showIntro"
-        x-cloak
-        x-ref="introDialog"
-        tabindex="-1"
-        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink text-white px-6 outline-none"
+        data-intro-ready="{{ __('landing.intro_ready') }}"
+        data-intro-preparing="{{ __('landing.intro_preparing') }}"
+        class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-ink text-white px-6"
         role="dialog"
         aria-modal="true"
-        :aria-label="introPreparing"
-        aria-busy="true"
+        aria-label="{{ __('landing.intro_loading') }}"
+        aria-hidden="false"
     >
         <button
             type="button"
             id="landing-intro-skip"
-            @click="closeIntro()"
-            onclick="window.precifiqueCloseIntroOverlay && window.precifiqueCloseIntroOverlay()"
             style="position:fixed;top:1rem;right:1rem;z-index:110"
             class="text-sm font-semibold text-white bg-black/50 hover:bg-black/70 border border-white/25 px-4 py-2 rounded-lg backdrop-blur-sm shadow-lg"
         >{{ __('landing.intro_skip') }}</button>
@@ -37,21 +30,22 @@
             <p class="text-brand text-xs font-semibold tracking-[0.25em] uppercase mb-6">{{ __('landing.intro_loading') }}</p>
 
             <p
-                class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center leading-snug min-h-[4.5rem] sm:min-h-[5.5rem] transition-all duration-700 ease-out"
-                :class="phraseVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
+                id="landing-intro-phrase"
+                class="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center leading-snug min-h-[4.5rem] sm:min-h-[5.5rem]"
             >
                 {{ __('landing.intro_question') }}
             </p>
 
             <div class="w-full mt-10">
                 <div class="flex justify-between text-xs text-gray-500 mb-2 tabular-nums">
-                    <span x-text="loadingDone ? introReady : introPreparing"></span>
-                    <span x-text="progress + '%'"></span>
+                    <span id="landing-intro-status">{{ __('landing.intro_preparing') }}</span>
+                    <span><span id="landing-intro-pct">0</span>%</span>
                 </div>
                 <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
                     <div
+                        id="landing-intro-bar"
                         class="h-full bg-brand rounded-full transition-[width] duration-150 ease-out shadow-[0_0_12px_rgba(0,200,150,0.6)]"
-                        :style="'width:' + progress + '%'"
+                        style="width: 0%"
                     ></div>
                 </div>
             </div>
@@ -336,6 +330,6 @@
         <p class="text-sm">© {{ date('Y') }} Precifique. {{ __('landing.footer_rights') }}</p>
     </div>
 </footer>
-</div>{{-- fim abertura --}}
+</div>{{-- fim #landing-page --}}
 <style>.clip-hex{clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)}</style>
 @endsection

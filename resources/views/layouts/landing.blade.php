@@ -23,6 +23,16 @@
     <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'Precifique')</title>
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
+    @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
+    @if(is_string($cspNonce) && $cspNonce !== '')
+    <script nonce="{{ $cspNonce }}">
+        try {
+            if (sessionStorage.getItem('precifique_intro_seen')) {
+                document.documentElement.classList.add('landing-intro-seen');
+            }
+        } catch (e) {}
+    </script>
+    @endif
     <x-analytics />
     @stack('head')
     <script type="application/ld+json">

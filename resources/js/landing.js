@@ -14,155 +14,124 @@ window.precifiqueCloseIntroOverlay = function precifiqueCloseIntroOverlay() {
     } catch (_) {
         /* storage bloqueado */
     }
-    document.getElementById('landing-intro-overlay')?.remove();
+
+    document.documentElement.classList.add('landing-intro-seen');
+
+    const overlay = document.getElementById('landing-intro-overlay');
+    if (overlay) {
+        overlay.classList.add('landing-intro--hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+        window.setTimeout(() => overlay.remove(), 350);
+    }
+
     document.body.style.overflow = '';
 };
 
-Alpine.data('landingIntro', () => ({
-    showIntro: (() => {
-        try {
-            return !sessionStorage.getItem('precifique_intro_seen');
-        } catch (_) {
-            return false;
-        }
-    })(),
-    progress: 0,
-    phraseVisible: false,
-    loadingDone: false,
-    scrollProgress: 0,
-    focusTrapHandler: null,
-    failsafeTimer: null,
-    introReady: 'Pronto!',
-    introPreparing: 'Carregando…',
+function initLandingIntro() {
+    const overlay = document.getElementById('landing-intro-overlay');
+    if (!overlay) {
+        return;
+    }
 
-    init() {
-        try {
-            const copy = JSON.parse(this.$el.dataset.introCopy || '{}');
-            if (copy.ready) {
-                this.introReady = copy.ready;
-            }
-            if (copy.preparing) {
-                this.introPreparing = copy.preparing;
-            }
-        } catch (_) {
-            /* fallback nos defaults */
-        }
-
-        this.initScrollProgress();
-
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            this.closeIntro();
+    try {
+        if (sessionStorage.getItem('precifique_intro_seen')) {
+            overlay.remove();
 
             return;
         }
+    } catch (_) {
+        overlay.remove();
 
-        if (!this.showIntro) {
-            return;
+        return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        window.precifiqueCloseIntroOverlay();
+
+        return;
+    }
+
+    const pctEl = document.getElementById('landing-intro-pct');
+    const barEl = document.getElementById('landing-intro-bar');
+    const statusEl = document.getElementById('landing-intro-status');
+    const phraseEl = document.getElementById('landing-intro-phrase');
+    const ready = overlay.dataset.introReady || 'Pronto!';
+    const preparing = overlay.dataset.introPreparing || 'Carregando…';
+
+    document.body.style.overflow = 'hidden';
+
+    let failsafeTimer = window.setTimeout(() => {
+        window.precifiqueCloseIntroOverlay();
+    }, 4500);
+
+    const duration = 1600;
+    const start = performance.now();
+    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+    const step = (now) => {
+        const t = Math.min(1, (now - start) / duration);
+        const progress = Math.round(easeOut(t) * 100);
+
+        if (pctEl) {
+            pctEl.textContent = String(progress);
+        }
+        if (barEl) {
+            barEl.style.width = `${progress}%`;
+        }
+        if (statusEl) {
+            statusEl.textContent = t >= 1 ? ready : preparing;
+        }
+        if (phraseEl && progress >= 20) {
+            phraseEl.classList.add('is-visible');
         }
 
-        document.body.style.overflow = 'hidden';
-        this.failsafeTimer = setTimeout(() => {
-            if (this.showIntro) {
-                this.closeIntro();
-            }
-        }, 4500);
-
-        this.$nextTick(() => {
-            this.$refs.introDialog?.focus();
-            this.focusTrapHandler = (e) => this.handleFocusTrap(e);
-            document.addEventListener('keydown', this.focusTrapHandler);
-        });
-
-        const duration = 1600;
-        const start = performance.now();
-        const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-        const step = (now) => {
-            const t = Math.min(1, (now - start) / duration);
-            this.progress = Math.round(easeOut(t) * 100);
-            if (this.progress >= 20) {
-                this.phraseVisible = true;
-            }
-            if (t < 1) {
-                requestAnimationFrame(step);
-            } else {
-                this.loadingDone = true;
-                setTimeout(() => this.closeIntro(), 500);
-            }
-        };
-        requestAnimationFrame(step);
-    },
-
-    initScrollProgress() {
-        const update = () => {
-            const el = document.documentElement;
-            const max = el.scrollHeight - el.clientHeight;
-            this.scrollProgress = max > 0 ? Math.min(100, (el.scrollTop / max) * 100) : 0;
-        };
-        window.addEventListener('scroll', update, { passive: true });
-        update();
-    },
-
-    closeIntro() {
-        if (this.failsafeTimer) {
-            clearTimeout(this.failsafeTimer);
-            this.failsafeTimer = null;
-        }
-        this.showIntro = false;
-        if (typeof window.precifiqueCloseIntroOverlay === 'function') {
-            window.precifiqueCloseIntroOverlay();
+        if (t < 1) {
+            requestAnimationFrame(step);
         } else {
-            try {
-                sessionStorage.setItem('precifique_intro_seen', '1');
-            } catch (_) {
-                /* storage bloqueado */
-            }
-            document.body.style.overflow = '';
+            window.clearTimeout(failsafeTimer);
+            failsafeTimer = window.setTimeout(() => {
+                window.precifiqueCloseIntroOverlay();
+            }, 500);
         }
-        if (this.focusTrapHandler) {
-            document.removeEventListener('keydown', this.focusTrapHandler);
-            this.focusTrapHandler = null;
-        }
-    },
+    };
 
-    handleFocusTrap(e) {
-        if (!this.showIntro) {
-            return;
-        }
-        if (e.key === 'Escape') {
-            this.closeIntro();
+    requestAnimationFrame(step);
 
-            return;
-        }
-        if (e.key !== 'Tab') {
-            return;
-        }
-        const container = this.$refs.introDialog;
-        if (!container) {
-            return;
-        }
-        const focusable = container.querySelectorAll(
-            "button, [href], [tabindex]:not([tabindex='-1'])",
-        );
-        if (!focusable.length) {
-            return;
-        }
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-        }
-    },
-}));
+    document.getElementById('landing-intro-skip')?.addEventListener('click', (event) => {
+        event.preventDefault();
+        window.clearTimeout(failsafeTimer);
+        window.precifiqueCloseIntroOverlay();
+    });
+}
+
+function initScrollProgressBar() {
+    const fill = document.querySelector('.scroll-progress-3d-top__fill');
+    if (!fill) {
+        return;
+    }
+
+    const update = () => {
+        const el = document.documentElement;
+        const max = el.scrollHeight - el.clientHeight;
+        const progress = max > 0 ? Math.min(100, (el.scrollTop / max) * 100) : 0;
+        fill.style.width = `${progress}%`;
+    };
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initLandingIntro();
+    initScrollProgressBar();
+});
 
 window.Alpine = Alpine;
 Alpine.start();
 
-// Failsafe: fecha intro se Alpine ou a animação travar
-setTimeout(() => {
+document.documentElement.classList.add('alpine-ready');
+
+window.setTimeout(() => {
     const overlay = document.getElementById('landing-intro-overlay');
     if (overlay) {
         window.precifiqueCloseIntroOverlay();
