@@ -5,7 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
+        <x-head-icons />
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <meta name="theme-color" content="#00C896">
         <title>{{ config('app.name', 'Precifique') }} — Admin</title>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])

@@ -19,14 +19,14 @@
     <x-ui.logo-icon {{ $attributes->merge(['class' => $s['icon']]) }} />
 @elseif($variant === 'sidebar')
     <div {{ $attributes->merge(['class' => 'inline-flex items-center gap-2.5 max-w-full min-w-0']) }} role="img" aria-label="Precifique">
-        <x-ui.logo-icon class="h-9 w-9 shrink-0 drop-shadow-[0_2px_10px_rgba(0,200,150,0.4)]" />
+        <x-ui.logo-icon class="h-9 w-9 shrink-0" />
         <span class="font-display font-bold text-[1.125rem] leading-none tracking-tight text-white truncate">
             Preci<span class="text-brand">$</span>ique
         </span>
     </div>
 @else
     <div {{ $attributes->merge(['class' => 'inline-flex items-center flex-nowrap '.$s['gap']]) }}>
-        <x-ui.logo-icon class="{{ $s['icon'] }} shrink-0 drop-shadow-[0_2px_8px_rgba(0,200,150,0.35)]" />
+        <x-ui.logo-icon class="{{ $s['icon'] }} shrink-0" />
         <span class="font-display font-bold {{ $s['text'] }} leading-none tracking-tight whitespace-nowrap {{ $textColor }} select-none">
             Preci<span class="text-brand">$</span>ique
         </span>

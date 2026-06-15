@@ -1,7 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Precifique">
   <rect width="1200" height="630" fill="#0D0D0D"/>
   <circle cx="900" cy="200" r="180" fill="#00C896" opacity="0.25"/>
-  <text x="80" y="280" fill="#00C896" font-family="system-ui,sans-serif" font-size="28" font-weight="600" letter-spacing="0.2em">PRECIFIQUE</text>
-  <text x="80" y="360" fill="#FFFFFF" font-family="system-ui,sans-serif" font-size="56" font-weight="700">Precifica??o inteligente</text>
-  <text x="80" y="420" fill="#94A3B8" font-family="system-ui,sans-serif" font-size="28">Custos, margem e pre?o justo para o seu neg?cio</text>
+  <g transform="translate(80, 95)">
+    <rect width="120" height="120" rx="28" fill="#1A1A1A"/>
+    <path d="M40 30h29c14.5 0 26.2 11.7 26.2 26.2S83.5 82.5 69 82.5H55v17.5H30V30zm15 15v22.5h13.8c8.2 0 15-6.8 15-15s-6.8-15-15-15H55z" fill="#FFFFFF"/>
+  </g>
+  <text x="230" y="175" fill="#00C896" font-family="system-ui,sans-serif" font-size="28" font-weight="600" letter-spacing="0.2em">PRECIFIQUE</text>
+  <text x="80" y="280" fill="#FFFFFF" font-family="system-ui,sans-serif" font-size="56" font-weight="700">Precificação inteligente</text>
+  <text x="80" y="340" fill="#94A3B8" font-family="system-ui,sans-serif" font-size="28">Custos, margem e preço justo para o seu negócio</text>
 </svg>

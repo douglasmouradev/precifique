@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
+    <x-head-icons />
     <title>@yield('title', 'Configuração — Precifique')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

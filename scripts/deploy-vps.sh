@@ -34,6 +34,7 @@ npm run build
 php artisan key:generate --force
 php artisan migrate --force
 php artisan storage:link --force 2>/dev/null || true
+php artisan precifique:ensure-plans
 php artisan precifique:ensure-admin
 php artisan precifique:preflight
 

@@ -98,6 +98,7 @@ Se `composer install` falhar com Symfony/PHP 8.4, faça `git pull` (lock atualiz
 php artisan key:generate
 php artisan migrate --force
 php artisan storage:link
+php artisan precifique:ensure-plans
 php artisan precifique:ensure-admin
 php artisan precifique:preflight
 ```
@@ -166,6 +167,7 @@ nano .env
 
 php artisan config:clear
 php artisan migrate --force
+php artisan precifique:ensure-plans
 php artisan precifique:ensure-admin
 php artisan precifique:preflight
 php artisan config:cache

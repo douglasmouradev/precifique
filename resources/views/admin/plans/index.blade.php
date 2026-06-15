@@ -3,7 +3,7 @@
         <x-ui.page-header title="Planos" subtitle="Preços e limites exibidos na landing e no app" />
     </x-slot>
     <div class="py-6 max-w-3xl mx-auto sm:px-6 space-y-6">
-        @foreach($plans as $plan)
+        @forelse($plans as $plan)
         <x-ui.card class="p-6">
             <form method="POST" action="{{ route('admin.plans.update', $plan) }}" class="space-y-4">
                 @csrf @method('PATCH')
@@ -25,6 +25,12 @@
                 <x-ui.button variant="secondary" type="submit">Salvar plano</x-ui.button>
             </form>
         </x-ui.card>
-        @endforeach
+        @empty
+        <x-ui.card class="p-6 text-center space-y-3">
+            <p class="text-slate-600">Nenhum plano cadastrado no banco de dados.</p>
+            <p class="text-sm text-slate-500">No servidor, execute:</p>
+            <code class="inline-block text-sm bg-slate-100 px-3 py-2 rounded-lg">php artisan precifique:ensure-plans</code>
+        </x-ui.card>
+        @endforelse
     </div>
 </x-app-layout>
