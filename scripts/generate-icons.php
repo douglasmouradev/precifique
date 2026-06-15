@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * Gera PNGs da logo para PWA e iOS.
- * Usa nome pwa-icon.png na raiz para forçar o iPhone a baixar o ícone novo (cache antigo do P preto).
+ * Gera PNGs opacos da logo para iOS (180x180) e PWA Android.
+ * iOS rejeita PNG transparente e gera o "P" preto automaticamente.
  * Uso: php scripts/generate-icons.php
  */
 
@@ -19,8 +19,6 @@ if (! is_readable($svgPath)) {
 
 $targets = [
     180 => [
-        $imagesDir.'/pwa-icon-180.png',
-        $root.'/public/pwa-icon.png',
         $root.'/public/apple-touch-icon.png',
         $root.'/public/apple-touch-icon-precomposed.png',
         $imagesDir.'/apple-touch-icon.png',
@@ -62,16 +60,17 @@ function renderFromSvg(int $size, string $outPath, string $svgPath): bool
     try {
         $logo = new Imagick();
         $logo->setBackgroundColor(new ImagickPixel('transparent'));
-        $logo->setResolution(512, 512);
+        $logo->setResolution(600, 600);
         $logo->readImage($svgPath);
         $logo->setImageFormat('png32');
 
-        $logoSize = (int) round($size * 0.92);
+        $logoSize = (int) round($size * 0.9);
         $logo->resizeImage($logoSize, $logoSize, Imagick::FILTER_LANCZOS, 1, true);
 
         $canvas = new Imagick();
         $canvas->newImage($size, $size, new ImagickPixel('#FFFFFF'));
         $canvas->setImageFormat('png24');
+        $canvas->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
 
         $offset = (int) round(($size - $logoSize) / 2);
         $canvas->compositeImage($logo, Imagick::COMPOSITE_OVER, $offset, $offset);
@@ -98,7 +97,7 @@ function renderWithGd(int $size, string $outPath): bool
     $ink = imagecolorallocate($img, 13, 13, 13);
 
     $center = $size / 2;
-    $radius = $size * 0.44;
+    $radius = $size * 0.42;
     imagefilledpolygon($img, hexagonPoints($center, $center, $radius), $green);
     imagefilledpolygon($img, hexagonPoints($center, $center, $radius * 0.9), $greenDark);
 
@@ -118,7 +117,7 @@ function renderWithGd(int $size, string $outPath): bool
     imageline($img, (int) round(30 * $tagScale), (int) round(23.5 * $tagScale), (int) round(33 * $tagScale), (int) round(26.5 * $tagScale), $ink);
     imageline($img, (int) round(30 * $tagScale), (int) round(23.5 * $tagScale), (int) round(30 * $tagScale), (int) round(30 * $tagScale), $ink);
 
-    imagepng($img, $outPath);
+    imagepng($img, $outPath, 1);
 
     return true;
 }

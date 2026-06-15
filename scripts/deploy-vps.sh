@@ -39,7 +39,7 @@ php artisan precifique:ensure-admin
 php artisan precifique:preflight
 php scripts/generate-icons.php 2>/dev/null || true
 
-chown -R "$APP_USER:$APP_USER" storage bootstrap/cache public/pwa-icon.png public/images public/apple-touch-icon.png public/apple-touch-icon-precomposed.png 2>/dev/null || true
+chown -R "$APP_USER:$APP_USER" storage bootstrap/cache public/apple-touch-icon.png public/apple-touch-icon-precomposed.png public/images 2>/dev/null || true
 chmod -R 775 storage bootstrap/cache
 
 php artisan optimize:clear
