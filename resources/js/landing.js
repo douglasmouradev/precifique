@@ -8,6 +8,10 @@ import collapse from '@alpinejs/collapse';
 Alpine.plugin(intersect);
 Alpine.plugin(collapse);
 
+document.addEventListener('alpine:init', () => {
+    document.documentElement.classList.add('alpine-ready');
+});
+
 window.precifiqueCloseIntroOverlay = function precifiqueCloseIntroOverlay() {
     try {
         sessionStorage.setItem('precifique_intro_seen', '1');
@@ -110,6 +114,8 @@ function initScrollProgressBar() {
         return;
     }
 
+    let queued = false;
+
     const update = () => {
         const el = document.documentElement;
         const max = el.scrollHeight - el.clientHeight;
@@ -117,35 +123,19 @@ function initScrollProgressBar() {
         fill.style.width = `${progress}%`;
     };
 
-    window.addEventListener('scroll', update, { passive: true });
-    update();
-}
-
-function initRevealAnimations() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        return;
-    }
-
-    document.documentElement.classList.add('js-reveal-active');
-
-    const vh = window.innerHeight;
-    document.querySelectorAll('.scroll-reveal').forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        if (rect.top < vh * 0.92 && rect.bottom > 0) {
-            el.classList.add('is-visible');
-        }
-    });
-
-    window.setTimeout(() => {
-        if (document.documentElement.classList.contains('reveal-fallback')) {
+    const onScroll = () => {
+        if (queued) {
             return;
         }
-
-        document.documentElement.classList.add('reveal-fallback');
-        document.querySelectorAll('.scroll-reveal:not(.is-visible)').forEach((el) => {
-            el.classList.add('is-visible');
+        queued = true;
+        requestAnimationFrame(() => {
+            queued = false;
+            update();
         });
-    }, 2800);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update();
 }
 
 function bootLanding() {
@@ -161,7 +151,12 @@ if (document.readyState === 'loading') {
 
 window.Alpine = Alpine;
 Alpine.start();
-initRevealAnimations();
+
+window.setTimeout(() => {
+    document.querySelectorAll('.scroll-reveal:not(.is-visible)').forEach((el) => {
+        el.classList.add('is-visible');
+    });
+}, 4000);
 
 window.setTimeout(() => {
     const overlay = document.getElementById('landing-intro-overlay');

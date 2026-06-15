@@ -8,8 +8,8 @@ const INTENSITY = {
 };
 
 const MOBILE = { lift: 20, scale: 0.98 };
-const SMOOTH = 0.11;
-const SETTLE = 0.08;
+const SMOOTH = 0.2;
+const SETTLE = 0.04;
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -37,7 +37,6 @@ function createState() {
 function applyState(el, s) {
     if (el.dataset.scroll3dPricing !== undefined) {
         el.style.transform = `translate3d(${s.trx}px, 0, 0) rotateY(${s.try}deg) scale(${s.s.toFixed(4)})`;
-        el.style.opacity = Math.max(0.88, s.op).toFixed(3);
 
         return;
     }
@@ -45,11 +44,6 @@ function applyState(el, s) {
     el.style.transform =
         `rotateX(${s.rx.toFixed(2)}deg) rotateY(${s.ry.toFixed(2)}deg) ` +
         `translate3d(0, ${s.ty.toFixed(1)}px, ${s.tz.toFixed(0)}px) scale(${s.s.toFixed(4)})`;
-
-    /* Hero: só transform — nunca reduz opacidade do texto */
-    if (el.dataset.scroll3dHero !== undefined) {
-        el.style.opacity = '1';
-    }
 }
 
 function lerpState(current, target, factor = SMOOTH) {
@@ -198,9 +192,9 @@ function initLandingScroll3d() {
     };
 
     let animating = false;
-    let lastScroll = Date.now();
+    let scrollQueued = false;
 
-    const frame = () => {
+    const runFrame = () => {
         let stillMoving = false;
 
         states.forEach((current, el) => {
@@ -211,38 +205,43 @@ function initLandingScroll3d() {
             applyState(el, current);
         });
 
-        const recentlyScrolled = Date.now() - lastScroll < 180;
-
-        if (stillMoving || recentlyScrolled) {
-            requestAnimationFrame(frame);
+        if (stillMoving) {
+            requestAnimationFrame(runFrame);
         } else {
             animating = false;
         }
     };
 
-    const onScroll = () => {
-        lastScroll = Date.now();
-        computeTargets();
-        if (!animating) {
-            animating = true;
-            requestAnimationFrame(frame);
+    const scheduleFrame = () => {
+        if (animating) {
+            return;
         }
+        animating = true;
+        requestAnimationFrame(runFrame);
+    };
+
+    const onScroll = () => {
+        if (scrollQueued) {
+            return;
+        }
+        scrollQueued = true;
+        requestAnimationFrame(() => {
+            scrollQueued = false;
+            computeTargets();
+            scheduleFrame();
+        });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
 
     computeTargets();
-    animating = true;
-    requestAnimationFrame(frame);
+    scheduleFrame();
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             computeTargets();
-            if (!animating) {
-                animating = true;
-                requestAnimationFrame(frame);
-            }
+            scheduleFrame();
         }
     });
 }
