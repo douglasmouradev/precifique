@@ -22,13 +22,24 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'Precifique')</title>
-    @vite(['resources/css/landing.css', 'resources/js/landing.js'])
     @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
+    @vite(['resources/css/landing.css', 'resources/js/landing.js'])
+    <style @if(is_string($cspNonce) && $cspNonce !== '') nonce="{{ $cspNonce }}" @endif>
+        [data-scroll-3d-hero] { background-color: #0D0D0D; min-height: 70vh; }
+        .scroll-reveal { opacity: 1 !important; transform: none !important; visibility: visible !important; }
+        html.landing-intro-seen #landing-intro-overlay { display: none !important; }
+        #landing-intro-overlay { background-color: #0D0D0D; }
+    </style>
     @if(is_string($cspNonce) && $cspNonce !== '')
     <script nonce="{{ $cspNonce }}">
         try {
             if (sessionStorage.getItem('precifique_intro_seen')) {
                 document.documentElement.classList.add('landing-intro-seen');
+                document.addEventListener('DOMContentLoaded', function () {
+                    var el = document.getElementById('landing-intro-overlay');
+                    if (el) el.remove();
+                    document.body.style.overflow = '';
+                });
             }
         } catch (e) {}
     </script>

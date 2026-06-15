@@ -1,5 +1,5 @@
 import './bootstrap';
-import './landing-scroll-3d';
+// Scroll 3D desativado — causava opacidade/transform que escondia o conteúdo em alguns browsers
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -121,15 +121,19 @@ function initScrollProgressBar() {
     update();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function bootLanding() {
     initLandingIntro();
     initScrollProgressBar();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootLanding);
+} else {
+    bootLanding();
+}
 
 window.Alpine = Alpine;
 Alpine.start();
-
-document.documentElement.classList.add('alpine-ready');
 
 window.setTimeout(() => {
     const overlay = document.getElementById('landing-intro-overlay');

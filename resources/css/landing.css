@@ -29,20 +29,11 @@
     .scroll-reveal {
         opacity: 1;
         transform: none;
-        transition:
-            opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
-            transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    html.alpine-ready .scroll-reveal:not(.is-visible) {
-        opacity: 0;
-        transform: translate3d(0, 2rem, 0) scale(0.98);
-        will-change: opacity, transform;
     }
 
     .scroll-reveal.is-visible {
         opacity: 1;
-        transform: translate3d(0, 0, 0) scale(1);
+        transform: none;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -131,10 +122,8 @@
 
 .scroll-3d-section__inner {
     transform-origin: center 40%;
-    will-change: transform, opacity;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    transform-style: preserve-3d;
 }
 
 [data-scroll-3d-hero] .scroll-3d-section__inner {

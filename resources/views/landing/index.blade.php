@@ -110,7 +110,7 @@
 
 <main class="pt-[4.25rem] landing-3d-root" data-landing-3d>
     {{-- Hero --}}
-    <section data-scroll-3d-hero class="bg-ink text-white py-24 md:py-32 relative overflow-hidden">
+    <section data-scroll-3d-hero class="bg-ink text-white py-24 md:py-32 relative overflow-hidden" style="background-color:#0D0D0D">
         <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_50%,#00C896,transparent_50%)]"></div>
         <div class="hero-orb absolute top-[18%] right-[12%] w-64 h-64 md:w-80 md:h-80 rounded-full bg-brand/25 blur-3xl pointer-events-none" aria-hidden="true"></div>
         <div class="scroll-3d-section__inner max-w-6xl mx-auto px-4 relative">
@@ -190,7 +190,7 @@
                 </div>
                 <div class="space-y-2 text-sm text-gray-300">
                     <div class="flex justify-between"><span>{{ __('landing.demo_production_cost') }}</span><span x-text="fmt(cost)"></span></div>
-                    <div class="flex justify-between text-brand font-semibold"><span x-text="'{{ __('landing.demo_profit') }} (' + margin + '%)'"></span><span x-text="'+ ' + fmt(profit)"></span></div>
+                    <div class="flex justify-between text-brand font-semibold"><span>Lucro (<span x-text="margin"></span>%)</span><span x-text="'+ ' + fmt(profit)"></span></div>
                 </div>
             </x-landing.reveal>
         </div>
