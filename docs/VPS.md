@@ -39,15 +39,26 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 
-## 3. Clonar (não use /root em produção)
+## 3. Clonar em `/www/wwwroot` (aaPanel / BT Panel)
 
 ```bash
-sudo mkdir -p /var/www
-cd /var/www
-sudo git clone https://github.com/douglasmouradev/precifique.git
-sudo chown -R $USER:www-data precifique
+# Remova clone antigo em /root, se existir
+rm -rf /root/precifique
+
+mkdir -p /www/wwwroot
+cd /www/wwwroot
+git clone https://github.com/douglasmouradev/precifique.git
 cd precifique
+chown -R www:www storage bootstrap/cache
 ```
+
+No painel do site, aponte o **document root** para:
+
+```
+/www/wwwroot/precifique/public
+```
+
+> Em VPS sem painel, use `/var/www/precifique` e `APP_DIR=/var/www/precifique`.
 
 ## 4. Configurar `.env`
 
@@ -81,13 +92,13 @@ php artisan precifique:preflight
 ## 7. Permissões
 
 ```bash
-sudo chown -R www-data:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
+chown -R www:www storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
 ```
 
 ## 8. Nginx + HTTPS
 
-Veja exemplo em [PRODUCTION.md](PRODUCTION.md). Aponte `root` para `/var/www/precifique/public`.
+Veja exemplo em [PRODUCTION.md](PRODUCTION.md). Aponte `root` para `/www/wwwroot/precifique/public`.
 
 ```bash
 sudo certbot --nginx -d seu-dominio.com.br
@@ -96,24 +107,25 @@ sudo certbot --nginx -d seu-dominio.com.br
 ## 9. Cron e fila
 
 ```cron
-* * * * * cd /var/www/precifique && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /www/wwwroot/precifique && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 Supervisor (`/etc/supervisor/conf.d/precifique-worker.conf`):
 
 ```ini
 [program:precifique-worker]
-command=php /var/www/precifique/artisan queue:work redis --sleep=3 --tries=3
+command=php /www/wwwroot/precifique/artisan queue:work redis --sleep=3 --tries=3
 autostart=true
 autorestart=true
-user=www-data
+user=www
 ```
 
 ## Script automatizado
 
 ```bash
 chmod +x scripts/deploy-vps.sh
-APP_DIR=/var/www/precifique ./scripts/deploy-vps.sh
+./scripts/deploy-vps.sh
+# ou: APP_DIR=/www/wwwroot/precifique ./scripts/deploy-vps.sh
 ```
 
 ## Erros comuns

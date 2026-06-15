@@ -2,8 +2,8 @@
 # Deploy Precifique em VPS Ubuntu (PHP 8.3 + Nginx)
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/var/www/precifique}"
-APP_USER="${APP_USER:-www-data}"
+APP_DIR="${APP_DIR:-/www/wwwroot/precifique}"
+APP_USER="${APP_USER:-www}"
 
 echo "==> Precifique VPS deploy"
 
