@@ -21,6 +21,16 @@ class ImageUploadService
         return $this->storeOptimizedImage($file, 'logos/'.$tenantId);
     }
 
+    public function delete(?string $path): void
+    {
+        if ($path === null || $path === '') {
+            return;
+        }
+
+        $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+        Storage::disk($disk)->delete($path);
+    }
+
     private function storeOptimizedImage(UploadedFile $file, string $directory): string
     {
         $this->validate($file);

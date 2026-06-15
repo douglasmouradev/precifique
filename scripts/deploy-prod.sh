@@ -27,7 +27,7 @@ docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --forc
 echo "==> Planos, admin e preflight"
 docker compose -f docker-compose.prod.yml exec -T app php artisan precifique:ensure-plans
 docker compose -f docker-compose.prod.yml exec -T app php artisan precifique:ensure-admin
-docker compose -f docker-compose.prod.yml exec -T app php artisan precifique:preflight || true
+docker compose -f docker-compose.prod.yml exec -T app php artisan precifique:preflight
 
 echo "==> Storage link e caches"
 docker compose -f docker-compose.prod.yml exec -T app php artisan storage:link --force 2>/dev/null || true

@@ -34,9 +34,8 @@ jobs:
 
       - name: Prepare environment
         run: |
-          cp .env.example .env
-          php artisan key:generate
-          touch database/database.sqlite
+          cp .env.testing .env
+          php artisan key:generate --force
           php artisan migrate --force
 
       - name: Build assets

@@ -205,6 +205,14 @@
         @if(session('warning'))
         <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-amber-50 text-amber-800 text-sm border border-amber-200 px-4 py-3" data-flash="warning" role="status" aria-live="polite">{{ session('warning') }}</div>
         @endif
+        @if(session()->has('impersonating_from_admin'))
+        <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-violet-50 text-violet-900 text-sm border border-violet-200 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <span><strong>Modo suporte:</strong> você está visualizando a conta do cliente.</span>
+            <form method="POST" action="{{ route('tenant.impersonate.stop') }}">@csrf
+                <button type="submit" class="text-sm font-semibold text-violet-700 hover:underline">Sair e voltar ao admin</button>
+            </form>
+        </div>
+        @endif
         @if(session('error'))
         <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-red-50 text-red-800 text-sm border border-red-200 px-4 py-3" data-flash="error" role="alert" aria-live="assertive">{{ session('error') }}</div>
         @endif
@@ -265,7 +273,7 @@
     <div
         x-show="!cookieAccepted"
         x-cloak
-        class="fixed bottom-0 inset-x-0 z-50 bg-ink text-white p-4 shadow-2xl transition-[left] duration-300"
+        class="fixed bottom-16 lg:bottom-0 inset-x-0 z-[54] bg-ink text-white p-4 shadow-2xl transition-[left] duration-300"
         :class="sidebarOpen ? 'lg:left-[16.5rem]' : 'lg:left-0'"
     >
         <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">

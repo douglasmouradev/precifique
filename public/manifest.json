@@ -2,7 +2,7 @@
   "name": "Precifique",
   "short_name": "Precifique",
   "description": "Precificação inteligente para seu negócio",
-  "start_url": "/entrar",
+  "start_url": "/app/dashboard",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#00C896",

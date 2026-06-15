@@ -16,6 +16,7 @@ class DashboardMetricsService
 {
     public function __construct(
         private readonly AIAssistantService $ai,
+        private readonly TenantSetupProgressService $setupProgress,
     ) {}
 
     /**
@@ -74,28 +75,7 @@ class DashboardMetricsService
         $productsWithoutPrice = (int) ($productStats->without_price ?? 0);
         $fixedCostsCount = $tenant->fixedCosts()->where('is_active', true)->count();
 
-        $onboardingSteps = [
-            [
-                'done' => $fixedCostsCount > 0,
-                'label' => 'Cadastrar custos fixos',
-                'url' => route('tenant.fixed-costs.index'),
-            ],
-            [
-                'done' => $productsCount > 0,
-                'label' => 'Criar primeiro produto',
-                'url' => route('tenant.products.create'),
-            ],
-            [
-                'done' => $productsCount > 0 && $productsWithoutPrice === 0,
-                'label' => 'Precificar todos os produtos',
-                'url' => route('tenant.products.index'),
-            ],
-            [
-                'done' => $goalAmount > 0,
-                'label' => 'Definir meta mensal',
-                'url' => route('tenant.goals.edit'),
-            ],
-        ];
+        $onboardingSteps = $this->setupProgress->forDashboard($tenant);
         $onboardingComplete = collect($onboardingSteps)->every(fn ($s) => $s['done']);
 
         $yearExpr = sql_year('sold_at');

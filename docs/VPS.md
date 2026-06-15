@@ -112,7 +112,7 @@ chmod -R 775 storage bootstrap/cache
 
 ## 8. Nginx + HTTPS
 
-Veja exemplo em [PRODUCTION.md](PRODUCTION.md). Aponte `root` para `/www/wwwroot/precifique/public`.
+Veja exemplo em [PRODUCTION.md](PRODUCTION.md). Aponte `root` para `/www/wwwroot/precifique.tdesksolutions.com.br/public`.
 
 ```bash
 sudo certbot --nginx -d seu-dominio.com.br
@@ -121,14 +121,14 @@ sudo certbot --nginx -d seu-dominio.com.br
 ## 9. Cron e fila
 
 ```cron
-* * * * * cd /www/wwwroot/precifique && php artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /www/wwwroot/precifique.tdesksolutions.com.br && /www/server/php/83/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
 Supervisor (`/etc/supervisor/conf.d/precifique-worker.conf`):
 
 ```ini
 [program:precifique-worker]
-command=php /www/wwwroot/precifique/artisan queue:work redis --sleep=3 --tries=3
+command=/www/server/php/83/bin/php /www/wwwroot/precifique.tdesksolutions.com.br/artisan queue:work redis --sleep=3 --tries=3
 autostart=true
 autorestart=true
 user=www
@@ -139,7 +139,21 @@ user=www
 ```bash
 chmod +x scripts/deploy-vps.sh
 ./scripts/deploy-vps.sh
-# ou: APP_DIR=/www/wwwroot/precifique ./scripts/deploy-vps.sh
+# ou: APP_DIR=/www/wwwroot/precifique.tdesksolutions.com.br ./scripts/deploy-vps.sh
+```
+
+## Backup MySQL (VPS)
+
+```bash
+chmod +x scripts/backup-mysql-vps.sh
+./scripts/backup-mysql-vps.sh
+# Arquivos em storage/backups/ (retenção 14 dias)
+```
+
+Agende no cron (ex.: 03:00 diário):
+
+```cron
+0 3 * * * APP_DIR=/www/wwwroot/precifique.tdesksolutions.com.br /www/wwwroot/precifique.tdesksolutions.com.br/scripts/backup-mysql-vps.sh
 ```
 
 ## Erros comuns

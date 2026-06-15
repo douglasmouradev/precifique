@@ -88,4 +88,48 @@ class TenantManagementController extends Controller
 
         return back()->with('success', 'Status atualizado.');
     }
+
+    public function resendWelcome(Tenant $tenant): RedirectResponse
+    {
+        $token = Password::broker('tenants')->createToken($tenant);
+        $resetUrl = route('tenant.password.reset', ['token' => $token, 'email' => $tenant->email]);
+
+        Mail::to($tenant->email)->send(new TenantWelcomeMail($tenant, $resetUrl));
+
+        return back()->with('success', 'E-mail de boas-vindas reenviado.');
+    }
+
+    public function extendTrial(Request $request, Tenant $tenant): RedirectResponse
+    {
+        $data = $request->validate([
+            'days' => ['required', 'integer', 'min:1', 'max:90'],
+        ]);
+
+        $base = ($tenant->trial_ends_at && $tenant->trial_ends_at->isFuture())
+            ? $tenant->trial_ends_at
+            : now();
+
+        $tenant->update([
+            'trial_ends_at' => $base->copy()->addDays((int) $data['days']),
+        ]);
+
+        return back()->with('success', "Trial estendido em {$data['days']} dia(s).");
+    }
+
+    public function impersonate(Tenant $tenant): RedirectResponse
+    {
+        if (! $tenant->is_active) {
+            return back()->with('warning', 'Não é possível acessar uma conta inativa.');
+        }
+
+        session([
+            'impersonating_from_admin' => Auth::id(),
+            'impersonating_tenant_id' => $tenant->id,
+        ]);
+
+        Auth::guard('tenant')->login($tenant);
+
+        return redirect()->route('tenant.dashboard')
+            ->with('warning', 'Modo suporte: você está visualizando como '.$tenant->name);
+    }
 }

@@ -17,6 +17,7 @@ class MenuController extends Controller
         $links = [
             ['route' => 'tenant.dashboard', 'label' => 'Dashboard', 'icon' => 'dashboard'],
             ['route' => 'tenant.products.index', 'label' => 'Produtos', 'icon' => 'products'],
+            ['route' => 'tenant.products.index', 'label' => 'Precificar', 'icon' => 'money', 'query' => ['unpriced' => 1]],
             ['route' => 'tenant.sales.index', 'label' => 'Vendas', 'icon' => 'sales'],
             ['route' => 'tenant.fixed-costs.index', 'label' => 'Custos fixos', 'icon' => 'fixed-costs'],
             ['route' => 'tenant.variable-costs.index', 'label' => 'Custos variáveis', 'icon' => 'variable-costs'],

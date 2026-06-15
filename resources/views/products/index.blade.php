@@ -3,7 +3,7 @@
 @section('breadcrumb') Produtos @endsection
 
 @section('content')
-<x-ui.page-header title="Produtos" subtitle="Gerencie seu catálogo e precifique com precisão">
+<x-ui.page-header title="Produtos" :subtitle="request()->boolean('unpriced') ? 'Somente produtos sem preço' : 'Gerencie seu catálogo e precifique com precisão'">
     <x-slot:actions>
         <x-ui.button :href="route('tenant.products.create')">+ Novo produto</x-ui.button>
     </x-slot:actions>
@@ -48,6 +48,7 @@
             <span class="ui-badge-brand mt-2">Precificar</span>
             @endif
             <div class="flex flex-wrap gap-3 mt-4 pt-4 border-t border-slate-100 items-center">
+                <a href="{{ route('tenant.products.edit', $product) }}" class="text-sm font-semibold text-slate-700 hover:text-brand-dark hover:underline">Editar</a>
                 <a href="{{ route('tenant.pricing.edit', $product) }}" class="text-sm font-semibold text-brand-dark hover:underline">Precificar</a>
                 <form method="POST" action="{{ route('tenant.products.duplicate', $product) }}" class="inline">@csrf
                     <button type="submit" class="text-sm text-slate-600 hover:text-brand-dark font-medium">Duplicar</button>

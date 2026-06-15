@@ -37,6 +37,26 @@
             @endforelse
         </x-ui.card>
 
+        <x-ui.card class="p-6 space-y-4">
+            <h3 class="font-display font-bold text-lg">Ações de suporte</h3>
+            <div class="flex flex-wrap gap-3">
+                <form method="POST" action="{{ route('admin.tenants.impersonate', $tenant) }}">@csrf
+                    <x-ui.button type="submit" variant="secondary">Acessar como cliente</x-ui.button>
+                </form>
+                <form method="POST" action="{{ route('admin.tenants.resend-welcome', $tenant) }}">@csrf
+                    <x-ui.button type="submit" variant="outline">Reenviar boas-vindas</x-ui.button>
+                </form>
+            </div>
+            <form method="POST" action="{{ route('admin.tenants.extend-trial', $tenant) }}" class="flex flex-wrap items-end gap-3 pt-2 border-t border-slate-100">
+                @csrf @method('PATCH')
+                <div class="w-28">
+                    <label class="ui-label text-xs">Estender trial</label>
+                    <input type="number" name="days" value="7" min="1" max="90" class="ui-input py-2">
+                </div>
+                <x-ui.button type="submit" variant="outline">Adicionar dias</x-ui.button>
+            </form>
+        </x-ui.card>
+
         <form method="POST" action="{{ route('admin.tenants.toggle', $tenant) }}">
             @csrf @method('PATCH')
             <x-ui.button variant="secondary" type="submit">{{ $tenant->is_active ? 'Desativar conta' : 'Reativar conta' }}</x-ui.button>

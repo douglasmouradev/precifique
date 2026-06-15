@@ -1,4 +1,4 @@
-@php($touchIcon = asset('apple-touch-icon.png').'?v=3')
+@php($touchIcon = asset('apple-touch-icon.png').'?v=4')
 <link rel="icon" type="image/png" sizes="180x180" href="{{ $touchIcon }}">
 <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
 <link rel="apple-touch-icon" href="{{ $touchIcon }}">

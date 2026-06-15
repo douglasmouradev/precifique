@@ -10,6 +10,7 @@ use App\Http\Controllers\Tenant\AIController;
 use App\Http\Controllers\Tenant\BillingController;
 use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\FixedCostController;
+use App\Http\Controllers\Tenant\ImpersonationController;
 use App\Http\Controllers\Tenant\LGPDController;
 use App\Http\Controllers\Tenant\MenuController;
 use App\Http\Controllers\Tenant\MonthlyGoalController;
@@ -71,13 +72,16 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
     Route::put('/perfil', [AccountController::class, 'updateProfile']);
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
     Route::get('/menu', MenuController::class)->name('menu');
 
-    Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::post('/products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
     Route::get('/products/{product}/pricing', [PricingController::class, 'edit'])->name('pricing.edit');
     Route::put('/products/{product}/pricing', [PricingController::class, 'update'])->name('pricing.update');
-    Route::post('/products/{product}/pricing/preview', [PricingController::class, 'preview'])->name('pricing.preview');
+    Route::post('/products/{product}/pricing/preview', [PricingController::class, 'preview'])
+        ->middleware('throttle:30,1')
+        ->name('pricing.preview');
     Route::post('/products/{product}/ai', [PricingController::class, 'aiSuggest'])
         ->middleware(['plan:premium', 'throttle:15,1'])
         ->name('pricing.ai');
@@ -114,7 +118,9 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
     Route::post('/billing/stripe', [BillingController::class, 'stripeCheckout'])
         ->middleware('throttle:tenant-billing')
         ->name('billing.stripe');
-    Route::get('/billing/pix/status', [BillingController::class, 'pixStatus'])->name('billing.pix.status');
+    Route::get('/billing/pix/status', [BillingController::class, 'pixStatus'])
+        ->middleware('throttle:tenant-billing')
+        ->name('billing.pix.status');
     Route::get('/billing/pix', [BillingController::class, 'pix'])
         ->middleware('throttle:tenant-billing')
         ->name('billing.pix');
