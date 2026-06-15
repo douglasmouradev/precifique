@@ -31,6 +31,8 @@ class PreviewPricingRequest extends FormRequest
             'additional_costs.*.amount' => ['nullable', 'numeric', 'min:0'],
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
             'hours_spent' => ['nullable', 'numeric', 'min:0'],
+            'margins' => ['nullable', 'array'],
+            'margins.*' => ['numeric', 'min:0'],
         ];
     }
 }

@@ -9,6 +9,7 @@ use App\Mail\TenantWelcomeMail;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Tenant;
+use App\Services\AuditService;
 use App\Services\LGPDService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,10 @@ use Illuminate\View\View;
 
 class TenantManagementController extends Controller
 {
+    public function __construct(
+        private readonly AuditService $audit,
+    ) {}
+
     public function create(): View
     {
         return view('admin.tenants.create');
@@ -126,6 +131,10 @@ class TenantManagementController extends Controller
             'impersonating_from_admin' => Auth::id(),
             'impersonating_tenant_id' => $tenant->id,
         ]);
+
+        $this->audit->logAdminForTenant($tenant, (int) Auth::id(), 'admin.impersonate.start', [
+            'tenant_email' => $tenant->email,
+        ], request());
 
         Auth::guard('tenant')->login($tenant);
 

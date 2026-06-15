@@ -30,7 +30,13 @@ class AuthController extends Controller
             return response()->json(['message' => 'Conta inativa.'], 403);
         }
 
-        $plain = TenantApiToken::issue($tenant, $data['device_name'], ['dashboard:read', 'tokens:read', 'tokens:write']);
+        $plain = TenantApiToken::issue($tenant, $data['device_name'], [
+            'dashboard:read',
+            'products:read',
+            'sales:read',
+            'tokens:read',
+            'tokens:write',
+        ]);
 
         return response()->json([
             'token' => $plain,

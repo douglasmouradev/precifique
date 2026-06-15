@@ -13,6 +13,7 @@ use App\Models\Sale;
 use App\Models\SaleExportRequest;
 use App\Services\AuditService;
 use App\Services\SalesExportService;
+use App\Services\TenantNotificationService;
 use App\Support\SalePeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -29,6 +30,7 @@ class SaleController extends Controller
     public function __construct(
         private readonly AuditService $audit,
         private readonly SalesExportService $salesExport,
+        private readonly TenantNotificationService $notifications,
     ) {}
 
     public function index(Request $request): View
@@ -159,6 +161,16 @@ class SaleController extends Controller
 
         SaleRecorded::dispatch($tenant, $sale);
 
+        if ($tenant->sales()->count() === 1) {
+            $this->notifications->notify(
+                $tenant,
+                'milestone',
+                'Primeira venda registrada!',
+                'Parabéns! Continue acompanhando seus resultados no dashboard.',
+                route('tenant.dashboard'),
+            );
+        }
+
         return redirect()->route('tenant.sales.index')->with('success', 'Venda registrada.');
     }
 
@@ -175,17 +187,40 @@ class SaleController extends Controller
         $tenant = Auth::guard('tenant')->user();
         $this->authorize('update', $sale);
 
-        $sale->update([
-            'unit_price' => $request->input('unit_price'),
-            'payment_method' => $request->input('payment_method'),
-            'sold_at' => $request->input('sold_at'),
-            'notes' => $request->input('notes'),
-        ]);
+        $newQuantity = $request->integer('quantity');
 
-        $this->audit->log($tenant, 'sale.updated', $sale, [
+        DB::transaction(function () use ($tenant, $request, $sale, $newQuantity): void {
+            if ($sale->product_id) {
+                $product = $tenant->products()->lockForUpdate()->find($sale->product_id);
+                if ($product && $product->stock_quantity > 0) {
+                    $delta = $newQuantity - $sale->quantity;
+                    if ($delta > 0 && $product->stock_quantity < $delta) {
+                        throw ValidationException::withMessages([
+                            'quantity' => 'Estoque insuficiente para esta quantidade.',
+                        ]);
+                    }
+                    if ($delta !== 0) {
+                        $product->decrement('stock_quantity', $delta);
+                    }
+                }
+            }
+
+            $sale->update([
+                'quantity' => $newQuantity,
+                'unit_price' => $request->input('unit_price'),
+                'payment_method' => $request->input('payment_method'),
+                'sold_at' => $request->input('sold_at'),
+                'notes' => $request->input('notes'),
+            ]);
+        });
+
+        $this->audit->log($tenant, 'sale.updated', $sale->fresh(), [
             'product' => $sale->product?->name,
-            'total' => $sale->total_amount,
+            'total' => $sale->fresh()->total_amount,
+            'quantity' => $newQuantity,
         ], $request);
+
+        SaleRecorded::dispatch($tenant, $sale->fresh());
 
         return redirect()->route('tenant.sales.index')->with('success', 'Venda atualizada.');
     }

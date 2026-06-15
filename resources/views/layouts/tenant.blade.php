@@ -191,6 +191,7 @@
                     @endif
                 </div>
                 <div class="flex items-center gap-2">
+                    <x-ui.notification-bell class="hidden sm:block" />
                     @if($tenant?->isPremium())
                     <button @click="aiOpen=!aiOpen" class="ui-btn-outline px-3 py-2 text-xs hidden sm:inline-flex">Assistente</button>
                     @endif

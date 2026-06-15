@@ -72,11 +72,33 @@ Resposta:
 }
 ```
 
+### Produtos
+
+```http
+GET /api/v1/products
+GET /api/v1/products/{id}
+Authorization: Bearer {token}
+```
+
+Requer ability `products:read`. Lista paginada com nome, preço, estoque e status.
+
+### Vendas
+
+```http
+GET /api/v1/sales
+GET /api/v1/sales/{id}
+Authorization: Bearer {token}
+```
+
+Requer ability `sales:read`. Filtro opcional: `?payment_method=pix`.
+
 ## Abilities
 
 | Ability | Descrição |
 |---------|-----------|
 | `dashboard:read` | Ler resumo do dashboard |
+| `products:read` | Listar e ver produtos |
+| `sales:read` | Listar e ver vendas |
 | `tokens:read` | Listar tokens da conta |
 | `tokens:write` | Revogar tokens |
 | `*` | Acesso total (tokens legados) |
@@ -85,7 +107,3 @@ Resposta:
 
 - 60 requisições/minuto por token autenticado
 - Login/token: rate limit compartilhado com `/entrar`
-
-## Roadmap
-
-Endpoints planejados: produtos, vendas, exportação. A API v1 está em evolução — consulte o repositório antes de integrações críticas.

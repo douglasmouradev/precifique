@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Models\SaleExportRequest;
 use App\Models\Tenant;
 use App\Services\SalesExportService;
+use App\Services\TenantNotificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +22,7 @@ class ExportSalesCsvJob implements ShouldQueue
         public readonly int $exportRequestId,
     ) {}
 
-    public function handle(SalesExportService $exporter): void
+    public function handle(SalesExportService $exporter, TenantNotificationService $notifications): void
     {
         $request = SaleExportRequest::query()->find($this->exportRequestId);
         if (! $request || $request->status !== 'pending') {
@@ -42,6 +43,13 @@ class ExportSalesCsvJob implements ShouldQueue
                 'file_path' => $path,
                 'completed_at' => now(),
             ]);
+            $notifications->notify(
+                $tenant,
+                'export_ready',
+                'Exportação de vendas pronta',
+                'Seu arquivo CSV está disponível para download.',
+                route('tenant.sales.export.download', $request),
+            );
         } catch (\Throwable $e) {
             Log::error('Export sales CSV failed', [
                 'export_id' => $request->id,

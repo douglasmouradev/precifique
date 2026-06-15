@@ -98,6 +98,35 @@ class PricingController extends Controller
         ]);
     }
 
+    public function compare(PreviewPricingRequest $request, Product $product): JsonResponse
+    {
+        $this->authorize('view', $product);
+        $tenant = Auth::guard('tenant')->user();
+        $data = $request->validated();
+        $margins = $request->input('margins');
+
+        if (! is_array($margins) || $margins === []) {
+            $margins = array_map(
+                fn (ProfitMargin $m) => $m->value,
+                ProfitMargin::forPlan($tenant->plan->value ?? (string) $tenant->plan),
+            );
+        }
+
+        $scenarios = [];
+        foreach ($margins as $margin) {
+            $margin = (float) $margin;
+            if (! $this->planLimits->isMarginAllowed($tenant, $margin)) {
+                continue;
+            }
+            $scenarios[] = [
+                'margin' => $margin,
+                'breakdown' => $this->resolveBreakdown($product, $margin, $data),
+            ];
+        }
+
+        return response()->json(['scenarios' => $scenarios]);
+    }
+
     /** @param  array<string, mixed>  $payload */
     private function resolveBreakdown(Product $product, float $margin, array $payload): array
     {

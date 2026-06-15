@@ -31,4 +31,19 @@ class AuditService
             'created_at' => now(),
         ]);
     }
+
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
+    public function logAdminForTenant(
+        Tenant $tenant,
+        int $adminUserId,
+        string $action,
+        array $metadata = [],
+        ?Request $request = null,
+    ): AuditLog {
+        return $this->log($tenant, $action, null, array_merge($metadata, [
+            'admin_user_id' => $adminUserId,
+        ]), $request);
+    }
 }

@@ -8,8 +8,10 @@ use App\Jobs\LowStockAlertJob;
 use App\Mail\LowStockAlertMail;
 use App\Models\Product;
 use App\Models\Tenant;
-use Tests\Concerns\RefreshDatabase;
+use App\Services\TenantNotificationService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 class LowStockAlertJobTest extends TestCase
@@ -19,6 +21,7 @@ class LowStockAlertJobTest extends TestCase
     public function test_job_sends_email_for_low_stock_products(): void
     {
         Mail::fake();
+        Cache::forget('low_stock_alert_sent_'.now()->toDateString());
 
         $tenant = Tenant::factory()->create(['is_active' => true]);
         Product::factory()->create([
@@ -28,9 +31,11 @@ class LowStockAlertJobTest extends TestCase
             'is_active' => true,
         ]);
 
-        (new LowStockAlertJob)->handle();
+        (new LowStockAlertJob)->handle(app(TenantNotificationService::class));
 
-        Mail::assertQueued(LowStockAlertMail::class, fn ($mail) => $mail->hasTo($tenant->email));
+        Mail::assertQueued(LowStockAlertMail::class, function (LowStockAlertMail $mail) use ($tenant) {
+            return $mail->tenant->is($tenant);
+        });
     }
 
     public function test_job_skips_inactive_tenants(): void
@@ -45,7 +50,7 @@ class LowStockAlertJobTest extends TestCase
             'is_active' => true,
         ]);
 
-        (new LowStockAlertJob)->handle();
+        (new LowStockAlertJob)->handle(app(TenantNotificationService::class));
 
         Mail::assertNothingSent();
     }

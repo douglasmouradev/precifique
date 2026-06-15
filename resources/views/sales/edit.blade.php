@@ -12,7 +12,7 @@
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="ui-label">Quantidade</label>
-                <input type="text" value="{{ $sale->quantity }}" class="ui-input bg-slate-50" disabled>
+                <input type="number" name="quantity" min="1" value="{{ old('quantity', $sale->quantity) }}" required class="ui-input">
             </div>
             <div>
                 <label class="ui-label">Preço unit. (R$)</label>
@@ -29,6 +29,7 @@
             <div class="grid grid-cols-3 gap-2 mt-1">
                 @foreach(\App\Enums\PaymentMethod::cases() as $method)
                 <button type="button" @click="payment = '{{ $method->value }}'"
+                    :aria-pressed="payment === '{{ $method->value }}'"
                     class="px-3 py-3 rounded-xl border text-sm font-semibold transition-colors"
                     :class="payment === '{{ $method->value }}' ? 'bg-brand border-brand text-ink shadow-sm' : 'bg-white border-slate-200 text-slate-600'">
                     {{ $method->label() }}

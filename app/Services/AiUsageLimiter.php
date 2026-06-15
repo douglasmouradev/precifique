@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Tenant;
 use App\Models\TenantAiUsage;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AiUsageLimiter
@@ -20,18 +21,19 @@ class AiUsageLimiter
         }
 
         $limit = (int) config('precifique.ai.premium_daily_limit', 50);
+        $today = Carbon::today();
 
-        DB::transaction(function () use ($tenant, $limit): void {
+        DB::transaction(function () use ($tenant, $limit, $today): void {
             $usage = TenantAiUsage::query()
                 ->where('tenant_id', $tenant->id)
-                ->where('usage_date', now()->toDateString())
+                ->whereDate('usage_date', $today)
                 ->lockForUpdate()
                 ->first();
 
             if (! $usage) {
                 $usage = TenantAiUsage::create([
                     'tenant_id' => $tenant->id,
-                    'usage_date' => now()->toDateString(),
+                    'usage_date' => $today->toDateString(),
                     'requests' => 0,
                 ]);
             }

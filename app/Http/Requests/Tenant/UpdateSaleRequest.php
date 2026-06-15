@@ -21,6 +21,7 @@ class UpdateSaleRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'quantity' => ['required', 'integer', 'min:1'],
             'unit_price' => ['required', 'numeric', 'min:0'],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'sold_at' => ['required', 'date'],

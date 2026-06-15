@@ -29,6 +29,7 @@
                 <button
                     type="button"
                     @click="payment = '{{ $method->value }}'"
+                    :aria-pressed="payment === '{{ $method->value }}'"
                     class="px-3 py-3 rounded-xl border text-sm font-semibold transition-colors"
                     :class="payment === '{{ $method->value }}'
                         ? 'bg-brand border-brand text-ink shadow-sm'

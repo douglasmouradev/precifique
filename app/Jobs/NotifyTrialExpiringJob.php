@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Mail\TrialExpiringMail;
 use App\Models\Tenant;
+use App\Services\TenantNotificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
@@ -17,7 +18,7 @@ class NotifyTrialExpiringJob implements ShouldQueue
 
     public int $tries = 3;
 
-    public function handle(): void
+    public function handle(TenantNotificationService $notifications): void
     {
         $days = (int) config('precifique.trial.notify_days_before', 3);
         $target = now()->addDays($days)->startOfDay();
@@ -27,7 +28,7 @@ class NotifyTrialExpiringJob implements ShouldQueue
             ->whereNotNull('trial_ends_at')
             ->whereDate('trial_ends_at', $target)
             ->where('is_active', true)
-            ->chunkById(50, function ($tenants): void {
+            ->chunkById(50, function ($tenants) use ($notifications): void {
                 foreach ($tenants as $tenant) {
                     $cacheKey = "trial_expiring_notified_{$tenant->id}_{$tenant->trial_ends_at?->toDateString()}";
                     if (Cache::has($cacheKey)) {
@@ -35,6 +36,13 @@ class NotifyTrialExpiringJob implements ShouldQueue
                     }
 
                     Mail::to($tenant->email)->send(new TrialExpiringMail($tenant));
+                    $notifications->notify(
+                        $tenant,
+                        'trial_expiring',
+                        'Seu trial Premium está acabando',
+                        'Trial até '.$tenant->trial_ends_at?->format('d/m/Y').'. Faça upgrade para manter os recursos.',
+                        route('tenant.billing.upgrade'),
+                    );
                     Cache::put($cacheKey, true, now()->addDays(7));
                 }
             });

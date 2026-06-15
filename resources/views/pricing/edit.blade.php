@@ -195,6 +195,27 @@
             @endforeach
         </div>
 
+        <div class="mb-6">
+            <button type="button" @click="compareMargins()" :disabled="compareLoading" class="text-sm font-semibold text-brand-dark hover:text-brand inline-flex items-center gap-2">
+                <span x-show="!compareLoading">Comparar todas as margens</span>
+                <span x-show="compareLoading" x-cloak>Comparando…</span>
+            </button>
+        </div>
+        <div x-show="compareScenarios.length" x-cloak class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+            <template x-for="scenario in compareScenarios" :key="scenario.margin">
+                <button
+                    type="button"
+                    @click="setMargin(String(scenario.margin))"
+                    class="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-brand/40 transition-colors"
+                    :class="Number(selectedMargin) === Number(scenario.margin) ? 'ring-2 ring-brand/40' : ''"
+                >
+                    <p class="text-xs text-slate-500 uppercase tracking-wide">Margem <span x-text="scenario.margin"></span>%</p>
+                    <p class="text-lg font-bold text-brand-dark mt-1" x-text="formatBrl(scenario.breakdown?.final_price)"></p>
+                    <p class="text-xs text-slate-500 mt-1">Lucro: <span x-text="formatBrl(scenario.breakdown?.profit_absolute)"></span></p>
+                </button>
+            </template>
+        </div>
+
         <div x-show="breakdown" x-cloak class="mb-6 space-y-4">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                 <div class="bg-white/80 p-3 rounded-xl border border-slate-100">
@@ -300,6 +321,8 @@ document.addEventListener('alpine:init', () => {
         aiLoading: false,
         aiStep: 'Calculando custos…',
         previewTimer: null,
+        compareScenarios: [],
+        compareLoading: false,
         init() {
             if (this.materials.length === 0) {
                 this.materials.push({ material_name: '', quantity: 0, unit: 'g', unit_cost: 0 });
@@ -369,6 +392,23 @@ document.addEventListener('alpine:init', () => {
                     }
                 })
                 .catch(() => { window.toast?.error('Não foi possível atualizar a prévia.'); });
+        },
+        compareMargins() {
+            this.compareLoading = true;
+            const margins = @json(array_map(fn ($m) => $m->value, $margins));
+            fetch('{{ route('tenant.pricing.compare', $product) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ ...this.buildPayload(), margins }),
+            })
+                .then(r => r.json())
+                .then(data => { this.compareScenarios = data.scenarios || []; })
+                .catch(() => { window.toast?.error('Não foi possível comparar margens.'); })
+                .finally(() => { this.compareLoading = false; });
         },
         fetchAi() {
             this.aiLoading = true;

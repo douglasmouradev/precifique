@@ -14,6 +14,7 @@ use App\Http\Controllers\Tenant\ImpersonationController;
 use App\Http\Controllers\Tenant\LGPDController;
 use App\Http\Controllers\Tenant\MenuController;
 use App\Http\Controllers\Tenant\MonthlyGoalController;
+use App\Http\Controllers\Tenant\NotificationController;
 use App\Http\Controllers\Tenant\PricingController;
 use App\Http\Controllers\Tenant\ProductController;
 use App\Http\Controllers\Tenant\ProfileSetupController;
@@ -74,6 +75,9 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
     Route::get('/menu', MenuController::class)->name('menu');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 
     Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::post('/products/{product}/duplicate', [ProductController::class, 'duplicate'])->name('products.duplicate');
@@ -82,6 +86,9 @@ Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->gr
     Route::post('/products/{product}/pricing/preview', [PricingController::class, 'preview'])
         ->middleware('throttle:30,1')
         ->name('pricing.preview');
+    Route::post('/products/{product}/pricing/compare', [PricingController::class, 'compare'])
+        ->middleware('throttle:15,1')
+        ->name('pricing.compare');
     Route::post('/products/{product}/ai', [PricingController::class, 'aiSuggest'])
         ->middleware(['plan:premium', 'throttle:15,1'])
         ->name('pricing.ai');
