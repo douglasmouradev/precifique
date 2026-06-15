@@ -96,7 +96,7 @@
     <aside
         x-ref="sidebar"
         @click.stop
-        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+        :class="sidebarOpen ? 'translate-x-0 pointer-events-auto' : '-translate-x-full pointer-events-none'"
         class="fixed inset-y-0 left-0 z-50 w-[16.5rem] max-w-[85vw] ui-sidebar-premium text-white flex flex-col shadow-sidebar transition-transform duration-300 ease-out"
         :aria-hidden="!sidebarOpen"
     >
@@ -114,8 +114,8 @@
             </a>
             <button
                 type="button"
-                @click="closeSidebar()"
-                class="shrink-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors -mr-1"
+                @click.stop="closeSidebar()"
+                class="shrink-0 p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors -mr-1 touch-manipulation"
                 aria-label="Fechar menu"
             >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,19 +157,19 @@
     </aside>
 
     <div
-        class="min-h-screen flex flex-col transition-[padding] duration-300 ease-out relative z-0"
+        class="min-h-screen flex flex-col transition-[padding] duration-300 ease-out"
         :class="sidebarOpen ? 'lg:pl-[16.5rem]' : ''"
     >
-        <header class="sticky top-0 z-[60] ui-glass-header">
+        <header class="sticky top-0 z-[70] ui-glass-header">
             <div class="flex items-center justify-between gap-4 px-4 md:px-8 h-14">
                 <div class="flex items-center gap-3 min-w-0">
                     <button
                         type="button"
                         x-ref="menuBtn"
                         @click.stop="toggleSidebar()"
-                        class="relative p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-colors"
+                        class="relative p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-colors touch-manipulation"
                         :aria-expanded="sidebarOpen"
-                        aria-label="Abrir menu"
+                        :aria-label="sidebarOpen ? 'Fechar menu' : 'Abrir menu'"
                     >
                         <span class="sr-only" x-text="sidebarOpen ? 'Fechar menu' : 'Abrir menu'"></span>
                         <svg class="w-5 h-5 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">

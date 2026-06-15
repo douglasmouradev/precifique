@@ -22,6 +22,7 @@ return [
     'intro_preparing' => 'Preparando sua experiência…',
     'intro_skip' => 'Pular introdução',
     'open_menu' => 'Abrir menu',
+    'close_menu' => 'Fechar menu',
     'nav_problem' => 'Problema',
     'nav_solution' => 'Solução',
     'nav_plans' => 'Planos',

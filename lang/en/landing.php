@@ -22,6 +22,7 @@ return [
     'intro_preparing' => 'Preparing your experience…',
     'intro_skip' => 'Skip intro',
     'open_menu' => 'Open menu',
+    'close_menu' => 'Close menu',
     'nav_problem' => 'Problem',
     'nav_solution' => 'Solution',
     'nav_plans' => 'Plans',
