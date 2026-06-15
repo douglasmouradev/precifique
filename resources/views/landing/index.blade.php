@@ -59,12 +59,8 @@
     </div>
 
 <header
-    class="fixed top-0 inset-x-0 z-40 bg-ink/80 backdrop-blur-xl border-b border-white/10 transition-shadow duration-300"
-    x-data="{ scrolled: false, menuOpen: false }"
-    x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 16 }, { passive: true })"
-    @keydown.escape.window="menuOpen = false"
-    @click.outside="menuOpen = false"
-    :class="scrolled && 'shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]'"
+    id="landing-header"
+    class="fixed top-0 inset-x-0 z-[110] bg-ink/80 backdrop-blur-xl border-b border-white/10 transition-shadow duration-300"
 >
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-[4.25rem] flex items-center justify-between gap-4">
         <a href="{{ route('home') }}" class="flex items-center shrink-0 transition-opacity hover:opacity-90">
@@ -84,26 +80,26 @@
         <button
             type="button"
             id="landing-mobile-menu-toggle"
+            data-label-open="{{ __('landing.open_menu') }}"
+            data-label-close="{{ __('landing.close_menu') }}"
             class="md:hidden p-2.5 min-w-[2.75rem] min-h-[2.75rem] text-white hover:text-brand rounded-lg touch-manipulation"
-            @click.stop="menuOpen = !menuOpen"
-            :aria-expanded="menuOpen"
-            :aria-label="menuOpen ? '{{ __('landing.close_menu') }}' : '{{ __('landing.open_menu') }}'"
+            aria-expanded="false"
+            aria-controls="landing-mobile-menu"
+            aria-label="{{ __('landing.open_menu') }}"
         >
-            <svg x-show="!menuOpen" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            <svg x-show="menuOpen" x-cloak class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            <svg data-menu-icon="open" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <svg data-menu-icon="close" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
     </div>
     <div
         id="landing-mobile-menu"
-        x-show="menuOpen"
-        x-cloak
-        x-transition
-        class="md:hidden border-t border-white/10 bg-ink/95 backdrop-blur-xl px-4 py-4 space-y-3"
+        class="hidden md:hidden border-t border-white/10 bg-ink/95 backdrop-blur-xl px-4 py-4 space-y-3"
+        hidden
     >
-        <a href="#problema" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_problem') }}</a>
-        <a href="#solucao" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_solution') }}</a>
-        <a href="#planos" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_plans') }}</a>
-        <a href="#faq" @click="menuOpen = false" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.faq') }}</a>
+        <a href="#problema" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_problem') }}</a>
+        <a href="#solucao" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_solution') }}</a>
+        <a href="#planos" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_plans') }}</a>
+        <a href="#faq" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.faq') }}</a>
         <div class="pt-3 border-t border-white/10 flex flex-col gap-2">
             <a href="{{ route('tenant.login') }}" class="text-center py-2.5 text-white border border-white/20 rounded-lg">{{ __('landing.login') }}</a>
             <a href="{{ route('tenant.register') }}" class="text-center py-2.5 bg-brand text-ink rounded-lg font-semibold">{{ __('landing.register') }}</a>

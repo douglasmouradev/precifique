@@ -8,8 +8,8 @@ const INTENSITY = {
 };
 
 const MOBILE = { lift: 20, scale: 0.98 };
-const SMOOTH = 0.2;
-const SETTLE = 0.04;
+const SMOOTH = 0.11;
+const SETTLE = 0.08;
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -37,6 +37,7 @@ function createState() {
 function applyState(el, s) {
     if (el.dataset.scroll3dPricing !== undefined) {
         el.style.transform = `translate3d(${s.trx}px, 0, 0) rotateY(${s.try}deg) scale(${s.s.toFixed(4)})`;
+        el.style.opacity = s.op.toFixed(3);
 
         return;
     }
@@ -44,6 +45,11 @@ function applyState(el, s) {
     el.style.transform =
         `rotateX(${s.rx.toFixed(2)}deg) rotateY(${s.ry.toFixed(2)}deg) ` +
         `translate3d(0, ${s.ty.toFixed(1)}px, ${s.tz.toFixed(0)}px) scale(${s.s.toFixed(4)})`;
+
+    /* Nunca reduz opacidade do conteúdo principal — só transform */
+    if (el.dataset.scroll3dHero !== undefined) {
+        el.style.opacity = '1';
+    }
 }
 
 function lerpState(current, target, factor = SMOOTH) {
@@ -67,7 +73,9 @@ function initLandingScroll3d() {
         return;
     }
     const root = document.querySelector('[data-landing-3d]');
-    if (!root) return;
+    if (!root) {
+        return;
+    }
 
     const sections = [...root.querySelectorAll('[data-scroll-3d-section]')];
     const hero = root.querySelector('[data-scroll-3d-hero]');
@@ -84,6 +92,7 @@ function initLandingScroll3d() {
             states.set(el, createState());
             targets.set(el, createState());
         }
+
         return { current: states.get(el), target: targets.get(el) };
     };
 
@@ -111,7 +120,6 @@ function initLandingScroll3d() {
 
     const computeTargets = () => {
         const vh = window.innerHeight;
-        const mobile = window.innerWidth < 768;
         const scrollY = window.scrollY;
 
         if (heroInner) {
@@ -119,22 +127,15 @@ function initLandingScroll3d() {
             const p = clamp(scrollY / (vh * 0.85), 0, 1);
             const e = ease(p);
 
-            if (mobile) {
-                target.ty = lerp(0, -16, e);
-                target.s = lerp(1, 0.98, e);
-                target.op = lerp(1, 0.92, e);
-                target.rx = target.ry = target.tz = 0;
-            } else {
-                target.rx = lerp(0, 8, e);
-                target.ty = lerp(0, -36, e);
-                target.tz = lerp(0, -30, e);
-                target.s = lerp(1, 0.94, e);
-                target.op = lerp(1, 0.88, e);
-                target.ry = 0;
-            }
+            target.rx = lerp(0, 8, e);
+            target.ty = lerp(0, -36, e);
+            target.tz = lerp(0, -30, e);
+            target.s = lerp(1, 0.94, e);
+            target.op = lerp(1, 0.88, e);
+            target.ry = 0;
         }
 
-        if (heroOrb && !mobile) {
+        if (heroOrb) {
             const p = clamp(scrollY / (vh * 1.2), 0, 1);
             heroOrb.style.transform =
                 `translate3d(0, ${lerp(0, 80, ease(p)).toFixed(1)}px, 0) scale(${lerp(1, 1.12, ease(p)).toFixed(3)})`;
@@ -143,20 +144,13 @@ function initLandingScroll3d() {
 
         sections.forEach((section, index) => {
             const inner = section.querySelector('.scroll-3d-section__inner');
-            if (!inner) return;
+            if (!inner) {
+                return;
+            }
 
             const { target } = getState(inner);
             const p = sectionProgress(section.getBoundingClientRect(), vh);
             const sign = index % 2 === 0 ? 1 : -1;
-
-            if (mobile) {
-                const lift = keyframe3(p, MOBILE.lift, 0, -MOBILE.lift * 0.5);
-                target.rx = target.ry = target.tz = 0;
-                target.ty = lift;
-                target.s = keyframe3(p, MOBILE.scale, 1, MOBILE.scale + 0.01);
-                return;
-            }
-
             const key = section.dataset.intensity || 'medium';
             const cfg = INTENSITY[key] || INTENSITY.medium;
 
@@ -169,20 +163,14 @@ function initLandingScroll3d() {
 
         pricingCards.forEach((card) => {
             const section = card.closest('[data-scroll-3d-section]');
-            if (!section) return;
+            if (!section) {
+                return;
+            }
 
             const { target } = getState(card);
             const p = sectionProgress(section.getBoundingClientRect(), vh);
             const t = ease(clamp((p - 0.08) / 0.55, 0, 1));
             const fromLeft = card.dataset.direction === 'left';
-
-            if (window.innerWidth < 768) {
-                target.trx = lerp(fromLeft ? -24 : 24, 0, t);
-                target.try = 0;
-                target.s = lerp(0.96, 1, t);
-                target.op = lerp(0.75, 1, t);
-                return;
-            }
 
             target.trx = lerp(fromLeft ? -56 : 56, 0, t);
             target.try = lerp(fromLeft ? -14 : 14, 0, t);
@@ -192,9 +180,9 @@ function initLandingScroll3d() {
     };
 
     let animating = false;
-    let scrollQueued = false;
+    let lastScroll = Date.now();
 
-    const runFrame = () => {
+    const frame = () => {
         let stillMoving = false;
 
         states.forEach((current, el) => {
@@ -205,43 +193,38 @@ function initLandingScroll3d() {
             applyState(el, current);
         });
 
-        if (stillMoving) {
-            requestAnimationFrame(runFrame);
+        const recentlyScrolled = Date.now() - lastScroll < 180;
+
+        if (stillMoving || recentlyScrolled) {
+            requestAnimationFrame(frame);
         } else {
             animating = false;
         }
     };
 
-    const scheduleFrame = () => {
-        if (animating) {
-            return;
-        }
-        animating = true;
-        requestAnimationFrame(runFrame);
-    };
-
     const onScroll = () => {
-        if (scrollQueued) {
-            return;
+        lastScroll = Date.now();
+        computeTargets();
+        if (!animating) {
+            animating = true;
+            requestAnimationFrame(frame);
         }
-        scrollQueued = true;
-        requestAnimationFrame(() => {
-            scrollQueued = false;
-            computeTargets();
-            scheduleFrame();
-        });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
 
     computeTargets();
-    scheduleFrame();
+    animating = true;
+    requestAnimationFrame(frame);
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             computeTargets();
-            scheduleFrame();
+            if (!animating) {
+                animating = true;
+                requestAnimationFrame(frame);
+            }
         }
     });
 }

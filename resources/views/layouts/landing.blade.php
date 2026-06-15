@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,8 +25,8 @@
     @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
     <style @if(is_string($cspNonce) && $cspNonce !== '') nonce="{{ $cspNonce }}" @endif>
-        html { scroll-behavior: auto; }
         [data-scroll-3d-hero] { background-color: #0D0D0D; min-height: 70vh; }
+        .scroll-reveal { opacity: 1; transform: none; }
         html.landing-intro-seen #landing-intro-overlay { display: none !important; }
         #landing-intro-overlay { background-color: #0D0D0D; }
     </style>
