@@ -19,6 +19,8 @@
     <meta name="twitter:description" content="@yield('meta_description', 'Pare de chutar preços. Calcule custos, margem e lucro com confiança.')">
     <meta name="twitter:image" content="{{ asset('images/og-precifique.svg') }}">
     <x-head-icons />
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'Precifique')</title>
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
     @stack('head')

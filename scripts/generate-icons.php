@@ -4,28 +4,51 @@ declare(strict_types=1);
 
 /**
  * Gera PNGs da logo (hexágono verde) para PWA, iOS e e-mails.
+ * iOS exige fundo opaco e também busca /apple-touch-icon.png na raiz do domínio.
  * Uso: php scripts/generate-icons.php
  */
 
 $root = dirname(__DIR__);
-$outDir = $root.'/public/images';
-$svgPath = $outDir.'/logo-icon.svg';
+$imagesDir = $root.'/public/images';
+$svgPath = $imagesDir.'/logo-icon.svg';
 
 if (! is_readable($svgPath)) {
     fwrite(STDERR, "Arquivo não encontrado: {$svgPath}\n");
     exit(1);
 }
 
-foreach ([180 => 'apple-touch-icon.png', 192 => 'icon-192.png', 512 => 'icon-512.png'] as $size => $filename) {
-    $outPath = $outDir.'/'.$filename;
+$targets = [
+    180 => [
+        $imagesDir.'/apple-touch-icon.png',
+        $root.'/public/apple-touch-icon.png',
+        $root.'/public/apple-touch-icon-precomposed.png',
+    ],
+    192 => [$imagesDir.'/icon-192.png'],
+    512 => [$imagesDir.'/icon-512.png'],
+];
 
-    if (renderFromSvg($size, $outPath, $svgPath) || renderWithGd($size, $outPath)) {
-        echo "Gerado: {$filename} ({$size}x{$size})\n";
-        continue;
+foreach ($targets as $size => $paths) {
+    $temp = $imagesDir.'/.icon-tmp-'.$size.'.png';
+
+    if (! renderIcon($size, $temp, $svgPath)) {
+        fwrite(STDERR, "Falha ao gerar ícone {$size}x{$size}\n");
+        exit(1);
     }
 
-    fwrite(STDERR, "Falha ao gerar {$filename}\n");
-    exit(1);
+    foreach ($paths as $path) {
+        if (! copy($temp, $path)) {
+            fwrite(STDERR, "Falha ao copiar para {$path}\n");
+            exit(1);
+        }
+        echo 'Gerado: '.str_replace($root.'/', '', $path)." ({$size}x{$size})\n";
+    }
+
+    unlink($temp);
+}
+
+function renderIcon(int $size, string $outPath, string $svgPath): bool
+{
+    return renderFromSvg($size, $outPath, $svgPath) || renderWithGd($size, $outPath);
 }
 
 function renderFromSvg(int $size, string $outPath, string $svgPath): bool
@@ -35,13 +58,22 @@ function renderFromSvg(int $size, string $outPath, string $svgPath): bool
     }
 
     try {
-        $imagick = new Imagick();
-        $imagick->setBackgroundColor(new ImagickPixel('transparent'));
-        $imagick->setResolution(384, 384);
-        $imagick->readImage($svgPath);
-        $imagick->setImageFormat('png32');
-        $imagick->resizeImage($size, $size, Imagick::FILTER_LANCZOS, 1, true);
-        $imagick->writeImage($outPath);
+        $logo = new Imagick();
+        $logo->setBackgroundColor(new ImagickPixel('transparent'));
+        $logo->setResolution(384, 384);
+        $logo->readImage($svgPath);
+        $logo->setImageFormat('png32');
+
+        $logoSize = (int) round($size * 0.82);
+        $logo->resizeImage($logoSize, $logoSize, Imagick::FILTER_LANCZOS, 1, true);
+
+        $canvas = new Imagick();
+        $canvas->newImage($size, $size, new ImagickPixel('#FFFFFF'));
+        $canvas->setImageFormat('png24');
+
+        $offset = (int) round(($size - $logoSize) / 2);
+        $canvas->compositeImage($logo, Imagick::COMPOSITE_OVER, $offset, $offset);
+        $canvas->writeImage($outPath);
 
         return true;
     } catch (Throwable) {
@@ -56,23 +88,17 @@ function renderWithGd(int $size, string $outPath): bool
     }
 
     $img = imagecreatetruecolor($size, $size);
-    imagesavealpha($img, true);
-
-    $transparent = imagecolorallocatealpha($img, 0, 0, 0, 127);
-    imagefill($img, 0, 0, $transparent);
+    $white = imagecolorallocate($img, 255, 255, 255);
+    imagefill($img, 0, 0, $white);
 
     $green = imagecolorallocate($img, 0, 200, 150);
     $greenDark = imagecolorallocate($img, 0, 166, 125);
-    $white = imagecolorallocate($img, 255, 255, 255);
     $ink = imagecolorallocate($img, 13, 13, 13);
 
     $center = $size / 2;
-    $radius = $size * 0.46;
-    $hex = hexagonPoints($center, $center, $radius);
-    imagefilledpolygon($img, $hex, $green);
-
-    $inner = hexagonPoints($center, $center, $radius * 0.9);
-    imagefilledpolygon($img, $inner, $greenDark);
+    $radius = $size * 0.38;
+    imagefilledpolygon($img, hexagonPoints($center, $center, $radius), $green);
+    imagefilledpolygon($img, hexagonPoints($center, $center, $radius * 0.9), $greenDark);
 
     $tagScale = $size / 48;
     $tagX = (int) round(17.5 * $tagScale);

@@ -6,6 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <x-head-icons />
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <meta name="theme-color" content="#00C896">
         <title>{{ $title ?? 'Admin' }} — Precifique</title>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])

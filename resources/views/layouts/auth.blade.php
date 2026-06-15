@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <x-head-icons />
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'Precifique')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
