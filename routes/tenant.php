@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Auth\OnboardingController;
 use App\Http\Controllers\Auth\TenantAuthController;
+use App\Http\Controllers\Auth\TenantEmailVerificationController;
+use App\Http\Controllers\Auth\TenantEmailVerificationPromptController;
 use App\Http\Controllers\Auth\TenantPasswordResetController;
+use App\Http\Controllers\Auth\TenantTwoFactorChallengeController;
 use App\Http\Controllers\Tenant\AccountController;
 use App\Http\Controllers\Tenant\AIController;
+use App\Http\Controllers\Tenant\ApiTokenController;
 use App\Http\Controllers\Tenant\BillingController;
 use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\FixedCostController;
@@ -23,6 +27,7 @@ use App\Http\Controllers\Tenant\ReportController;
 use App\Http\Controllers\Tenant\SaleController;
 use App\Http\Controllers\Tenant\StockController;
 use App\Http\Controllers\Tenant\TenantVariableCostController;
+use App\Http\Controllers\Tenant\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:tenant')->group(function () {
@@ -42,6 +47,19 @@ Route::post('/sair', [TenantAuthController::class, 'logout'])
     ->name('tenant.logout');
 
 Route::middleware('auth:tenant')->group(function () {
+    Route::get('/auth/verificar-email', TenantEmailVerificationPromptController::class)->name('tenant.verification.notice');
+    Route::get('/auth/verificar-email/{id}/{hash}', [TenantEmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('tenant.verification.verify');
+    Route::post('/auth/verificar-email/reenviar', [TenantEmailVerificationController::class, 'send'])
+        ->middleware('throttle:6,1')
+        ->name('tenant.verification.send');
+
+    Route::get('/auth/2fa', [TenantTwoFactorChallengeController::class, 'create'])->name('tenant.two-factor.challenge');
+    Route::post('/auth/2fa', [TenantTwoFactorChallengeController::class, 'store'])
+        ->middleware('throttle:tenant-login')
+        ->name('tenant.two-factor.challenge.store');
+
     Route::prefix('onboarding')->name('onboarding.')->middleware('throttle:tenant-onboarding')->group(function () {
         Route::get('/welcome', [OnboardingController::class, 'welcome'])->name('welcome');
         Route::get('/pular', [OnboardingController::class, 'skip'])->name('skip');
@@ -64,10 +82,16 @@ Route::middleware('auth:tenant')->group(function () {
     });
 });
 
-Route::middleware(['auth:tenant', 'tenant'])->prefix('app')->name('tenant.')->group(function () {
+Route::middleware(['auth:tenant', 'tenant', 'verified.tenant', 'tenant.2fa'])->prefix('app')->name('tenant.')->group(function () {
     Route::get('/conta', [AccountController::class, 'index'])->name('account.index');
     Route::put('/conta/perfil', [AccountController::class, 'updateProfile'])->name('account.profile');
     Route::put('/conta/senha', [AccountController::class, 'updatePassword'])->name('account.password');
+    Route::post('/conta/tokens', [ApiTokenController::class, 'store'])->name('account.tokens.store');
+    Route::delete('/conta/tokens/{token}', [ApiTokenController::class, 'destroy'])->name('account.tokens.destroy');
+    Route::put('/conta/notificacoes', [ApiTokenController::class, 'updatePreferences'])->name('account.notifications');
+    Route::get('/conta/two-factor', [TwoFactorController::class, 'show'])->name('account.two-factor');
+    Route::post('/conta/two-factor', [TwoFactorController::class, 'confirm'])->name('account.two-factor.confirm');
+    Route::delete('/conta/two-factor', [TwoFactorController::class, 'destroy'])->name('account.two-factor.destroy');
 
     Route::redirect('/perfil', '/app/conta')->name('profile.edit');
     Route::put('/perfil', [AccountController::class, 'updateProfile']);

@@ -8,6 +8,7 @@ use App\Jobs\LowStockAlertJob;
 use App\Mail\LowStockAlertMail;
 use App\Models\Product;
 use App\Models\Tenant;
+use App\Services\TenantNotificationPreferences;
 use App\Services\TenantNotificationService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
@@ -31,7 +32,7 @@ class LowStockAlertJobTest extends TestCase
             'is_active' => true,
         ]);
 
-        (new LowStockAlertJob)->handle(app(TenantNotificationService::class));
+        (new LowStockAlertJob)->handle(app(TenantNotificationService::class), app(TenantNotificationPreferences::class));
 
         Mail::assertQueued(LowStockAlertMail::class, function (LowStockAlertMail $mail) use ($tenant) {
             return $mail->tenant->is($tenant);
@@ -50,7 +51,7 @@ class LowStockAlertJobTest extends TestCase
             'is_active' => true,
         ]);
 
-        (new LowStockAlertJob)->handle(app(TenantNotificationService::class));
+        (new LowStockAlertJob)->handle(app(TenantNotificationService::class), app(TenantNotificationPreferences::class));
 
         Mail::assertNothingSent();
     }

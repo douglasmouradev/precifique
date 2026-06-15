@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="@yield('meta_description', 'Precifique — calcule custos reais, margem de lucro e preço de venda para alimentos, serviços e artesanato. Trial Premium grátis.')">
+    <meta name="description" content="@yield('meta_description', __('landing.meta_description'))">
     <meta name="keywords" content="precificação, MEI, custos, margem de lucro, ficha técnica, pequenos negócios">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
@@ -23,6 +23,7 @@
     <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'Precifique')</title>
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
+    <x-analytics />
     @stack('head')
     <script type="application/ld+json">
     {
@@ -41,8 +42,8 @@
 
     <div x-show="!cookieAccepted" x-cloak class="fixed bottom-0 inset-x-0 z-50 bg-ink text-white p-4 shadow-2xl">
         <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="text-sm">Usamos cookies para melhorar sua experiência. <a href="{{ route('privacy') }}" class="text-brand underline">Política de Privacidade</a></p>
-            <button @click="localStorage.setItem('precifique_cookies','1'); cookieAccepted=true" class="bg-brand hover:bg-brand-dark px-6 py-2 rounded-lg font-semibold text-ink">Aceitar</button>
+            <p class="text-sm">{{ __('landing.cookie_message') }} <a href="{{ route('privacy') }}" class="text-brand underline">{{ __('app.nav.privacy') }}</a></p>
+            <button @click="localStorage.setItem('precifique_cookies','1'); cookieAccepted=true" class="bg-brand hover:bg-brand-dark px-6 py-2 rounded-lg font-semibold text-ink">{{ __('landing.cookie_accept') }}</button>
         </div>
     </div>
     @stack('scripts')

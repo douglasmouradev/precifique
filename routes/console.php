@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Jobs\ExpireSubscriptionsJob;
 use App\Jobs\LowStockAlertJob;
+use App\Jobs\NotifyPixExpiringJob;
 use App\Jobs\NotifyTrialExpiringJob;
 use App\Jobs\SendMonthlyGoalReminderJob;
 use App\Jobs\SendMonthlyReportJob;
@@ -20,3 +21,4 @@ Schedule::job(new SendMonthlyGoalReminderJob)->weeklyOn(1, '09:00');
 Schedule::job(new LowStockAlertJob)->dailyAt('07:00');
 Schedule::job(new ExpireSubscriptionsJob)->dailyAt('02:00');
 Schedule::job(new NotifyTrialExpiringJob)->dailyAt('09:00');
+Schedule::job(new NotifyPixExpiringJob)->dailyAt('09:30');

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\TenantApiToken;
+use App\Support\TenantApiAbilities;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,6 +20,8 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
             'device_name' => ['required', 'string', 'max:100'],
+            'abilities' => ['nullable', 'array', 'min:1'],
+            'abilities.*' => ['string', 'in:'.implode(',', array_keys(TenantApiAbilities::all()))],
         ]);
 
         $tenant = Tenant::query()->where('email', $data['email'])->first();
@@ -30,13 +33,13 @@ class AuthController extends Controller
             return response()->json(['message' => 'Conta inativa.'], 403);
         }
 
-        $plain = TenantApiToken::issue($tenant, $data['device_name'], [
-            'dashboard:read',
-            'products:read',
-            'sales:read',
-            'tokens:read',
-            'tokens:write',
-        ]);
+        if (! $tenant->hasVerifiedEmail()) {
+            return response()->json(['message' => 'E-mail não verificado.'], 403);
+        }
+
+        $abilities = $data['abilities'] ?? TenantApiAbilities::defaultForLogin();
+
+        $plain = TenantApiToken::issue($tenant, $data['device_name'], $abilities);
 
         return response()->json([
             'token' => $plain,

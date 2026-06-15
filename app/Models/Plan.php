@@ -13,6 +13,7 @@ class Plan extends Model
         'slug',
         'name',
         'price_monthly',
+        'stripe_price_id',
         'max_products',
         'features',
         'has_ai',

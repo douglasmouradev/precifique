@@ -13,9 +13,14 @@ Content-Type: application/json
 {
   "email": "loja@exemplo.com",
   "password": "sua-senha",
-  "device_name": "integração-erp"
+  "device_name": "integração-erp",
+  "abilities": ["dashboard:read", "products:read", "sales:write"]
 }
 ```
+
+Se `abilities` for omitido, o token recebe apenas leitura (`dashboard:read`, `products:read`, `sales:read`).
+
+Documentação web: `/docs/api` · Gestão de tokens: **Minha conta** no app.
 
 Resposta `200`:
 
@@ -82,6 +87,16 @@ Authorization: Bearer {token}
 
 Requer ability `products:read`. Lista paginada com nome, preço, estoque e status.
 
+```http
+PATCH /api/v1/products/{id}/stock
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{ "stock_quantity": 10, "min_stock_alert": 3 }
+```
+
+Requer ability `products:write`.
+
 ### Vendas
 
 ```http
@@ -92,13 +107,30 @@ Authorization: Bearer {token}
 
 Requer ability `sales:read`. Filtro opcional: `?payment_method=pix`.
 
+```http
+POST /api/v1/sales
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 2,
+  "unit_price": 25.90,
+  "payment_method": "pix"
+}
+```
+
+Requer ability `sales:write`.
+
 ## Abilities
 
 | Ability | Descrição |
 |---------|-----------|
 | `dashboard:read` | Ler resumo do dashboard |
 | `products:read` | Listar e ver produtos |
+| `products:write` | Atualizar estoque |
 | `sales:read` | Listar e ver vendas |
+| `sales:write` | Registrar vendas |
 | `tokens:read` | Listar tokens da conta |
 | `tokens:write` | Revogar tokens |
 | `*` | Acesso total (tokens legados) |

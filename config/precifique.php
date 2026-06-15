@@ -26,6 +26,16 @@ return [
         'notify_days_before' => (int) env('TRIAL_NOTIFY_DAYS_BEFORE', 3),
     ],
 
+    'pix' => [
+        'notify_days_before' => (int) env('PIX_NOTIFY_DAYS_BEFORE', 3),
+    ],
+
+    'analytics' => [
+        'provider' => env('ANALYTICS_PROVIDER'),
+        'id' => env('ANALYTICS_ID'),
+        'domain' => env('ANALYTICS_DOMAIN'),
+    ],
+
     'monitoring' => [
         'sentry_dsn' => env('SENTRY_LARAVEL_DSN'),
         'health_token' => env('HEALTH_CHECK_TOKEN'),

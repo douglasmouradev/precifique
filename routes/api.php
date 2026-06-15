@@ -35,6 +35,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->middleware('tenant.api.ability:sales:read')
             ->name('sales.show');
 
+        Route::post('/sales', [ApiSaleController::class, 'store'])
+            ->middleware('tenant.api.ability:sales:write')
+            ->name('sales.store');
+
+        Route::patch('/products/{product}/stock', [ProductController::class, 'updateStock'])
+            ->middleware('tenant.api.ability:products:write')
+            ->name('products.stock');
+
         Route::get('/auth/tokens', [TokenController::class, 'index'])
             ->middleware('tenant.api.ability:tokens:read')
             ->name('auth.tokens.index');

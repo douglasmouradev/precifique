@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\PlanType;
+use App\Mail\PaymentFailedMail;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Tenant;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Stripe\BillingPortal\Session as StripePortalSession;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\Stripe;
@@ -21,16 +23,17 @@ class PaymentService
 {
     public function __construct(
         private readonly WebhookIdempotencyService $webhookIdempotency,
+        private readonly TenantNotificationService $notifications,
+        private readonly TenantNotificationPreferences $notificationPreferences,
     ) {}
 
     public function createStripeCheckout(Tenant $tenant, Plan $plan): string
     {
         Stripe::setApiKey((string) config('services.stripe.secret'));
 
-        $session = StripeSession::create([
-            'mode' => 'subscription',
-            'customer_email' => $tenant->email,
-            'line_items' => [[
+        $lineItem = $plan->stripe_price_id
+            ? ['price' => $plan->stripe_price_id, 'quantity' => 1]
+            : [
                 'price_data' => [
                     'currency' => 'brl',
                     'product_data' => ['name' => "Precifique — {$plan->name}"],
@@ -38,7 +41,12 @@ class PaymentService
                     'recurring' => ['interval' => 'month'],
                 ],
                 'quantity' => 1,
-            ]],
+            ];
+
+        $session = StripeSession::create([
+            'mode' => 'subscription',
+            'customer_email' => $tenant->email,
+            'line_items' => [$lineItem],
             'metadata' => [
                 'tenant_id' => (string) $tenant->id,
                 'plan_id' => (string) $plan->id,
@@ -182,7 +190,7 @@ class PaymentService
                 'checkout.session.completed' => $this->handleCheckoutCompleted($event->data->object),
                 'customer.subscription.deleted' => $this->handleStripeSubscriptionEnded($event->data->object->id ?? null),
                 'customer.subscription.updated' => $this->handleStripeSubscriptionUpdated($event->data->object),
-                'invoice.payment_failed' => true,
+                'invoice.payment_failed' => $this->handleInvoicePaymentFailed($event->data->object),
                 default => true,
             };
         });
@@ -384,6 +392,36 @@ class PaymentService
 
             return true;
         });
+    }
+
+    private function handleInvoicePaymentFailed(object $invoice): bool
+    {
+        $stripeSubscriptionId = $invoice->subscription ?? null;
+        if (! $stripeSubscriptionId) {
+            return true;
+        }
+
+        $local = Subscription::where('stripe_subscription_id', $stripeSubscriptionId)->with('tenant')->first();
+        $tenant = $local?->tenant;
+        if (! $tenant) {
+            return true;
+        }
+
+        if ($this->notificationPreferences->allowsEmail($tenant, 'email_payment_failed')) {
+            Mail::to($tenant->email)->queue(new PaymentFailedMail($tenant));
+        }
+
+        if ($this->notificationPreferences->allowsInApp($tenant)) {
+            $this->notifications->notify(
+                $tenant,
+                'payment_failed',
+                'Falha no pagamento da assinatura',
+                'Atualize seu cartão no portal de cobrança para manter o Premium.',
+                route('tenant.billing.portal'),
+            );
+        }
+
+        return true;
     }
 
     private function validateMercadoPagoSignature(Request $request): bool

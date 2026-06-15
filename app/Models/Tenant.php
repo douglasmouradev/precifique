@@ -6,8 +6,11 @@ namespace App\Models;
 
 use App\Enums\NicheType;
 use App\Enums\PlanType;
+use App\Notifications\TenantVerifyEmail;
+use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,10 +21,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-class Tenant extends Authenticatable implements CanResetPasswordContract
+class Tenant extends Authenticatable implements CanResetPasswordContract, MustVerifyEmailContract
 {
     use CanResetPassword;
     use HasFactory;
+    use MustVerifyEmail;
     use Notifiable;
     use SoftDeletes;
 
@@ -30,6 +34,9 @@ class Tenant extends Authenticatable implements CanResetPasswordContract
         'name',
         'email',
         'password',
+        'locale',
+        'two_factor_secret',
+        'two_factor_confirmed_at',
         'niche',
         'plan',
         'interface_mode',
@@ -41,11 +48,13 @@ class Tenant extends Authenticatable implements CanResetPasswordContract
         'created_by',
         'trial_ends_at',
         'niche_metadata',
+        'notification_preferences',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
     ];
 
     protected function casts(): array
@@ -56,6 +65,10 @@ class Tenant extends Authenticatable implements CanResetPasswordContract
             'profile_setup_completed' => 'boolean',
             'is_active' => 'boolean',
             'trial_ends_at' => 'datetime',
+            'email_verified_at' => 'datetime',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_confirmed_at' => 'datetime',
+            'notification_preferences' => 'array',
             'niche_metadata' => 'array',
             'niche' => NicheType::class,
             'plan' => PlanType::class,
@@ -135,6 +148,16 @@ class Tenant extends Authenticatable implements CanResetPasswordContract
         return $this->plan !== PlanType::Premium
             && $this->trial_ends_at !== null
             && $this->trial_ends_at->isFuture();
+    }
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new TenantVerifyEmail);
     }
 
     /** @param  Builder<static>  $query */

@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Mail\TrialExpiringMail;
 use App\Models\Tenant;
+use App\Services\TenantNotificationPreferences;
 use App\Services\TenantNotificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -18,7 +19,7 @@ class NotifyTrialExpiringJob implements ShouldQueue
 
     public int $tries = 3;
 
-    public function handle(TenantNotificationService $notifications): void
+    public function handle(TenantNotificationService $notifications, TenantNotificationPreferences $preferences): void
     {
         $days = (int) config('precifique.trial.notify_days_before', 3);
         $target = now()->addDays($days)->startOfDay();
@@ -28,21 +29,25 @@ class NotifyTrialExpiringJob implements ShouldQueue
             ->whereNotNull('trial_ends_at')
             ->whereDate('trial_ends_at', $target)
             ->where('is_active', true)
-            ->chunkById(50, function ($tenants) use ($notifications): void {
+            ->chunkById(50, function ($tenants) use ($notifications, $preferences): void {
                 foreach ($tenants as $tenant) {
                     $cacheKey = "trial_expiring_notified_{$tenant->id}_{$tenant->trial_ends_at?->toDateString()}";
                     if (Cache::has($cacheKey)) {
                         continue;
                     }
 
-                    Mail::to($tenant->email)->send(new TrialExpiringMail($tenant));
-                    $notifications->notify(
-                        $tenant,
-                        'trial_expiring',
-                        'Seu trial Premium está acabando',
-                        'Trial até '.$tenant->trial_ends_at?->format('d/m/Y').'. Faça upgrade para manter os recursos.',
-                        route('tenant.billing.upgrade'),
-                    );
+                    if ($preferences->allowsEmail($tenant, 'email_trial')) {
+                        Mail::to($tenant->email)->send(new TrialExpiringMail($tenant));
+                    }
+                    if ($preferences->allowsInApp($tenant)) {
+                        $notifications->notify(
+                            $tenant,
+                            'trial_expiring',
+                            'Seu trial Premium está acabando',
+                            'Trial até '.$tenant->trial_ends_at?->format('d/m/Y').'. Faça upgrade para manter os recursos.',
+                            route('tenant.billing.upgrade'),
+                        );
+                    }
                     Cache::put($cacheKey, true, now()->addDays(7));
                 }
             });

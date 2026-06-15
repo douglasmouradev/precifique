@@ -7,19 +7,30 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\TenantManagementController;
 use App\Http\Controllers\Admin\TwoFactorController;
+use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Tenant\BillingController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
+Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
+Route::get('/docs/api', ApiDocsController::class)->name('docs.api');
+Route::get('/precificacao-alimentos', [LandingController::class, 'nicheFood'])->name('landing.niche.food');
+Route::get('/precificacao-servicos', [LandingController::class, 'nicheService'])->name('landing.niche.service');
+Route::get('/precificacao-artesanato', [LandingController::class, 'nicheCraft'])->name('landing.niche.craft');
 Route::get('/privacidade', [LandingController::class, 'privacy'])->name('privacy');
 Route::get('/termos', [LandingController::class, 'terms'])->name('terms');
 
 Route::get('/sitemap.xml', function () {
     $urls = [
         ['loc' => route('home'), 'priority' => '1.0'],
+        ['loc' => route('landing.niche.food'), 'priority' => '0.8'],
+        ['loc' => route('landing.niche.service'), 'priority' => '0.8'],
+        ['loc' => route('landing.niche.craft'), 'priority' => '0.8'],
+        ['loc' => route('docs.api'), 'priority' => '0.6'],
         ['loc' => route('privacy'), 'priority' => '0.5'],
         ['loc' => route('terms'), 'priority' => '0.5'],
         ['loc' => route('tenant.register'), 'priority' => '0.8'],

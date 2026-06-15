@@ -58,6 +58,42 @@
             </x-ui.card>
         </div>
 
-        <p class="text-xs text-slate-400 text-center">Taxa trial→pago (estimada): {{ $trialToPaidRate }}% · Atualizado {{ now()->format('d/m/Y H:i') }}</p>
+        <p class="text-xs text-slate-400 text-center mb-8">Taxa trial→pago (estimada): {{ $trialToPaidRate }}% · Atualizado {{ now()->format('d/m/Y H:i') }}</p>
+
+        <div class="grid lg:grid-cols-2 gap-6 mb-8">
+            <x-ui.card>
+                <h3 class="ui-section-title">MRR — tendência (6 meses)</h3>
+                <div class="space-y-2">
+                    @php $maxMrr = max(1, collect($mrrTrend)->max('mrr')); @endphp
+                    @foreach($mrrTrend as $point)
+                    <div class="flex items-center gap-3 text-sm">
+                        <span class="w-14 text-slate-500 shrink-0">{{ $point['month'] }}</span>
+                        <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-violet-500 rounded-full" style="width: {{ ($point['mrr'] / $maxMrr) * 100 }}%"></div>
+                        </div>
+                        <span class="w-24 text-right tabular-nums">R$ {{ number_format($point['mrr'], 2, ',', '.') }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            </x-ui.card>
+
+            <x-ui.card>
+                <h3 class="ui-section-title">Funil de ativação</h3>
+                <ul class="space-y-3 text-sm">
+                    @foreach([
+                        ['label' => 'Cadastros', 'value' => $funnel['registered']],
+                        ['label' => 'LGPD aceito', 'value' => $funnel['lgpd']],
+                        ['label' => 'Onboarding completo', 'value' => $funnel['onboarded']],
+                        ['label' => 'Com produto', 'value' => $funnel['withProduct']],
+                        ['label' => 'Com venda', 'value' => $funnel['withSale']],
+                    ] as $step)
+                    <li class="flex justify-between border-b border-slate-50 pb-2">
+                        <span class="text-slate-600">{{ $step['label'] }}</span>
+                        <span class="font-semibold tabular-nums">{{ $step['value'] }}</span>
+                    </li>
+                    @endforeach
+                </ul>
+            </x-ui.card>
+        </div>
     </div>
 </x-app-layout>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\UpdateProductStockRequest;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,19 @@ class ProductController extends Controller
         abort_unless($product->tenant_id === $tenant->id, 404);
 
         return response()->json($this->transform($product));
+    }
+
+    public function updateStock(UpdateProductStockRequest $request, Product $product): JsonResponse
+    {
+        $tenant = Auth::guard('tenant')->user();
+        abort_unless($product->tenant_id === $tenant->id, 404);
+
+        $product->update([
+            'stock_quantity' => $request->integer('stock_quantity'),
+            'min_stock_alert' => $request->input('min_stock_alert', $product->min_stock_alert),
+        ]);
+
+        return response()->json($this->transform($product->fresh()));
     }
 
     /** @return array<string, mixed> */

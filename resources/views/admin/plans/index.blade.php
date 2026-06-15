@@ -13,6 +13,7 @@
                 </div>
                 <x-ui.input label="Nome exibido" name="name" value="{{ $plan->name }}" />
                 <x-ui.input label="Preço mensal (R$)" name="price_monthly" type="number" step="0.01" value="{{ $plan->price_monthly }}" />
+                <x-ui.input label="Stripe Price ID" name="stripe_price_id" value="{{ $plan->stripe_price_id }}" placeholder="price_..." />
                 <x-ui.input label="Máx. produtos (vazio = ilimitado)" name="max_products" type="number" value="{{ $plan->max_products }}" />
                 <label class="flex gap-2 text-sm text-slate-700 items-center">
                     <input type="checkbox" name="has_ai" value="1" @checked($plan->has_ai) class="rounded border-slate-300 text-brand focus:ring-brand/30">

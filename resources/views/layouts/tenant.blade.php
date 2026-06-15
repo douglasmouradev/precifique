@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,17 +15,17 @@
 @php
     $tenant = auth('tenant')->user();
     $nav = [
-        ['route' => 'tenant.dashboard', 'label' => 'Dashboard', 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
-        ['route' => 'tenant.products.index', 'label' => 'Produtos', 'icon' => 'products', 'match' => 'tenant.products.*'],
-        ['route' => 'tenant.sales.index', 'label' => 'Vendas', 'icon' => 'sales', 'match' => 'tenant.sales.*'],
-        ['route' => 'tenant.fixed-costs.index', 'label' => 'Custos fixos', 'icon' => 'fixed-costs', 'match' => 'tenant.fixed-costs.*'],
-        ['route' => 'tenant.variable-costs.index', 'label' => 'Custos variáveis', 'icon' => 'variable-costs', 'match' => 'tenant.variable-costs.*'],
-        ['route' => 'tenant.stock.index', 'label' => 'Estoque', 'icon' => 'stock', 'match' => 'tenant.stock.*'],
-        ['route' => 'tenant.goals.edit', 'label' => 'Meta', 'icon' => 'goals', 'match' => 'tenant.goals.*'],
-        ['route' => 'tenant.account.index', 'label' => 'Minha conta', 'icon' => 'edit', 'match' => 'tenant.account.*'],
+        ['route' => 'tenant.dashboard', 'label' => __('app.nav.dashboard'), 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
+        ['route' => 'tenant.products.index', 'label' => __('app.nav.products'), 'icon' => 'products', 'match' => 'tenant.products.*'],
+        ['route' => 'tenant.sales.index', 'label' => __('app.nav.sales'), 'icon' => 'sales', 'match' => 'tenant.sales.*'],
+        ['route' => 'tenant.fixed-costs.index', 'label' => __('app.nav.fixed_costs'), 'icon' => 'fixed-costs', 'match' => 'tenant.fixed-costs.*'],
+        ['route' => 'tenant.variable-costs.index', 'label' => __('app.nav.variable_costs'), 'icon' => 'variable-costs', 'match' => 'tenant.variable-costs.*'],
+        ['route' => 'tenant.stock.index', 'label' => __('app.nav.stock'), 'icon' => 'stock', 'match' => 'tenant.stock.*'],
+        ['route' => 'tenant.goals.edit', 'label' => __('app.nav.goals'), 'icon' => 'goals', 'match' => 'tenant.goals.*'],
+        ['route' => 'tenant.account.index', 'label' => __('app.nav.account'), 'icon' => 'edit', 'match' => 'tenant.account.*'],
     ];
     if ($tenant?->isPremium()) {
-        $nav[] = ['route' => 'tenant.reports.monthly', 'label' => 'Relatório', 'icon' => 'reports', 'match' => 'tenant.reports.*'];
+        $nav[] = ['route' => 'tenant.reports.monthly', 'label' => __('app.nav.reports'), 'icon' => 'reports', 'match' => 'tenant.reports.*'];
     }
 @endphp
 <body
@@ -191,6 +191,7 @@
                     @endif
                 </div>
                 <div class="flex items-center gap-2">
+                    <x-ui.locale-switcher class="hidden sm:flex" />
                     <x-ui.notification-bell class="hidden sm:block" />
                     @if($tenant?->isPremium())
                     <button @click="aiOpen=!aiOpen" class="ui-btn-outline px-3 py-2 text-xs hidden sm:inline-flex">Assistente</button>

@@ -117,8 +117,9 @@
             <a href="#faq" class="hover:text-brand">FAQ</a>
         </nav>
         <div class="hidden md:flex gap-3 items-center">
-            <a href="{{ route('tenant.login') }}" class="text-sm text-white hover:text-brand">Entrar</a>
-            <a href="{{ route('tenant.register') }}" class="bg-brand text-ink px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand-dark">Começar Grátis</a>
+            <x-ui.locale-switcher />
+            <a href="{{ route('tenant.login') }}" class="text-sm text-white hover:text-brand">{{ __('landing.login') }}</a>
+            <a href="{{ route('tenant.register') }}" class="bg-brand text-ink px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand-dark">{{ __('landing.register') }}</a>
         </div>
         <button
             type="button"

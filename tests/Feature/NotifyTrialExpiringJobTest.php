@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Jobs\NotifyTrialExpiringJob;
 use App\Mail\TrialExpiringMail;
 use App\Models\Tenant;
+use App\Services\TenantNotificationPreferences;
 use App\Services\TenantNotificationService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
@@ -28,7 +29,7 @@ class NotifyTrialExpiringJobTest extends TestCase
             'trial_ends_at' => now()->addDays(3),
         ]);
 
-        (new NotifyTrialExpiringJob)->handle(app(TenantNotificationService::class));
+        (new NotifyTrialExpiringJob)->handle(app(TenantNotificationService::class), app(TenantNotificationPreferences::class));
 
         Mail::assertQueued(TrialExpiringMail::class, function (TrialExpiringMail $mail) use ($tenant) {
             return $mail->tenant->is($tenant);
@@ -49,7 +50,7 @@ class NotifyTrialExpiringJobTest extends TestCase
         $cacheKey = "trial_expiring_notified_{$tenant->id}_{$tenant->trial_ends_at->toDateString()}";
         Cache::put($cacheKey, true, now()->addDays(7));
 
-        (new NotifyTrialExpiringJob)->handle(app(TenantNotificationService::class));
+        (new NotifyTrialExpiringJob)->handle(app(TenantNotificationService::class), app(TenantNotificationPreferences::class));
 
         Mail::assertNothingSent();
     }
@@ -65,7 +66,7 @@ class NotifyTrialExpiringJobTest extends TestCase
             'trial_ends_at' => now()->addDays(3),
         ]);
 
-        (new NotifyTrialExpiringJob)->handle(app(TenantNotificationService::class));
+        (new NotifyTrialExpiringJob)->handle(app(TenantNotificationService::class), app(TenantNotificationPreferences::class));
 
         Mail::assertNothingSent();
     }

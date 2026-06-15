@@ -5,8 +5,11 @@ use App\Http\Middleware\AuthenticateTenantApi;
 use App\Http\Middleware\CheckTenantApiAbility;
 use App\Http\Middleware\EnsureAdminTwoFactor;
 use App\Http\Middleware\EnsureTenantApiReady;
+use App\Http\Middleware\EnsureTenantEmailVerified;
+use App\Http\Middleware\EnsureTenantTwoFactor;
 use App\Http\Middleware\PlanMiddleware;
 use App\Http\Middleware\SecurityHeadersMiddleware;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SuperAdminMiddleware;
 use App\Http\Middleware\TenantMiddleware;
 use App\Http\Middleware\VerifyHealthCheckToken;
@@ -40,6 +43,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.tenant.api' => AuthenticateTenantApi::class,
             'tenant.api.ready' => EnsureTenantApiReady::class,
             'tenant.api.ability' => CheckTenantApiAbility::class,
+            'verified.tenant' => EnsureTenantEmailVerified::class,
+            'tenant.2fa' => EnsureTenantTwoFactor::class,
+        ]);
+        $middleware->web(prepend: [
+            SetLocale::class,
         ]);
         $middleware->append(SecurityHeadersMiddleware::class);
 

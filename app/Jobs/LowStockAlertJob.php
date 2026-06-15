@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Mail\LowStockAlertMail;
 use App\Models\Product;
 use App\Models\Tenant;
+use App\Services\TenantNotificationPreferences;
 use App\Services\TenantNotificationService;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,7 +28,7 @@ class LowStockAlertJob implements ShouldBeUnique, ShouldQueue
         return 'low-stock-alert-'.now()->toDateString();
     }
 
-    public function handle(TenantNotificationService $notifications): void
+    public function handle(TenantNotificationService $notifications, TenantNotificationPreferences $preferences): void
     {
         $cacheKey = 'low_stock_alert_sent_'.now()->toDateString();
         if (Cache::has($cacheKey)) {
@@ -55,14 +56,18 @@ class LowStockAlertJob implements ShouldBeUnique, ShouldQueue
         foreach ($lowStockByTenant as $tenantId => $products) {
             $tenant = $tenants->get($tenantId);
             if ($tenant) {
-                Mail::to($tenant->email)->send(new LowStockAlertMail($tenant, $products));
-                $notifications->notify(
-                    $tenant,
-                    'low_stock',
-                    'Estoque baixo em '.$products->count().' produto(s)',
-                    'Revise o estoque e reponha os itens em alerta.',
-                    route('tenant.stock.index'),
-                );
+                if ($preferences->allowsEmail($tenant, 'email_low_stock')) {
+                    Mail::to($tenant->email)->send(new LowStockAlertMail($tenant, $products));
+                }
+                if ($preferences->allowsInApp($tenant)) {
+                    $notifications->notify(
+                        $tenant,
+                        'low_stock',
+                        'Estoque baixo em '.$products->count().' produto(s)',
+                        'Revise o estoque e reponha os itens em alerta.',
+                        route('tenant.stock.index'),
+                    );
+                }
             }
         }
 

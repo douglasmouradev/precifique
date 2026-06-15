@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Events\SaleRecorded;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\StoreSaleRequest;
 use App\Models\Sale;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class SaleController extends Controller
 {
@@ -35,6 +39,43 @@ class SaleController extends Controller
         $sale->load('product:id,name');
 
         return response()->json($this->transform($sale));
+    }
+
+    public function store(StoreSaleRequest $request): JsonResponse
+    {
+        $tenant = Auth::guard('tenant')->user();
+        $quantity = $request->integer('quantity');
+
+        $sale = DB::transaction(function () use ($tenant, $request, $quantity) {
+            $product = $tenant->products()->lockForUpdate()->findOrFail($request->integer('product_id'));
+
+            if ($product->stock_quantity > 0 && $product->stock_quantity < $quantity) {
+                throw ValidationException::withMessages([
+                    'quantity' => ['Insufficient stock for this sale.'],
+                ]);
+            }
+
+            $sale = Sale::create([
+                'tenant_id' => $tenant->id,
+                'product_id' => $product->id,
+                'quantity' => $quantity,
+                'unit_price' => $request->input('unit_price'),
+                'payment_method' => $request->input('payment_method'),
+                'sold_at' => $request->input('sold_at') ?? now(),
+                'notes' => $request->input('notes'),
+            ]);
+
+            if ($product->stock_quantity > 0) {
+                $product->decrement('stock_quantity', $quantity);
+            }
+
+            return $sale;
+        });
+
+        SaleRecorded::dispatch($tenant, $sale);
+        $sale->load('product:id,name');
+
+        return response()->json($this->transform($sale), 201);
     }
 
     /** @return array<string, mixed> */

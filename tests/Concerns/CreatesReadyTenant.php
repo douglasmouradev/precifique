@@ -13,6 +13,7 @@ trait CreatesReadyTenant
         $tenant = Tenant::factory()->create(array_merge([
             'profile_setup_completed' => true,
             'onboarding_completed' => true,
+            'email_verified_at' => now(),
         ], $attributes));
 
         foreach (['terms', 'privacy'] as $type) {

@@ -71,6 +71,9 @@ class AdminMetricsService
 
         $recentTenants = Tenant::latest()->limit(5)->get(['id', 'name', 'email', 'plan', 'created_at', 'is_active']);
 
+        $mrrTrend = $this->mrrTrend();
+        $funnel = $this->onboardingFunnel();
+
         return compact(
             'totalTenants',
             'activeTenants',
@@ -82,6 +85,44 @@ class AdminMetricsService
             'trialToPaidRate',
             'arpu',
             'recentTenants',
+            'mrrTrend',
+            'funnel',
         );
+    }
+
+    /** @return list<array{month: string, mrr: float}> */
+    private function mrrTrend(): array
+    {
+        $trend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $mrr = (float) Subscription::query()
+                ->where('status', 'active')
+                ->where('starts_at', '<=', $month->copy()->endOfMonth())
+                ->where(function ($q) use ($month) {
+                    $q->whereNull('ends_at')->orWhere('ends_at', '>=', $month->copy()->startOfMonth());
+                })
+                ->join('plans', 'plans.id', '=', 'subscriptions.plan_id')
+                ->sum('plans.price_monthly');
+
+            $trend[] = [
+                'month' => $month->translatedFormat('M/y'),
+                'mrr' => $mrr,
+            ];
+        }
+
+        return $trend;
+    }
+
+    /** @return array<string, int> */
+    private function onboardingFunnel(): array
+    {
+        $registered = Tenant::count();
+        $lgpd = Tenant::whereHas('lgpdConsents', fn ($q) => $q->where('consent_type', 'terms'))->count();
+        $onboarded = Tenant::where('onboarding_completed', true)->count();
+        $withProduct = Tenant::whereHas('products')->count();
+        $withSale = Tenant::whereHas('sales')->count();
+
+        return compact('registered', 'lgpd', 'onboarded', 'withProduct', 'withSale');
     }
 }

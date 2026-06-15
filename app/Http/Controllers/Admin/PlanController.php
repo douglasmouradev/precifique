@@ -27,6 +27,7 @@ class PlanController extends Controller
             'max_products' => ['nullable', 'integer', 'min:1'],
             'has_ai' => ['boolean'],
             'is_active' => ['boolean'],
+            'stripe_price_id' => ['nullable', 'string', 'max:255'],
         ]);
 
         $plan->update([
@@ -35,6 +36,7 @@ class PlanController extends Controller
             'max_products' => $data['max_products'] ?? null,
             'has_ai' => $request->boolean('has_ai'),
             'is_active' => $request->boolean('is_active'),
+            'stripe_price_id' => $data['stripe_price_id'] ?? null,
         ]);
 
         return back()->with('success', 'Plano atualizado.');

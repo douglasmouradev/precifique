@@ -27,3 +27,4 @@ composer.phar
 composer-setup.php
 /storage/logs/*.log
 /storage/backups/*.sql.gz
+/storage/framework/views/

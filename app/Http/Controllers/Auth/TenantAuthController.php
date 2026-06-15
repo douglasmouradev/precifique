@@ -28,7 +28,18 @@ class TenantAuthController extends Controller
         ]);
 
         if (Auth::guard('tenant')->attempt($credentials, $request->boolean('remember'))) {
+            $tenant = Auth::guard('tenant')->user();
+
+            if ($tenant?->hasTwoFactorEnabled()) {
+                Auth::guard('tenant')->logout();
+                $request->session()->put('tenant_login_two_factor_id', $tenant->id);
+                $request->session()->put('tenant_login_remember', $request->boolean('remember'));
+
+                return redirect()->route('tenant.two-factor.challenge');
+            }
+
             $request->session()->regenerate();
+            session(['tenant_two_factor_verified_at' => now()->timestamp]);
 
             return redirect()->intended(route('tenant.dashboard'));
         }
@@ -60,6 +71,8 @@ class TenantAuthController extends Controller
         ]);
 
         Auth::guard('tenant')->login($tenant);
+
+        $tenant->sendEmailVerificationNotification();
 
         return redirect()->route('lgpd.consent');
     }

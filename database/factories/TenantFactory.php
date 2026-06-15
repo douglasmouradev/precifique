@@ -27,6 +27,8 @@ class TenantFactory extends Factory
             'onboarding_completed' => true,
             'profile_setup_completed' => true,
             'is_active' => true,
+            'email_verified_at' => now(),
+            'locale' => 'pt_BR',
         ];
     }
 }
