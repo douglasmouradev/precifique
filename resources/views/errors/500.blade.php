@@ -4,18 +4,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Erro interno — Precifique</title>
-    <x-head-icons />
-    @vite(['resources/css/app.css'])
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0d0d0d; }
+        .wrap { text-align: center; max-width: 28rem; }
+        .logo { display: inline-flex; align-items: center; gap: .75rem; margin-bottom: 1.5rem; text-decoration: none; color: inherit; }
+        .logo img { width: 3rem; height: 3rem; }
+        .logo span { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
+        .logo em { font-style: normal; color: #00c896; }
+        .code { font-size: 4rem; font-weight: 700; color: #cbd5e1; line-height: 1; margin: 0; }
+        h1 { font-size: 1.5rem; font-weight: 700; margin: 1rem 0 .5rem; }
+        p { color: #64748b; font-size: .875rem; margin: 0; }
+        a.btn { display: inline-block; margin-top: 2rem; padding: .75rem 1.5rem; border-radius: .75rem; font-size: .875rem; font-weight: 600; text-decoration: none; background: #00c896; color: #fff; }
+    </style>
 </head>
-<body class="min-h-screen bg-paper flex items-center justify-center p-6 font-sans text-ink">
-    <div class="text-center max-w-md">
-        <div class="flex justify-center mb-6">
-            <x-ui.logo variant="full" size="lg" />
-        </div>
-        <p class="text-6xl font-display font-bold text-slate-300">500</p>
-        <h1 class="font-display text-2xl font-bold mt-4">Algo deu errado</h1>
-        <p class="text-slate-500 mt-2 text-sm">Nossa equipe foi notificada. Tente novamente em instantes.</p>
-        <a href="{{ route('home') }}" class="ui-btn-primary inline-flex mt-8 px-6 py-3">Voltar ao início</a>
+<body>
+    <div class="wrap">
+        <a href="{{ url('/') }}" class="logo">
+            <img src="{{ asset('images/logo-icon.svg') }}" alt="">
+            <span>Preci<em>$</em>ique</span>
+        </a>
+        <p class="code">500</p>
+        <h1>Algo deu errado</h1>
+        <p>Nossa equipe foi notificada. Tente novamente em instantes.</p>
+        <a href="{{ url('/') }}" class="btn">Voltar ao início</a>
     </div>
 </body>
 </html>

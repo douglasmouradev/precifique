@@ -153,6 +153,31 @@ chmod +x scripts/deploy-vps.sh
 | `php >=8.4.1` no Symfony | `git pull` — lock compatível com 8.3 |
 | `npm: command not found` | Instale Node.js (passo 2) |
 | `vendor/autoload.php` missing | Rode `composer install` com sucesso primeiro |
+| **500 Internal Server Error** após deploy | Veja seção abaixo |
+
+### 500 Internal Server Error (após `git pull`)
+
+```bash
+cd /www/wwwroot/precifique.tdesksolutions.com.br
+tail -50 storage/logs/laravel.log
+
+# Limpar caches (ordem importa)
+/www/server/php/83/bin/php artisan optimize:clear
+/www/server/php/83/bin/php artisan config:cache
+/www/server/php/83/bin/php artisan view:cache
+
+# Permissões
+chown -R www:www storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+
+# Se Redis não estiver rodando, use file no .env:
+# SESSION_DRIVER=file
+# CACHE_STORE=file
+# QUEUE_CONNECTION=sync
+# Depois: php artisan config:cache
+```
+
+Causas frequentes: **Redis parado** com `SESSION_DRIVER=redis`, cache de config desatualizado, ou `storage/` sem permissão de escrita.
 
 ### Corrigir `.env` já existente (rápido)
 

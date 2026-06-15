@@ -26,7 +26,7 @@
     <div class="header">
         <img class="brand-logo" src="{{ public_path('images/icon-192.png') }}" alt="">
         <div>
-            <p class="brand">Preci$ique</p>
+            <p class="brand">Preci<span style="color:#00C896;">$</span>ique</p>
             <p class="tenant"><strong>{{ $tenant->name }}</strong> · {{ $tenant->email }}</p>
         </div>
     </div>

@@ -19,7 +19,7 @@
 <body>
     <div class="brand-row">
         <img class="brand-logo" src="{{ public_path('images/icon-192.png') }}" alt="">
-        <p class="brand">Preci$ique</p>
+        <p class="brand">Preci<span style="color:#00C896;">$</span>ique</p>
     </div>
     <p><strong>{{ $tenant->name }}</strong></p>
     <h1>Ficha de precificação — {{ $product->name }}</h1>
