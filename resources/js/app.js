@@ -1,5 +1,6 @@
 import './bootstrap';
 import './toast';
+import { initTenantSidebar } from './tenant-sidebar';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -11,6 +12,16 @@ Alpine.plugin(collapse);
 window.Alpine = Alpine;
 
 Alpine.start();
+
+function bootApp() {
+    initTenantSidebar();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootApp);
+} else {
+    bootApp();
+}
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

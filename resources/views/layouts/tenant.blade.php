@@ -31,13 +31,11 @@
 <body
     class="bg-paper font-sans text-ink min-h-screen"
     x-data="{
-        sidebarOpen: false,
         aiOpen: false,
         aiQuestion: '',
         aiAnswer: '',
         aiLoading: false,
         cookieAccepted: localStorage.getItem('precifique_cookies') === '1',
-        isDesktop: window.matchMedia('(min-width: 1024px)').matches,
         sendAi() {
             if (!this.aiQuestion?.trim() || this.aiLoading) return;
             this.aiLoading = true;
@@ -51,60 +49,25 @@
                 .catch(() => { window.toast?.error('Erro ao consultar a IA.'); })
                 .finally(() => { this.aiLoading = false; });
         },
-        initSidebar() {
-            const saved = localStorage.getItem('precifique_sidebar');
-            if (saved === '1') this.sidebarOpen = true;
-            else if (saved === '0') this.sidebarOpen = false;
-            else this.sidebarOpen = false;
-            window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
-                this.isDesktop = e.matches;
-                if (!e.matches && this.sidebarOpen) document.body.style.overflow = 'hidden';
-                else document.body.style.overflow = '';
-            });
-        },
-        toggleSidebar() {
-            this.sidebarOpen = !this.sidebarOpen;
-            localStorage.setItem('precifique_sidebar', this.sidebarOpen ? '1' : '0');
-            if (!this.isDesktop) {
-                document.body.style.overflow = this.sidebarOpen ? 'hidden' : '';
-            }
-        },
-        closeSidebar() {
-            this.sidebarOpen = false;
-            localStorage.setItem('precifique_sidebar', '0');
-            document.body.style.overflow = '';
-        },
     }"
-    x-init="initSidebar()"
-    @keydown.escape.window="closeSidebar()"
 >
 
     <div
-        x-show="sidebarOpen"
-        x-cloak
-        x-transition:enter="transition-opacity ease-out duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition-opacity ease-in duration-200"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        @click="closeSidebar()"
-        class="fixed inset-0 z-40 bg-ink/60 backdrop-blur-sm lg:bg-ink/20 lg:backdrop-blur-none cursor-pointer"
+        id="tenant-sidebar-overlay"
+        class="fixed inset-0 z-40 bg-ink/60 backdrop-blur-sm lg:bg-ink/20 lg:backdrop-blur-none cursor-pointer hidden"
         aria-hidden="true"
     ></div>
 
     <aside
-        x-ref="sidebar"
-        @click.stop
-        :class="sidebarOpen ? 'translate-x-0 pointer-events-auto' : '-translate-x-full pointer-events-none'"
-        class="fixed inset-y-0 left-0 z-50 w-[16.5rem] max-w-[85vw] ui-sidebar-premium text-white flex flex-col shadow-sidebar transition-transform duration-300 ease-out"
-        :aria-hidden="!sidebarOpen"
+        id="tenant-sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-[16.5rem] max-w-[85vw] ui-sidebar-premium text-white flex flex-col shadow-sidebar transition-transform duration-300 ease-out -translate-x-full pointer-events-none"
+        aria-hidden="true"
     >
         <div class="px-4 py-4 border-b border-white/[0.06] flex items-center gap-2">
             <a
                 href="{{ route('tenant.dashboard') }}"
                 class="flex-1 min-w-0 flex items-center group"
-                @click="closeSidebar()"
+                data-sidebar-close
                 aria-label="Precifique — ir ao dashboard"
             >
                 <x-ui.logo
@@ -114,7 +77,7 @@
             </a>
             <button
                 type="button"
-                @click.stop="closeSidebar()"
+                id="tenant-sidebar-close"
                 class="shrink-0 p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors -mr-1 touch-manipulation"
                 aria-label="{{ __('messages.sidebar.close_menu') }}"
             >
@@ -128,7 +91,7 @@
             @foreach($nav as $item)
             <a href="{{ route($item['route']) }}"
                class="{{ request()->routeIs($item['match']) ? 'ui-sidebar-link-active' : 'ui-sidebar-link' }}"
-               @click="closeSidebar()">
+               data-sidebar-close>
                 <x-ui.nav-icon :name="$item['icon']" class="w-[1.125rem] h-[1.125rem] shrink-0 opacity-80" />
                 {{ $item['label'] }}
             </a>
@@ -157,30 +120,31 @@
     </aside>
 
     <div
+        id="tenant-main"
         class="min-h-screen flex flex-col transition-[padding] duration-300 ease-out"
-        :class="sidebarOpen ? 'lg:pl-[16.5rem]' : ''"
     >
         <header class="sticky top-0 z-[70] ui-glass-header">
             <div class="flex items-center justify-between gap-4 px-4 md:px-8 h-14">
                 <div class="flex items-center gap-3 min-w-0">
                     <button
                         type="button"
-                        x-ref="menuBtn"
-                        @click.stop="toggleSidebar()"
+                        id="tenant-sidebar-toggle"
+                        data-label-open="{{ __('messages.sidebar.open_menu') }}"
+                        data-label-close="{{ __('messages.sidebar.close_menu') }}"
                         class="relative p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-colors touch-manipulation"
-                        :aria-expanded="sidebarOpen"
-                        :aria-label="sidebarOpen ? @js(__('messages.sidebar.close_menu')) : @js(__('messages.sidebar.open_menu'))"
+                        aria-expanded="false"
+                        aria-label="{{ __('messages.sidebar.open_menu') }}"
                     >
-                        <span class="sr-only" x-text="sidebarOpen ? @js(__('messages.sidebar.close_menu')) : @js(__('messages.sidebar.open_menu'))"></span>
-                        <svg class="w-5 h-5 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <span class="sr-only">{{ __('messages.sidebar.open_menu') }}</span>
+                        <svg class="w-5 h-5 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path
-                                x-show="!sidebarOpen"
+                                data-icon="open"
                                 stroke-linecap="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16"
                             />
                             <path
-                                x-show="sidebarOpen"
-                                x-cloak
+                                data-icon="close"
+                                class="hidden"
                                 stroke-linecap="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"
                             />
@@ -274,10 +238,10 @@
     @endif
 
     <div
+        id="tenant-cookie-banner"
         x-show="!cookieAccepted"
         x-cloak
-        class="fixed bottom-16 lg:bottom-0 inset-x-0 z-[54] bg-ink text-white p-4 shadow-2xl transition-[left] duration-300"
-        :class="sidebarOpen ? 'lg:left-[16.5rem]' : 'lg:left-0'"
+        class="fixed bottom-16 lg:bottom-0 inset-x-0 lg:left-0 z-[54] bg-ink text-white p-4 shadow-2xl transition-[left] duration-300"
     >
         <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <p class="text-sm">Usamos cookies para melhorar sua experiência. <a href="{{ route('privacy') }}" class="text-brand underline">Política de Privacidade</a></p>
