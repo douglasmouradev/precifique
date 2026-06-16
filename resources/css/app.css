@@ -161,4 +161,12 @@
     .ui-sidebar-premium {
         background: linear-gradient(180deg, #0c0c0c 0%, #0a0a0a 40%, #080808 100%);
     }
+
+    .confirm-delete-dialog {
+        @apply w-[calc(100%-2rem)] max-w-md border-0 bg-transparent p-0 m-auto;
+    }
+
+    .confirm-delete-dialog::backdrop {
+        @apply bg-ink/50 backdrop-blur-sm;
+    }
 }

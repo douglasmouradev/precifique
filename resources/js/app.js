@@ -1,6 +1,7 @@
 import './bootstrap';
 import './toast';
 import { initTenantSidebar } from './tenant-sidebar';
+import { initConfirmDelete } from './confirm-delete';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -15,6 +16,7 @@ Alpine.start();
 
 function bootApp() {
     initTenantSidebar();
+    initConfirmDelete();
 }
 
 if (document.readyState === 'loading') {
