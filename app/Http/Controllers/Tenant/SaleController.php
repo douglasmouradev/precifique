@@ -40,10 +40,12 @@ class SaleController extends Controller
         $query = $this->filteredSalesQuery($tenant, $filters);
 
         $stats = (clone $query)
+            ->reorder()
             ->selectRaw('COALESCE(SUM(total_amount), 0) as total_revenue, COUNT(*) as sales_count')
             ->first();
 
         $paymentBreakdown = (clone $query)
+            ->reorder()
             ->selectRaw('payment_method, COUNT(*) as count, SUM(total_amount) as total')
             ->groupBy('payment_method')
             ->get()

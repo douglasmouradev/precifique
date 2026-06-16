@@ -40,7 +40,7 @@
         <select name="month" class="ui-input py-2">
             <option value="">{{ __('sales.all') }}</option>
             @for($m = 1; $m <= 12; $m++)
-            <option value="{{ $m }}" @selected((int)($filters['month'] ?? now()->month) === $m)>{{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}</option>
+            <option value="{{ $m }}" @selected((int)($filters['month'] ?? now()->month) === $m)>{{ __('sales.months.'.$m) }}</option>
             @endfor
         </select>
     </div>
