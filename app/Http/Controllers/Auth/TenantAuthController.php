@@ -43,6 +43,8 @@ class TenantAuthController extends Controller
             $request->session()->regenerate();
             session(['tenant_two_factor_verified_at' => now()->timestamp]);
 
+            $tenant->ensureTestEmailVerified();
+
             return redirect()->intended(route('tenant.dashboard'));
         }
 

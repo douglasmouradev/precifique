@@ -37,6 +37,7 @@ class EnsureDemoTenantCommand extends Command
             'onboarding_completed' => true,
             'profile_setup_completed' => true,
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
         $tenant->password = $password;
         $tenant->save();

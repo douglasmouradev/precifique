@@ -40,6 +40,8 @@ class TenantTwoFactorChallengeController extends Controller
         session()->forget('tenant_login_remember');
         session(['tenant_two_factor_verified_at' => now()->timestamp]);
 
+        $tenant->ensureTestEmailVerified();
+
         return redirect()->intended(route('tenant.dashboard'));
     }
 }

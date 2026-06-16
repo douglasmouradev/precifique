@@ -233,6 +233,7 @@ class TestProfilesSeeder extends Seeder
                 'profile_setup_completed' => $data['profile_setup_completed'] ?? ($data['onboarding_completed'] ?? true),
                 'is_active' => $data['is_active'] ?? true,
                 'trial_ends_at' => now()->addDays(14),
+                'email_verified_at' => now(),
             ]
         );
     }

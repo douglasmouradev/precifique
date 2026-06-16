@@ -19,7 +19,7 @@ class EnsureTenantEmailVerified
             $tenant = Auth::guard('tenant_member')->user()?->tenant;
         }
 
-        if ($tenant && ! $tenant->hasVerifiedEmail() && ! $request->routeIs(
+        if ($tenant && ! $tenant->hasVerifiedEmail() && ! $tenant->isTestProfile() && ! $request->routeIs(
             'tenant.verification.*',
             'tenant.logout',
             'lgpd.*',

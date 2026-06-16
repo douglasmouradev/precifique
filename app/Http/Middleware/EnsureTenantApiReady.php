@@ -36,7 +36,7 @@ class EnsureTenantApiReady
             return response()->json(['message' => 'Complete o onboarding no painel web.'], 403);
         }
 
-        if (! $tenant->hasVerifiedEmail()) {
+        if (! $tenant->hasVerifiedEmail() && ! $tenant->isTestProfile()) {
             return response()->json(['message' => 'Verifique seu e-mail no painel web antes de usar a API.'], 403);
         }
 

@@ -25,4 +25,22 @@ class TenantLoginTest extends TestCase
         $response->assertRedirect(route('tenant.dashboard'));
         $this->assertAuthenticatedAs($tenant, 'tenant');
     }
+
+    public function test_test_profile_skips_email_verification(): void
+    {
+        $tenant = $this->readyTenant([
+            'email' => 'demo@precifique.com.br',
+            'password' => 'demo1234',
+            'email_verified_at' => null,
+        ]);
+
+        $response = $this->post('/entrar', [
+            'email' => 'demo@precifique.com.br',
+            'password' => 'demo1234',
+        ]);
+
+        $response->assertRedirect(route('tenant.dashboard'));
+        $this->assertAuthenticatedAs($tenant, 'tenant');
+        $this->assertNotNull($tenant->fresh()->email_verified_at);
+    }
 }

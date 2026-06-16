@@ -33,7 +33,7 @@ class AuthController extends Controller
             return response()->json(['message' => __('messages.api.inactive_account')], 403);
         }
 
-        if (! $tenant->hasVerifiedEmail()) {
+        if (! $tenant->hasVerifiedEmail() && ! $tenant->isTestProfile()) {
             return response()->json(['message' => __('messages.api.email_unverified')], 403);
         }
 
