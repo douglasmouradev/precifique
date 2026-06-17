@@ -6,6 +6,8 @@ return [
     'failed' => 'These credentials do not match our records.',
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+    'tenant_login_hint' => 'This is a store/demo account. Sign in at /entrar, not the admin panel.',
+    'admin_login_hint' => 'This is an administrator account. Sign in at /login.',
 
     'login' => [
         'title' => 'Sign in — Precifique',

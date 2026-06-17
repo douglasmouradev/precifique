@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\TenantRegisterRequest;
 use App\Models\Tenant;
 use App\Models\TenantMember;
+use App\Models\User;
 use App\Support\TenantNicheMapper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -61,7 +62,11 @@ class TenantAuthController extends Controller
         }
 
         return back()
-            ->withErrors(['email' => __('auth.failed')])
+            ->withErrors([
+                'email' => User::query()->where('email', $credentials['email'])->exists()
+                    ? __('auth.admin_login_hint')
+                    : __('auth.failed'),
+            ])
             ->onlyInput('email');
     }
 

@@ -6,6 +6,8 @@ return [
     'failed' => 'E-mail ou senha incorretos.',
     'password' => 'A senha informada está incorreta.',
     'throttle' => 'Muitas tentativas. Tente novamente em :seconds segundos.',
+    'tenant_login_hint' => 'Esta conta é de loja/demo. Use o login em /entrar, não o painel admin.',
+    'admin_login_hint' => 'Esta conta é de administrador. Use o login em /login.',
 
     'login' => [
         'title' => 'Entrar — Precifique',

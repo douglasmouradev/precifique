@@ -3,8 +3,15 @@
 
     <h1 class="font-display text-xl font-semibold text-center text-slate-700 mb-2">Entrar como admin</h1>
     <p class="text-sm text-slate-500 text-center mb-6">
-        Conta de loja/tenant? <a href="{{ route('tenant.login') }}" class="text-brand font-medium hover:underline">Entrar em /entrar</a>
+        Conta de loja/tenant? <a href="{{ route('tenant.login') }}" class="text-brand font-semibold hover:underline">Entrar em /entrar</a>
     </p>
+
+    @if($errors->has('email') && $errors->first('email') === __('auth.tenant_login_hint'))
+    <div class="mb-4 rounded-xl border border-brand/30 bg-brand/10 px-4 py-3 text-sm text-ink">
+        {{ __('auth.tenant_login_hint') }}
+        <a href="{{ route('tenant.login') }}" class="mt-2 inline-flex font-semibold text-brand-dark hover:underline">Ir para /entrar →</a>
+    </div>
+    @endif
 
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf
