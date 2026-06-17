@@ -43,7 +43,7 @@ class NotifyPixExpiringJob implements ShouldQueue
                         continue;
                     }
 
-                    if ($preferences->allowsEmail($tenant, 'email_trial')) {
+                    if ($preferences->allowsEmail($tenant, 'email_pix')) {
                         Mail::to($tenant->email)->queue(new PixExpiringMail($tenant, $subscription));
                     }
 
@@ -51,8 +51,8 @@ class NotifyPixExpiringJob implements ShouldQueue
                         $notifications->notify(
                             $tenant,
                             'pix_expiring',
-                            __('PIX subscription expiring soon'),
-                            __('Renew by :date to keep Premium.', ['date' => $subscription->ends_at?->format('d/m/Y')]),
+                            __('billing.pix_renewal_notice_title'),
+                            __('billing.pix_renewal_notice_body', ['date' => $subscription->ends_at?->format('d/m/Y')]),
                             route('tenant.billing.upgrade'),
                         );
                     }

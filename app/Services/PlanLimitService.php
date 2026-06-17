@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\ProfitMargin;
+use App\Models\Plan;
 use App\Models\Tenant;
 
 class PlanLimitService
@@ -13,6 +14,11 @@ class PlanLimitService
     {
         if ($tenant->isPremium()) {
             return null;
+        }
+
+        $plan = $this->resolvePlan($tenant);
+        if ($plan !== null && $plan->max_products !== null) {
+            return (int) $plan->max_products;
         }
 
         return (int) config('tenancy.basic_max_products', 5);
@@ -38,7 +44,7 @@ class PlanLimitService
     {
         $max = $this->maxProducts($tenant) ?? 0;
 
-        return "Limite de {$max} produtos no plano Basic.";
+        return __('messages.plan.product_limit', ['max' => $max]);
     }
 
     /** @return list<float> */
@@ -55,5 +61,15 @@ class PlanLimitService
     public function isMarginAllowed(Tenant $tenant, float $margin): bool
     {
         return in_array($margin, $this->allowedMargins($tenant), true);
+    }
+
+    private function resolvePlan(Tenant $tenant): ?Plan
+    {
+        $slug = $tenant->plan?->value ?? (string) $tenant->plan;
+
+        return Plan::query()
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->first();
     }
 }

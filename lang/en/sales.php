@@ -8,6 +8,8 @@ return [
     'new_sale' => 'New sale',
     'register_sale' => 'Record sale',
     'export_csv' => 'Export CSV',
+    'export_in_progress' => 'Export in progress. Refresh the page shortly to download.',
+    'export_download' => 'Download CSV',
     'revenue_period' => 'Revenue in period',
     'sales_count' => 'Sales',
     'by_payment' => 'By payment',

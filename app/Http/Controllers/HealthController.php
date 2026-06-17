@@ -18,6 +18,7 @@ class HealthController extends Controller
             'database' => $this->checkDatabase(),
             'cache' => $this->checkCache(),
             'queue' => $this->checkQueue(),
+            'storage' => $this->checkStorage(),
         ];
 
         if (config('cache.default') === 'redis' || config('queue.default') === 'redis') {
@@ -76,6 +77,15 @@ class HealthController extends Controller
             Redis::connection()->ping();
 
             return true;
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private function checkStorage(): bool
+    {
+        try {
+            return is_writable(storage_path('app')) && is_writable(storage_path('logs'));
         } catch (\Throwable) {
             return false;
         }

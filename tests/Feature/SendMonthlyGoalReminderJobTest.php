@@ -8,6 +8,7 @@ use App\Jobs\SendMonthlyGoalReminderJob;
 use App\Mail\MonthlyGoalReminderMail;
 use App\Models\MonthlyGoal;
 use App\Models\Tenant;
+use App\Services\TenantNotificationPreferences;
 use Illuminate\Support\Facades\Mail;
 use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
@@ -28,7 +29,7 @@ class SendMonthlyGoalReminderJobTest extends TestCase
             'goal_amount' => 10000,
         ]);
 
-        (new SendMonthlyGoalReminderJob)->handle();
+        (new SendMonthlyGoalReminderJob)->handle(app(TenantNotificationPreferences::class));
 
         Mail::assertQueued(MonthlyGoalReminderMail::class, fn ($mail) => $mail->hasTo($tenant->email));
     }

@@ -3,12 +3,22 @@
 @section('breadcrumb') {{ __('sales.title') }} @endsection
 
 @section('content')
+<x-ui.upgrade-banner />
 <x-ui.page-header :title="__('sales.title')" :subtitle="__('sales.subtitle')">
     <x-slot:actions>
         <x-ui.button variant="outline" :href="route('tenant.sales.export', request()->query())">{{ __('sales.export_csv') }}</x-ui.button>
         <x-ui.button :href="route('tenant.sales.create')">+ {{ __('sales.new_sale') }}</x-ui.button>
     </x-slot:actions>
 </x-ui.page-header>
+
+@if($pendingExport ?? null)
+<x-ui.alert type="info" class="mb-6" role="status">
+    {{ __('sales.export_in_progress') }}
+    @if($pendingExport->status === 'completed' && $pendingExport->file_path)
+    <x-ui.button size="sm" variant="outline" :href="route('tenant.sales.export.download', $pendingExport)" class="ml-2">{{ __('sales.export_download') }}</x-ui.button>
+    @endif
+</x-ui.alert>
+@endif
 
 <div class="grid sm:grid-cols-3 gap-4 mb-6">
     <x-ui.stat :label="__('sales.revenue_period')" icon="revenue" accent="brand"

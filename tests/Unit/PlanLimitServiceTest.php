@@ -38,6 +38,18 @@ class PlanLimitServiceTest extends TestCase
         $this->assertNull($service->maxProducts($tenant));
     }
 
+    public function test_basic_plan_uses_max_products_from_plan_table(): void
+    {
+        $this->seed(\Database\Seeders\PlanSeeder::class);
+
+        \App\Models\Plan::query()->where('slug', 'basic')->update(['max_products' => 3]);
+
+        $tenant = Tenant::factory()->create(['plan' => 'basic']);
+        $service = app(PlanLimitService::class);
+
+        $this->assertSame(3, $service->maxProducts($tenant));
+    }
+
     public function test_basic_plan_margin_150_not_allowed(): void
     {
         $tenant = Tenant::factory()->create(['plan' => 'basic']);

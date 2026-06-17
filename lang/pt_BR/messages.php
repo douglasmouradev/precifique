@@ -91,5 +91,10 @@ return [
         'no_answer' => 'Sem resposta.',
         'error' => 'Erro ao consultar a IA.',
         'fallback_tip' => 'Revise seus custos fixos mensalmente para manter preços competitivos.',
+        'premium_only' => 'A IA está disponível apenas no plano Premium.',
+        'daily_limit' => 'Limite diário de :limit consultas atingido. Tente novamente amanhã.',
+    ],
+    'plan' => [
+        'product_limit' => 'Limite do plano Basic: até :max produtos. Faça upgrade para adicionar mais.',
     ],
 ];

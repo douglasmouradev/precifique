@@ -8,6 +8,7 @@ return [
     'name' => 'Name',
     'email' => 'Email',
     'password' => 'Temporary password',
+    'password_confirmation' => 'Confirm password',
     'role' => 'Role',
     'invite' => 'Invite member',
     'roles' => ['editor' => 'Editor', 'viewer' => 'View only', 'admin' => 'Administrator'],
@@ -22,4 +23,10 @@ return [
     'webhook_deliveries' => 'Recent deliveries',
     'webhook_ok' => 'OK',
     'webhook_failed' => 'Failed',
+    'webhook_events' => 'Events',
+    'webhook_event_sale_created' => 'Sale recorded (sale.created)',
+    'webhook_events_label' => 'Events',
+    'webhook_test' => 'Test',
+    'webhook_test_sent' => 'Test event sent.',
+    'webhooks_empty' => 'No webhooks configured',
 ];

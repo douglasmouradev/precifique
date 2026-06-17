@@ -12,15 +12,33 @@ use Illuminate\Support\Facades\DB;
 
 class AiUsageLimiter
 {
+    public function dailyLimit(): int
+    {
+        return (int) config('precifique.ai.premium_daily_limit', 50);
+    }
+
+    public function usedToday(Tenant $tenant): int
+    {
+        return (int) (TenantAiUsage::query()
+            ->where('tenant_id', $tenant->id)
+            ->whereDate('usage_date', Carbon::today())
+            ->value('requests') ?? 0);
+    }
+
+    public function remainingToday(Tenant $tenant): int
+    {
+        return max(0, $this->dailyLimit() - $this->usedToday($tenant));
+    }
+
     public function assertCanUse(Tenant $tenant): void
     {
         if (! $tenant->isPremium()) {
             throw new HttpResponseException(response()->json([
-                'message' => 'IA disponível no plano Premium.',
+                'message' => __('messages.ai.premium_only'),
             ], 403));
         }
 
-        $limit = (int) config('precifique.ai.premium_daily_limit', 50);
+        $limit = $this->dailyLimit();
         $today = Carbon::today();
 
         DB::transaction(function () use ($tenant, $limit, $today): void {
@@ -40,7 +58,7 @@ class AiUsageLimiter
 
             if ($usage->requests >= $limit) {
                 throw new HttpResponseException(response()->json([
-                    'message' => "Limite diário de IA atingido ({$limit} consultas). Tente amanhã.",
+                    'message' => __('messages.ai.daily_limit', ['limit' => $limit]),
                 ], 429));
             }
 

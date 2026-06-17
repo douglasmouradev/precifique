@@ -8,6 +8,8 @@ return [
     'new_sale' => 'Nova venda',
     'register_sale' => 'Registrar venda',
     'export_csv' => 'Exportar CSV',
+    'export_in_progress' => 'Exportação em andamento. Atualize a página em instantes para baixar.',
+    'export_download' => 'Baixar CSV',
     'revenue_period' => 'Receita no período',
     'sales_count' => 'Vendas',
     'by_payment' => 'Por pagamento',

@@ -68,6 +68,9 @@
                     'email_low_stock' => 'notify_email_low_stock',
                     'email_trial' => 'notify_email_trial',
                     'email_payment_failed' => 'notify_email_payment',
+                    'email_pix' => 'notify_email_pix',
+                    'email_goal' => 'notify_email_goal',
+                    'email_monthly_report' => 'notify_email_monthly_report',
                     'in_app' => 'notify_in_app',
                 ] as $key => $labelKey)
                 <label class="flex items-center gap-2 text-sm">
@@ -120,6 +123,12 @@
     </x-slot:security>
 
     <x-slot:billing>
+        @if($showPixRenewalBanner ?? false)
+        <x-ui.alert type="warning" class="mb-6">
+            {{ __('billing.pix_renewal_banner', ['date' => $subscription->ends_at->format('d/m/Y')]) }}
+            <x-ui.button size="sm" :href="route('tenant.billing.upgrade')" class="ml-2">{{ __('app.account.upgrade') }}</x-ui.button>
+        </x-ui.alert>
+        @endif
         <x-ui.card>
             <h2 class="ui-section-title">{{ __('app.account.plan') }}</h2>
             <div class="flex flex-wrap items-center gap-3 mb-4">
@@ -203,17 +212,34 @@
             <p class="text-sm text-slate-500 mb-4">{{ __('members.webhooks_desc') }}</p>
             <form method="POST" action="{{ route('tenant.account.webhooks.store') }}" class="grid sm:grid-cols-2 gap-4 mb-4">
                 @csrf
-                <div class="sm:col-span-2"><label class="ui-label">{{ __('members.webhook_url') }}</label><input type="url" name="url" required class="ui-input" placeholder="https://"></div>
-                <div class="sm:col-span-2"><label class="ui-label">{{ __('members.webhook_secret') }}</label><input name="secret" class="ui-input"></div>
+                <div class="sm:col-span-2"><label for="webhook-url" class="ui-label">{{ __('members.webhook_url') }}</label><input id="webhook-url" type="url" name="url" required class="ui-input" placeholder="https://"></div>
+                <div class="sm:col-span-2"><label for="webhook-secret" class="ui-label">{{ __('members.webhook_secret') }}</label><input id="webhook-secret" name="secret" class="ui-input"></div>
+                <div class="sm:col-span-2">
+                    <span class="ui-label">{{ __('members.webhook_events') }}</span>
+                    <label class="flex items-center gap-2 text-sm mt-2">
+                        <input type="checkbox" name="events[]" value="sale.created" checked>
+                        {{ __('members.webhook_event_sale_created') }}
+                    </label>
+                </div>
                 <div><x-ui.button type="submit">{{ __('members.add_webhook') }}</x-ui.button></div>
             </form>
             @forelse($webhooks as $hook)
             <div class="py-3 border-t border-slate-100">
                 <div class="flex justify-between items-start gap-3 text-sm mb-2">
-                    <code class="text-xs break-all flex-1">{{ $hook->url }}</code>
-                    <form method="POST" action="{{ route('tenant.account.webhooks.destroy', $hook) }}">@csrf @method('DELETE')
-                        <button type="submit" class="text-red-600 text-xs shrink-0">{{ __('members.remove') }}</button>
-                    </form>
+                    <div class="min-w-0 flex-1">
+                        <code class="text-xs break-all block">{{ $hook->url }}</code>
+                        @if($hook->events)
+                        <p class="text-xs text-slate-400 mt-1">{{ __('members.webhook_events_label') }}: {{ implode(', ', $hook->events) }}</p>
+                        @endif
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <form method="POST" action="{{ route('tenant.account.webhooks.test', $hook) }}">@csrf
+                            <button type="submit" class="text-brand-dark text-xs font-medium">{{ __('members.webhook_test') }}</button>
+                        </form>
+                        <form method="POST" action="{{ route('tenant.account.webhooks.destroy', $hook) }}">@csrf @method('DELETE')
+                            <button type="submit" class="text-red-600 text-xs">{{ __('members.remove') }}</button>
+                        </form>
+                    </div>
                 </div>
                 @if($hook->deliveryLogs->isNotEmpty())
                 <div class="rounded-lg bg-slate-50 p-3">
@@ -230,7 +256,7 @@
                 @endif
             </div>
             @empty
-            <p class="text-sm text-slate-500">{{ __('members.webhooks_desc') }}</p>
+            <x-ui.empty-state icon="dashboard" :title="__('members.webhooks_empty')" :description="__('members.webhooks_desc')" class="border-0 shadow-none py-4" />
             @endforelse
         </x-ui.card>
         @endif
@@ -243,11 +269,12 @@
             <p class="text-sm text-slate-500 mb-4">{{ __('members.subtitle') }}</p>
             <form method="POST" action="{{ route('tenant.account.members.store') }}" class="grid sm:grid-cols-2 gap-4 mb-6">
                 @csrf
-                <div><label class="ui-label">{{ __('members.name') }}</label><input name="name" required class="ui-input"></div>
-                <div><label class="ui-label">{{ __('members.email') }}</label><input type="email" name="email" required class="ui-input"></div>
-                <div><label class="ui-label">{{ __('members.password') }}</label><input type="password" name="password" required minlength="8" class="ui-input"></div>
-                <div><label class="ui-label">{{ __('members.role') }}</label>
-                    <select name="role" class="ui-input">
+                <div><label for="member-name" class="ui-label">{{ __('members.name') }}</label><input id="member-name" name="name" required class="ui-input"></div>
+                <div><label for="member-email" class="ui-label">{{ __('members.email') }}</label><input id="member-email" type="email" name="email" required class="ui-input"></div>
+                <div><label for="member-password" class="ui-label">{{ __('members.password') }}</label><input id="member-password" type="password" name="password" required minlength="8" class="ui-input" autocomplete="new-password"></div>
+                <div><label for="member-password-confirmation" class="ui-label">{{ __('members.password_confirmation') }}</label><input id="member-password-confirmation" type="password" name="password_confirmation" required minlength="8" class="ui-input" autocomplete="new-password"></div>
+                <div><label for="member-role" class="ui-label">{{ __('members.role') }}</label>
+                    <select id="member-role" name="role" class="ui-input">
                         @foreach(__('members.roles') as $val => $label)
                         <option value="{{ $val }}">{{ $label }}</option>
                         @endforeach

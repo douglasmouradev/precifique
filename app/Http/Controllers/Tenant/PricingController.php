@@ -44,7 +44,16 @@ class PricingController extends Controller
         $tenant = current_tenant();
         $margins = ProfitMargin::forPlan($tenant->plan->value ?? (string) $tenant->plan);
 
-        return view('pricing.edit', compact('product', 'margins', 'tenant'));
+        return view('pricing.edit', [
+            'product' => $product,
+            'margins' => $margins,
+            'tenant' => $tenant,
+            'aiQuota' => $tenant->isPremium() ? [
+                'used' => $this->aiUsage->usedToday($tenant),
+                'limit' => $this->aiUsage->dailyLimit(),
+                'remaining' => $this->aiUsage->remainingToday($tenant),
+            ] : null,
+        ]);
     }
 
     public function update(UpdatePricingRequest $request, Product $product): RedirectResponse

@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Mail\MonthlyReportMail;
 use App\Models\Tenant;
 use App\Services\ReportService;
+use App\Services\TenantNotificationPreferences;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Mail;
@@ -21,13 +22,13 @@ class SendTenantMonthlyReportJob implements ShouldQueue
         public int $month,
     ) {}
 
-    public function handle(ReportService $reports): void
+    public function handle(ReportService $reports, TenantNotificationPreferences $preferences): void
     {
         $tenant = Tenant::where('is_active', true)
             ->where('plan', 'premium')
             ->find($this->tenantId);
 
-        if (! $tenant) {
+        if (! $tenant || ! $preferences->allowsEmail($tenant, 'email_monthly_report')) {
             return;
         }
 

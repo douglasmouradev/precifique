@@ -30,6 +30,13 @@ class AccountController extends Controller
             ->where('status', 'active')
             ->first();
 
+        $pixRenewalDays = (int) config('precifique.pix.notify_days_before', 3);
+        $showPixRenewalBanner = $subscription
+            && $subscription->mercadopago_payment_id
+            && $subscription->ends_at
+            && $subscription->ends_at->isFuture()
+            && $subscription->ends_at->lte(now()->addDays($pixRenewalDays));
+
         $tokens = TenantApiToken::query()
             ->where('tenant_id', $tenant->id)
             ->latest()
@@ -38,6 +45,7 @@ class AccountController extends Controller
         return view('tenant.account', [
             'tenant' => $tenant,
             'subscription' => $subscription,
+            'showPixRenewalBanner' => $showPixRenewalBanner,
             'apiTokens' => $tokens,
             'apiAbilities' => TenantApiAbilities::all(),
             'notificationPrefs' => $preferences->for($tenant),

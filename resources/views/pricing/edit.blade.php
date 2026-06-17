@@ -25,6 +25,12 @@
 </x-ui.alert>
 @endif
 
+@if($aiQuota)
+<x-ui.alert class="mb-6" role="status">
+  {{ __('pricing.ai_quota', ['remaining' => $aiQuota['remaining'], 'limit' => $aiQuota['limit']]) }}
+</x-ui.alert>
+@endif
+
 {{-- Indicador de etapas + formulário --}}
 @php
     $wizardSteps = $beginner

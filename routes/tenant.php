@@ -103,6 +103,7 @@ Route::middleware(['auth.tenant_or_member', 'tenant', 'verified.tenant', 'tenant
     Route::post('/conta/membros', [TeamMemberController::class, 'store'])->name('account.members.store');
     Route::delete('/conta/membros/{member}', [TeamMemberController::class, 'destroy'])->name('account.members.destroy');
     Route::post('/conta/webhooks', [WebhookController::class, 'store'])->name('account.webhooks.store');
+    Route::post('/conta/webhooks/{webhook}/test', [WebhookController::class, 'test'])->name('account.webhooks.test');
     Route::delete('/conta/webhooks/{webhook}', [WebhookController::class, 'destroy'])->name('account.webhooks.destroy');
 
     Route::redirect('/perfil', '/app/conta')->name('profile.edit');

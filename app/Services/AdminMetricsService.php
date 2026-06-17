@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class AdminMetricsService
 {
@@ -70,6 +71,7 @@ class AdminMetricsService
         $arpu = $activeTenants > 0 ? round($mrr / max(1, $paidActive ?: 1), 2) : 0.0;
 
         $recentTenants = Tenant::latest()->limit(5)->get(['id', 'name', 'email', 'plan', 'created_at', 'is_active']);
+        $failedJobsCount = (int) DB::table('failed_jobs')->count();
 
         $mrrTrend = $this->mrrTrend();
         $funnel = $this->onboardingFunnel();
@@ -86,6 +88,7 @@ class AdminMetricsService
             'trialToPaidRate',
             'arpu',
             'recentTenants',
+            'failedJobsCount',
             'mrrTrend',
             'funnel',
             'signupTrend',

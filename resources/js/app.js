@@ -2,6 +2,7 @@ import './bootstrap';
 import './toast';
 import { initTenantSidebar } from './tenant-sidebar';
 import { initConfirmDelete } from './confirm-delete';
+import { initConfirmSubmit } from './confirm-submit';
 import { initTenantCookies } from './tenant-cookies';
 import { initNotificationBell } from './notification-bell';
 import { initLocaleSwitcher } from './locale-switcher';
@@ -21,6 +22,7 @@ const lazyModules = [
 async function bootApp() {
     initTenantSidebar();
     initConfirmDelete();
+    initConfirmSubmit();
     initTenantCookies();
     initNotificationBell();
     initLocaleSwitcher();

@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Mail\MonthlyGoalReminderMail;
 use App\Models\MonthlyGoal;
 use App\Models\Tenant;
+use App\Services\TenantNotificationPreferences;
 use App\Support\SalePeriod;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -18,13 +19,13 @@ class SendMonthlyGoalReminderJob implements ShouldQueue
 
     public int $tries = 3;
 
-    public function handle(): void
+    public function handle(TenantNotificationPreferences $preferences): void
     {
         $now = now();
 
         Tenant::query()
             ->where('is_active', true)
-            ->chunkById(50, function ($tenants) use ($now): void {
+            ->chunkById(50, function ($tenants) use ($now, $preferences): void {
                 $tenantIds = $tenants->pluck('id');
 
                 $goals = MonthlyGoal::query()
@@ -50,7 +51,7 @@ class SendMonthlyGoalReminderJob implements ShouldQueue
                         ? ($revenue / (float) $goal->goal_amount) * 100
                         : 0;
 
-                    if ($progress < 80) {
+                    if ($progress < 80 && $preferences->allowsEmail($tenant, 'email_goal')) {
                         Mail::to($tenant->email)->send(new MonthlyGoalReminderMail($tenant, $goal, $revenue, $progress));
                     }
                 }

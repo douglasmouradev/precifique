@@ -6,6 +6,8 @@ return [
     'dashboard' => [
         'title' => 'SaaS overview',
         'subtitle' => 'Metrics, subscriptions, and quick panel access',
+        'failed_jobs_alert' => ':count job(s) failed in the queue. Review and retry.',
+        'failed_jobs_cta' => 'View queues',
         'stats' => [
             'tenants' => 'Tenants',
             'active' => 'Active',

@@ -61,12 +61,19 @@ class SaleController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $pendingExport = SaleExportRequest::query()
+            ->where('tenant_id', $tenant->id)
+            ->whereIn('status', ['pending', 'processing'])
+            ->latest()
+            ->first();
+
         return view('sales.index', [
             'sales' => $sales,
             'totalRevenue' => (float) ($stats->total_revenue ?? 0),
             'salesCount' => (int) ($stats->sales_count ?? 0),
             'paymentBreakdown' => $paymentBreakdown,
             'filters' => $filters,
+            'pendingExport' => $pendingExport,
         ]);
     }
 

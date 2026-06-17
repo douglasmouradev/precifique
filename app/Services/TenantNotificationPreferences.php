@@ -15,6 +15,9 @@ class TenantNotificationPreferences
             'email_low_stock' => true,
             'email_trial' => true,
             'email_payment_failed' => true,
+            'email_pix' => true,
+            'email_goal' => true,
+            'email_monthly_report' => true,
             'in_app' => true,
         ];
     }

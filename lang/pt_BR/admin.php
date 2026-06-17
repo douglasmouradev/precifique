@@ -6,6 +6,8 @@ return [
     'dashboard' => [
         'title' => 'Visão geral do SaaS',
         'subtitle' => 'Métricas, assinaturas e acesso rápido ao painel',
+        'failed_jobs_alert' => ':count job(s) falharam na fila. Revise e reprocesse.',
+        'failed_jobs_cta' => 'Ver filas',
         'stats' => [
             'tenants' => 'Tenants',
             'active' => 'Ativos',

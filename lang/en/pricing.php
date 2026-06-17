@@ -73,6 +73,7 @@ return [
     'ai_step_1' => 'Calculating costs…',
     'ai_step_2' => 'Analyzing margin…',
     'ai_step_3' => 'Generating recommendations…',
+    'ai_quota' => 'AI quota today: :remaining of :limit requests remaining.',
 
     'niche_food' => [
         'title' => 'Fields — Food',

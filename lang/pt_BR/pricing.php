@@ -73,6 +73,7 @@ return [
     'ai_step_1' => 'Calculando custos…',
     'ai_step_2' => 'Analisando margem…',
     'ai_step_3' => 'Gerando recomendações…',
+    'ai_quota' => 'Cota de IA hoje: :remaining de :limit consultas restantes.',
 
     'niche_food' => [
         'title' => 'Campos — Alimentos',

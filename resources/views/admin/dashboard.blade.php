@@ -2,6 +2,14 @@
     <x-slot name="header">
         <x-ui.page-header :title="__('admin.dashboard.title')" :subtitle="__('admin.dashboard.subtitle')" />
     </x-slot>
+
+        @if(($failedJobsCount ?? 0) > 0)
+        <x-ui.alert type="warning" class="mb-6">
+            {{ __('admin.dashboard.failed_jobs_alert', ['count' => $failedJobsCount]) }}
+            <x-ui.button size="sm" variant="outline" :href="route('admin.failed-jobs.index')" class="ml-2">{{ __('admin.dashboard.failed_jobs_cta') }}</x-ui.button>
+        </x-ui.alert>
+        @endif
+
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <x-ui.stat :label="__('admin.dashboard.stats.tenants')" icon="products" accent="blue" :value="(string) $totalTenants" />
             <x-ui.stat :label="__('admin.dashboard.stats.active')" icon="dashboard" accent="brand" :value="(string) $activeTenants" />

@@ -3,6 +3,7 @@
 @section('breadcrumb') {{ __('stock.breadcrumb') }} @endsection
 
 @section('content')
+<x-ui.upgrade-banner />
 <x-ui.page-header :title="__('stock.page_title')" :subtitle="__('stock.subtitle')" />
 
 @if($lowStock->isNotEmpty())

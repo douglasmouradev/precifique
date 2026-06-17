@@ -13,27 +13,21 @@
 
     <x-ui.card>
         <h2 class="ui-section-title text-red-700">{{ __('lgpd.portal.delete_heading') }}</h2>
-        <form method="POST" action="{{ route('tenant.lgpd.destroy') }}" data-confirm="{{ __('lgpd.portal.delete_confirm_prompt') }}" class="space-y-3">
-            @csrf @method('DELETE')
-            <div>
-                <label for="lgpd-confirm" class="ui-label">{{ __('lgpd.portal.delete_confirm_label') }}</label>
-                <input id="lgpd-confirm" name="confirm" class="ui-input" autocomplete="off" required>
-            </div>
-            <div>
-                <label for="lgpd-password" class="ui-label">{{ __('lgpd.portal.delete_password_label') }}</label>
-                <input id="lgpd-password" type="password" name="password" class="ui-input" required autocomplete="current-password">
-                @error('password')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-            </div>
-            <x-ui.button type="submit" variant="outline" class="text-red-600 border-red-200 hover:bg-red-50">{{ __('lgpd.portal.delete_submit') }}</x-ui.button>
-        </form>
+        <x-ui.confirm-submit :message="__('lgpd.portal.delete_confirm_prompt')" :title="__('lgpd.portal.delete_heading')" :confirm-label="__('lgpd.portal.delete_submit')">
+            <form method="POST" action="{{ route('tenant.lgpd.destroy') }}" class="space-y-3">
+                @csrf @method('DELETE')
+                <div>
+                    <label for="lgpd-confirm" class="ui-label">{{ __('lgpd.portal.delete_confirm_label') }}</label>
+                    <input id="lgpd-confirm" name="confirm" class="ui-input" autocomplete="off" required>
+                </div>
+                <div>
+                    <label for="lgpd-password" class="ui-label">{{ __('lgpd.portal.delete_password_label') }}</label>
+                    <input id="lgpd-password" type="password" name="password" class="ui-input" required autocomplete="current-password">
+                    @error('password')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                </div>
+                <x-ui.button type="button" variant="outline" class="text-red-600 border-red-200 hover:bg-red-50" data-confirm-submit-trigger>{{ __('lgpd.portal.delete_submit') }}</x-ui.button>
+            </form>
+        </x-ui.confirm-submit>
     </x-ui.card>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-document.querySelector('form[data-confirm]')?.addEventListener('submit', function (e) {
-    if (!confirm(this.dataset.confirm)) e.preventDefault();
-});
-</script>
-@endpush

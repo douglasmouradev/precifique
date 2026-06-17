@@ -91,5 +91,10 @@ return [
         'no_answer' => 'No answer.',
         'error' => 'Error contacting AI.',
         'fallback_tip' => 'Review your fixed costs monthly to stay competitive.',
+        'premium_only' => 'AI is available on the Premium plan only.',
+        'daily_limit' => 'Daily limit of :limit requests reached. Try again tomorrow.',
+    ],
+    'plan' => [
+        'product_limit' => 'Basic plan limit: up to :max products. Upgrade to add more.',
     ],
 ];
