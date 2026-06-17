@@ -350,7 +350,7 @@ class PaymentService
         }
 
         return DB::transaction(function () use ($tenant, $plan, $stripeSubscriptionId, $mercadopagoPaymentId, $subscriptionEnds) {
-            $tenant->update(['plan' => PlanType::Premium]);
+            $tenant->forceFill(['plan' => PlanType::Premium])->save();
 
             Subscription::updateOrCreate(
                 ['tenant_id' => $tenant->id],
@@ -387,7 +387,7 @@ class PaymentService
                 return true;
             }
 
-            $tenant->update(['plan' => PlanType::Basic]);
+            $tenant->forceFill(['plan' => PlanType::Basic])->save();
             AdminMetricsService::forgetCache();
 
             return true;
@@ -429,7 +429,7 @@ class PaymentService
         $secret = (string) config('services.mercadopago.webhook_secret', '');
 
         if ($secret === '') {
-            return ! app()->environment('production');
+            return app()->environment(['local', 'testing']);
         }
 
         $xSignature = (string) $request->header('x-signature', '');

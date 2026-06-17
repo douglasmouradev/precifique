@@ -16,9 +16,19 @@ return [
         ."script-src 'self' 'nonce-{nonce}' https://www.googletagmanager.com https://plausible.io; "
         ."style-src 'self' 'nonce-{nonce}' 'unsafe-inline'; "
         ."font-src 'self' data:; "
-        ."img-src 'self' data: blob: https:; "
+        ."img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com; "
         ."connect-src 'self' https://www.google-analytics.com https://plausible.io; "
         ."object-src 'none';",
+
+    'public_api_docs' => filter_var(
+        env('SECURITY_PUBLIC_API_DOCS', env('APP_ENV') !== 'production'),
+        FILTER_VALIDATE_BOOL
+    ),
+
+    'signed_product_photos' => filter_var(
+        env('SECURITY_SIGNED_PRODUCT_PHOTOS', env('APP_ENV') === 'production'),
+        FILTER_VALIDATE_BOOL
+    ),
 
     'hsts' => env('SECURITY_HSTS_ENABLED', env('APP_ENV') === 'production'),
 

@@ -14,15 +14,19 @@ class VerifyHealthCheckToken
     {
         $token = config('precifique.monitoring.health_token');
 
-        if (($token === null || $token === '') && app()->environment('production')) {
-            abort(503, 'Health check não configurado.');
-        }
+        if (! app()->environment(['local', 'testing'])) {
+            if ($token === null || $token === '') {
+                abort(503, 'Health check não configurado.');
+            }
 
-        if ($token === null || $token === '') {
+            if ($request->bearerToken() !== $token) {
+                abort(403, 'Health check token inválido.');
+            }
+
             return $next($request);
         }
 
-        if ($request->bearerToken() !== $token) {
+        if ($token !== null && $token !== '' && $request->bearerToken() !== $token) {
             abort(403, 'Health check token inválido.');
         }
 

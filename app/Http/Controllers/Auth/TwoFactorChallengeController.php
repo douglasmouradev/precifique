@@ -17,7 +17,7 @@ class TwoFactorChallengeController extends Controller
     public function create(): View|RedirectResponse
     {
         if (! session('login.two_factor_user_id')) {
-            return redirect()->route('login');
+            return redirect()->route('tenant.login');
         }
 
         return view('auth.two-factor-challenge');
@@ -27,14 +27,14 @@ class TwoFactorChallengeController extends Controller
     {
         $userId = session('login.two_factor_user_id');
         if (! $userId) {
-            return redirect()->route('login');
+            return redirect()->route('tenant.login');
         }
 
         $request->validate(['code' => ['required', 'string', 'size:6']]);
 
         $user = User::query()->find($userId);
         if (! $user || ! $user->hasTwoFactorEnabled()) {
-            return redirect()->route('login');
+            return redirect()->route('tenant.login');
         }
 
         if (! $totp->verify((string) $user->two_factor_secret, $request->input('code'))) {

@@ -22,7 +22,18 @@ class UnifiedLoginService
         $remember = $request->boolean('remember');
 
         if (Auth::guard('tenant')->attempt($credentials, $remember)) {
-            return new LoginAttemptResult(true, $this->completeTenantLogin($request, Auth::guard('tenant')->user(), $remember));
+            /** @var Tenant|null $tenant */
+            $tenant = Auth::guard('tenant')->user();
+
+            if ($tenant?->isDemoEmail() && ! Tenant::demoLoginEnabled()) {
+                Auth::guard('tenant')->logout();
+
+                return new LoginAttemptResult(false, back()
+                    ->withErrors(['email' => __('auth.failed')])
+                    ->onlyInput('email'));
+            }
+
+            return new LoginAttemptResult(true, $this->completeTenantLogin($request, $tenant, $remember));
         }
 
         $member = TenantMember::query()
@@ -81,7 +92,7 @@ class UnifiedLoginService
 
     private function completeWebLogin(Request $request, ?User $user, bool $remember): RedirectResponse
     {
-        if ($user?->hasTwoFactorEnabled() && ! $user->is_superadmin) {
+        if ($user?->is_superadmin && $user->hasTwoFactorEnabled()) {
             Auth::guard('web')->logout();
             $request->session()->put('login.two_factor_user_id', $user->id);
             $request->session()->put('login.remember', $remember);
@@ -92,9 +103,15 @@ class UnifiedLoginService
         $request->session()->regenerate();
 
         if ($user?->is_superadmin) {
-            session(['two_factor_verified_at' => now()->timestamp]);
-
             return redirect()->intended(route('admin.dashboard'));
+        }
+
+        if ($user?->hasTwoFactorEnabled()) {
+            Auth::guard('web')->logout();
+            $request->session()->put('login.two_factor_user_id', $user->id);
+            $request->session()->put('login.remember', $remember);
+
+            return redirect()->route('two-factor.challenge');
         }
 
         return redirect()->intended(route('dashboard', absolute: false));

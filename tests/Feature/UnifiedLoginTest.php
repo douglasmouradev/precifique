@@ -42,10 +42,9 @@ class UnifiedLoginTest extends TestCase
 
     public function test_admin_can_login_via_entrar(): void
     {
-        $admin = User::factory()->create([
+        $admin = User::factory()->superadmin()->create([
             'email' => 'admin@precifique.com.br',
             'password' => 'Precifique@2026',
-            'is_superadmin' => true,
         ]);
 
         $this->post('/entrar', [
@@ -64,10 +63,9 @@ class UnifiedLoginTest extends TestCase
 
     public function test_wrong_password_shows_generic_error(): void
     {
-        User::factory()->create([
+        User::factory()->superadmin()->create([
             'email' => 'admin@precifique.com.br',
             'password' => 'Precifique@2026',
-            'is_superadmin' => true,
         ]);
 
         $this->from('/entrar')

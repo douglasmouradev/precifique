@@ -24,20 +24,34 @@ class EnsureDemoTenantCommand extends Command
 
     public function handle(): int
     {
+        if (app()->environment('production') && ! Tenant::demoLoginEnabled()) {
+            $this->error('Conta demo desabilitada em produção. Defina TENANT_DEMO_ENABLED=true no .env para habilitar.');
+
+            return self::FAILURE;
+        }
+
         $email = (string) $this->option('email');
         $password = (string) $this->option('password');
+
+        if (app()->environment('production') && strlen($password) < 12) {
+            $this->error('Em produção, use senha demo com pelo menos 12 caracteres (--password=).');
+
+            return self::FAILURE;
+        }
 
         $tenant = Tenant::firstOrNew(['email' => $email]);
         $tenant->fill([
             'name' => 'Doceria da Ana (Demo)',
             'niche' => 'alimentos',
-            'plan' => 'premium',
             'interface_mode' => 'alimentos',
             'usage_mode' => 'avancado',
             'onboarding_completed' => true,
             'profile_setup_completed' => true,
-            'is_active' => true,
             'email_verified_at' => now(),
+        ]);
+        $tenant->forceFill([
+            'plan' => 'premium',
+            'is_active' => true,
             'two_factor_secret' => null,
             'two_factor_confirmed_at' => null,
         ]);

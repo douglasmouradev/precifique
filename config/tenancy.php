@@ -23,4 +23,14 @@ return [
     ],
 
     'demo_email' => 'demo@precifique.com.br',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Demo pública (desabilitada em produção por padrão)
+    |--------------------------------------------------------------------------
+    */
+    'demo_enabled' => filter_var(
+        env('TENANT_DEMO_ENABLED', env('APP_ENV') !== 'production'),
+        FILTER_VALIDATE_BOOL
+    ),
 ];

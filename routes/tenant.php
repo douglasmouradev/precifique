@@ -21,6 +21,7 @@ use App\Http\Controllers\Tenant\MonthlyGoalController;
 use App\Http\Controllers\Tenant\NotificationController;
 use App\Http\Controllers\Tenant\PricingController;
 use App\Http\Controllers\Tenant\ProductController;
+use App\Http\Controllers\Tenant\ProductPhotoController;
 use App\Http\Controllers\Tenant\ProfileSetupController;
 use App\Http\Controllers\Tenant\QuoteController;
 use App\Http\Controllers\Tenant\ReportController;
@@ -52,6 +53,11 @@ Route::middleware('guest:tenant')->group(function () {
 Route::post('/sair', [TenantAuthController::class, 'logout'])
     ->middleware('auth.tenant_or_member')
     ->name('tenant.logout');
+
+Route::get('/app/produtos/foto/{path}', [ProductPhotoController::class, 'show'])
+    ->where('path', '.*')
+    ->middleware('signed')
+    ->name('tenant.products.photo');
 
 Route::middleware('auth:tenant')->group(function () {
     Route::get('/auth/verificar-email', TenantEmailVerificationPromptController::class)->name('tenant.verification.notice');

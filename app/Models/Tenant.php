@@ -30,25 +30,29 @@ class Tenant extends Authenticatable implements CanResetPasswordContract, MustVe
     use SoftDeletes;
 
     protected $fillable = [
-        'uuid',
         'name',
         'email',
         'password',
         'locale',
-        'two_factor_secret',
-        'two_factor_confirmed_at',
         'niche',
-        'plan',
         'interface_mode',
         'usage_mode',
         'logo_path',
         'onboarding_completed',
         'profile_setup_completed',
-        'is_active',
-        'created_by',
         'trial_ends_at',
         'niche_metadata',
         'notification_preferences',
+    ];
+
+    protected $guarded = [
+        'id',
+        'uuid',
+        'plan',
+        'is_active',
+        'two_factor_secret',
+        'two_factor_confirmed_at',
+        'created_by',
     ];
 
     protected $hidden = [
@@ -175,7 +179,21 @@ class Tenant extends Authenticatable implements CanResetPasswordContract, MustVe
         return in_array($this->email, config('tenancy.test_emails', []), true);
     }
 
+    public static function demoLoginEnabled(): bool
+    {
+        return (bool) config('tenancy.demo_enabled', false);
+    }
+
     public function isDemoProfile(): bool
+    {
+        if (! static::demoLoginEnabled()) {
+            return false;
+        }
+
+        return $this->email === (string) config('tenancy.demo_email', 'demo@precifique.com.br');
+    }
+
+    public function isDemoEmail(): bool
     {
         return $this->email === (string) config('tenancy.demo_email', 'demo@precifique.com.br');
     }

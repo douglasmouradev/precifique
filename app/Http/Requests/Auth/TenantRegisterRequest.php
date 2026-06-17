@@ -24,6 +24,7 @@ class TenantRegisterRequest extends FormRequest
             'email' => ['required', 'email', 'unique:tenants,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'niche' => ['required', 'in:alimentos,servico,artesanato,outro'],
+            'company_website' => ['prohibited'],
         ];
     }
 }

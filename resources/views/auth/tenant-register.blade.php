@@ -6,6 +6,10 @@
 
 <form method="POST" action="{{ route('tenant.register.store') }}" class="space-y-4">
     @csrf
+    <div class="hidden" aria-hidden="true">
+        <label for="company_website">{{ __('auth.register.business_name') }}</label>
+        <input type="text" name="company_website" id="company_website" tabindex="-1" autocomplete="off" value="">
+    </div>
     <x-ui.input :label="__('auth.register.business_name')" name="name" value="{{ old('name') }}" required />
     <x-ui.input :label="__('auth.register.email')" name="email" type="email" value="{{ old('email') }}" required />
     <x-ui.input :label="__('auth.register.password')" name="password" type="password" required />

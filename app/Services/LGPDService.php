@@ -101,7 +101,7 @@ class LGPDService
 
             $anonId = Str::uuid()->toString();
 
-            $tenant->update([
+            $tenant->forceFill([
                 'name' => 'Conta Removida',
                 'email' => "anon_{$anonId}@removed.local",
                 'password' => bcrypt(Str::random(32)),
@@ -109,7 +109,7 @@ class LGPDService
                 'is_active' => false,
                 'trial_ends_at' => null,
                 'niche_metadata' => null,
-            ]);
+            ])->save();
 
             $tenant->delete();
         });

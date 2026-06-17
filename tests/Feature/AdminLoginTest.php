@@ -15,10 +15,9 @@ class AdminLoginTest extends TestCase
 
     public function test_admin_can_login_with_seeded_credentials(): void
     {
-        User::factory()->create([
+        User::factory()->superadmin()->create([
             'email' => 'admin@precifique.com.br',
             'password' => 'Precifique@2026',
-            'is_superadmin' => true,
         ]);
 
         $response = $this->post('/login', [

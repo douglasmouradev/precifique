@@ -77,8 +77,9 @@ class OnboardingController extends Controller
 
     public function savePlan(OnboardingPlanRequest $request): RedirectResponse
     {
+        $tenant = Auth::guard('tenant')->user();
         $request->session()->put('onboarding_selected_plan', $request->validated('plan'));
-        Auth::guard('tenant')->user()->update(['plan' => 'basic']);
+        $tenant?->forceFill(['plan' => 'basic'])->save();
 
         return redirect()->route('onboarding.setup');
     }

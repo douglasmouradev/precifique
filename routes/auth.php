@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Profile\TwoFactorController as ProfileTwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -60,6 +61,10 @@ Route::middleware('auth')->group(function () {
     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+
+    Route::get('profile/two-factor', [ProfileTwoFactorController::class, 'show'])->name('profile.two-factor');
+    Route::post('profile/two-factor', [ProfileTwoFactorController::class, 'confirm'])->name('profile.two-factor.confirm');
+    Route::delete('profile/two-factor', [ProfileTwoFactorController::class, 'destroy'])->name('profile.two-factor.destroy');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

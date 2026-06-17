@@ -7,22 +7,23 @@ namespace Tests\Feature;
 use App\Models\AuditLog;
 use App\Models\Tenant;
 use App\Models\User;
+use Tests\Concerns\CreatesEnrolledSuperAdmin;
 use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 class ImpersonationAuditTest extends TestCase
 {
+    use CreatesEnrolledSuperAdmin;
     use RefreshDatabase;
 
     public function test_impersonation_creates_audit_log(): void
     {
-        $admin = User::factory()->create([
-            'is_superadmin' => true,
+        $admin = $this->enrolledSuperAdmin([
             'password' => 'password',
         ]);
         $tenant = Tenant::factory()->create(['is_active' => true]);
 
-        $this->actingAs($admin)
+        $this->actingAsEnrolledSuperAdmin($admin)
             ->post(route('admin.tenants.impersonate', $tenant), [
                 'password' => 'password',
             ])

@@ -11,13 +11,16 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Tenant\BillingController;
+use App\Http\Middleware\RestrictPublicDocs;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
-Route::get('/docs/api', ApiDocsController::class)->name('docs.api');
-Route::get('/openapi.yaml', fn () => response()->file(public_path('openapi.yaml'), ['Content-Type' => 'application/yaml']))->name('openapi');
+Route::get('/docs/api', ApiDocsController::class)->middleware(RestrictPublicDocs::class)->name('docs.api');
+Route::get('/openapi.yaml', fn () => response()->file(public_path('openapi.yaml'), ['Content-Type' => 'application/yaml']))
+    ->middleware(RestrictPublicDocs::class)
+    ->name('openapi');
 Route::get('/precificacao-alimentos', [LandingController::class, 'nicheFood'])->name('landing.niche.food');
 Route::get('/precificacao-servicos', [LandingController::class, 'nicheService'])->name('landing.niche.service');
 Route::get('/precificacao-artesanato', [LandingController::class, 'nicheCraft'])->name('landing.niche.craft');
@@ -68,7 +71,7 @@ Route::post('/webhooks/mercadopago', [BillingController::class, 'mercadopagoWebh
     ->name('webhooks.mercadopago')
     ->withoutMiddleware([VerifyCsrfToken::class]);
 
-Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'superadmin', 'admin.2fa.enrolled', 'admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/tenants', [AdminDashboardController::class, 'tenants'])->name('tenants.index');
     Route::get('/tenants/create', [TenantManagementController::class, 'create'])->name('tenants.create');

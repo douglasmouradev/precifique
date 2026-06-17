@@ -48,12 +48,14 @@ class TenantManagementController extends Controller
             'password' => $password,
             'niche' => $data['niche'],
             'interface_mode' => $data['niche'] === 'outro' ? 'artesanato' : $data['niche'],
-            'plan' => $data['plan'],
             'onboarding_completed' => true,
             'profile_setup_completed' => true,
-            'created_by' => Auth::id(),
             'trial_ends_at' => now()->addDays(14),
         ]);
+        $tenant->forceFill([
+            'plan' => $data['plan'],
+            'created_by' => Auth::id(),
+        ])->save();
 
         if ($data['plan'] === 'premium') {
             $plan = Plan::where('slug', 'premium')->first();
@@ -90,7 +92,7 @@ class TenantManagementController extends Controller
 
     public function toggle(Tenant $tenant): RedirectResponse
     {
-        $tenant->update(['is_active' => ! $tenant->is_active]);
+        $tenant->forceFill(['is_active' => ! $tenant->is_active])->save();
 
         return back()->with('success', __('messages.admin.status_updated'));
     }

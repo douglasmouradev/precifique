@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Tenant;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class ProductPhotoController extends Controller
+{
+    public function show(Request $request, string $path): StreamedResponse
+    {
+        if (! preg_match('#^products/\d+/[a-f0-9\-]+\.jpg$#i', $path)) {
+            abort(404);
+        }
+
+        $variant = (string) $request->query('variant', 'display');
+        $resolved = $path;
+
+        if ($variant === 'thumb') {
+            $thumbPath = preg_replace('/\.jpg$/', '_thumb.jpg', $path);
+            if (is_string($thumbPath)) {
+                $resolved = $thumbPath;
+            }
+        }
+
+        $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+
+        if (! Storage::disk($disk)->exists($resolved)) {
+            if ($variant === 'thumb' && Storage::disk($disk)->exists($path)) {
+                $resolved = $path;
+            } else {
+                abort(404);
+            }
+        }
+
+        return Storage::disk($disk)->response($resolved, headers: [
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
+    }
+}

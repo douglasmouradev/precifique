@@ -6,23 +6,23 @@ namespace Tests\Feature;
 
 use App\Models\Tenant;
 use App\Models\User;
+use Tests\Concerns\CreatesEnrolledSuperAdmin;
 use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminTenantManagementTest extends TestCase
 {
+    use CreatesEnrolledSuperAdmin;
     use RefreshDatabase;
 
     private function superAdmin(): User
     {
-        return User::factory()->create([
-            'is_superadmin' => true,
-        ]);
+        return $this->enrolledSuperAdmin();
     }
 
     private function actingAsVerifiedAdmin(User $admin): static
     {
-        return $this->actingAs($admin);
+        return $this->actingAsEnrolledSuperAdmin($admin);
     }
 
     public function test_tenant_index_filters_by_search_query(): void

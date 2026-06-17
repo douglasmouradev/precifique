@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\PlanType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\TenantRegisterRequest;
 use App\Models\Tenant;
@@ -48,9 +49,9 @@ class TenantAuthController extends Controller
             'niche' => $niche['niche'],
             'interface_mode' => $niche['interface_mode'],
             'niche_metadata' => $niche['niche_metadata'],
-            'plan' => 'basic',
             'trial_ends_at' => now()->addDays((int) config('tenancy.trial_days', 14)),
         ]);
+        $tenant->forceFill(['plan' => PlanType::Basic])->save();
 
         Auth::guard('tenant')->login($tenant);
 

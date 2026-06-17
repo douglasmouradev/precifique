@@ -37,7 +37,7 @@
                 <label class="ui-label">{{ __('products.edit.photo') }} @if(($tenant->interface_mode ?? '') === 'artesanato' && ! $product->photo_path)<span class="text-red-500">*</span>@endif</label>
                 @if($product->photo_path)
                 <div class="mb-3 flex items-start gap-4">
-                    <img src="{{ asset('storage/'.$product->photo_path) }}" alt="" class="w-24 h-24 object-cover rounded-xl ring-1 ring-slate-200">
+                    <img src="{{ product_photo_url($product->photo_path) }}" alt="" class="w-24 h-24 object-cover rounded-xl ring-1 ring-slate-200">
                     <label class="flex items-center gap-2 text-sm text-slate-600">
                         <input type="checkbox" name="remove_photo" value="1" class="rounded border-slate-300">
                         {{ __('products.edit.remove_photo') }}

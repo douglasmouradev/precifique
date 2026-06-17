@@ -220,22 +220,27 @@ class TestProfilesSeeder extends Seeder
     /** @param array<string, mixed> $data */
     private function createTenant(array $data): Tenant
     {
-        return Tenant::updateOrCreate(
+        $tenant = Tenant::updateOrCreate(
             ['email' => $data['email']],
             [
                 'name' => $data['name'],
                 'password' => self::TENANT_PASSWORD,
                 'niche' => $data['niche'],
-                'plan' => $data['plan'],
                 'interface_mode' => $data['interface_mode'],
                 'usage_mode' => $data['usage_mode'] ?? 'iniciante',
                 'onboarding_completed' => $data['onboarding_completed'] ?? true,
                 'profile_setup_completed' => $data['profile_setup_completed'] ?? ($data['onboarding_completed'] ?? true),
-                'is_active' => $data['is_active'] ?? true,
                 'trial_ends_at' => now()->addDays(14),
                 'email_verified_at' => now(),
             ]
         );
+
+        $tenant->forceFill([
+            'plan' => $data['plan'],
+            'is_active' => $data['is_active'] ?? true,
+        ])->save();
+
+        return $tenant;
     }
 
     private function seedLgpd(Tenant $tenant): void

@@ -40,14 +40,14 @@ QUEUE_CONNECTION=sync
 php artisan serve
 ```
 
-Acesse http://127.0.0.1:8000/entrar — `demo@precifique.com.br` / `demo1234`
+Acesse http://127.0.0.1:8000/entrar — `demo@precifique.com.br` / `demo1234` (somente em ambiente local; em produção use `TENANT_DEMO_ENABLED=false`)
 
 ## Acessos padrão (após seed)
 
 | Perfil | URL | Credenciais |
 |--------|-----|-------------|
-| Superadmin | `/entrar` | `admin@precifique.com.br` / `Precifique@2026` |
-| Tenant demo | `/entrar` | `demo@precifique.com.br` / `demo1234` |
+| Superadmin | `/entrar` | `admin@precifique.com.br` / `Precifique@2026` — **2FA obrigatório** em `/profile/two-factor` |
+| Tenant demo | `/entrar` | `demo@precifique.com.br` / `demo1234` (desabilitado em produção por padrão) |
 | Novo tenant | `/cadastro` | Cadastro livre |
 
 Se o login falhar após mudanças no banco:
@@ -203,6 +203,19 @@ Configure o cron: `* * * * * php artisan schedule:run`
 ## Variáveis importantes
 
 Veja `.env.example` para `AI_PROVIDER`, `GEMINI_*`, `GROQ_*`, `ANTHROPIC_*`, `STRIPE_*`, `MP_*`, `PIX_SUBSCRIPTION_DAYS`, AWS S3 e Redis.
+
+### Segurança (produção)
+
+| Variável | Recomendação |
+|----------|----------------|
+| `APP_DEBUG` | `false` |
+| `SESSION_ENCRYPT` | `true` |
+| `HEALTH_CHECK_TOKEN` | Token forte (Bearer em `/health`) |
+| `TENANT_DEMO_ENABLED` | `false` |
+| `SECURITY_PUBLIC_API_DOCS` | `false` |
+| `SECURITY_SIGNED_PRODUCT_PHOTOS` | `true` |
+| `MP_WEBHOOK_SECRET` / `STRIPE_WEBHOOK_SECRET` | Obrigatórios |
+| `ADMIN_PASSWORD` | Senha forte; configure 2FA em `/profile/two-factor` após primeiro login |
 
 ## API REST
 

@@ -123,6 +123,15 @@ function product_photo_url(?string $path, string $variant = 'display'): ?string
         return null;
     }
 
+    if (config('security.signed_product_photos')) {
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'tenant.products.photo',
+            now()->addMinutes(30),
+            ['path' => $path],
+            absolute: true
+        ).($variant !== 'display' ? '?variant='.urlencode($variant) : '');
+    }
+
     $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
 
     if ($variant === 'thumb') {

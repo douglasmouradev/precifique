@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\User;
+use Tests\Concerns\CreatesEnrolledSuperAdmin;
 use Tests\Concerns\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class AdminAccessTest extends TestCase
 {
+    use CreatesEnrolledSuperAdmin;
     use RefreshDatabase;
 
     private function superAdmin(): User
     {
-        return User::factory()->create([
+        return $this->enrolledSuperAdmin([
             'email' => 'admin@precifique.com.br',
-            'is_superadmin' => true,
         ]);
     }
 
@@ -53,28 +54,26 @@ class AdminAccessTest extends TestCase
         ];
 
         foreach ($routes as $route) {
-            $this->actingAs($admin)
+            $this->actingAsEnrolledSuperAdmin($admin)
                 ->get(route($route))
                 ->assertOk("Falha ao acessar a rota {$route}");
         }
     }
 
-    public function test_admin_can_access_dashboard_without_2fa(): void
+    public function test_admin_without_2fa_is_redirected_to_enrollment(): void
     {
-        $admin = User::factory()->create([
-            'is_superadmin' => true,
-        ]);
+        $admin = User::factory()->superadmin()->create();
 
         $this->actingAs($admin)
             ->get(route('admin.dashboard'))
-            ->assertOk();
+            ->assertRedirect(route('profile.two-factor'));
     }
 
     public function test_admin_can_logout(): void
     {
         $admin = $this->superAdmin();
 
-        $this->actingAs($admin)
+        $this->actingAsEnrolledSuperAdmin($admin)
             ->post(route('logout'))
             ->assertRedirect('/');
 
@@ -83,7 +82,7 @@ class AdminAccessTest extends TestCase
 
     public function test_non_superadmin_cannot_access_admin(): void
     {
-        $user = User::factory()->create(['is_superadmin' => false]);
+        $user = User::factory()->create();
 
         $this->actingAs($user)
             ->get(route('admin.dashboard'))
