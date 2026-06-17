@@ -51,6 +51,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->web(prepend: [
             GenerateCspNonce::class,
+        ]);
+        $middleware->web(append: [
             SetLocale::class,
         ]);
         $middleware->append(SecurityHeadersMiddleware::class);

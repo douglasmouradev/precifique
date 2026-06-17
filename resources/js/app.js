@@ -4,6 +4,7 @@ import { initTenantSidebar } from './tenant-sidebar';
 import { initConfirmDelete } from './confirm-delete';
 import { initTenantCookies } from './tenant-cookies';
 import { initNotificationBell } from './notification-bell';
+import { initLocaleSwitcher } from './locale-switcher';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -21,6 +22,7 @@ function bootApp() {
     initConfirmDelete();
     initTenantCookies();
     initNotificationBell();
+    initLocaleSwitcher();
 }
 
 if (document.readyState === 'loading') {

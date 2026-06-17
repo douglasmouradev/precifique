@@ -1,5 +1,6 @@
 import './bootstrap';
 import './landing-scroll-3d';
+import { initLocaleSwitcher } from './locale-switcher';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -261,6 +262,7 @@ function bootLanding() {
     initLandingMobileMenu();
     initLandingHeaderScroll();
     initCookieConsent();
+    initLocaleSwitcher();
 }
 
 if (document.readyState === 'loading') {
