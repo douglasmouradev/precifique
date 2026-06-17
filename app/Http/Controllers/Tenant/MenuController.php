@@ -12,7 +12,7 @@ class MenuController extends Controller
 {
     public function __invoke(): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         $links = [
             ['route' => 'tenant.dashboard', 'label' => 'Dashboard', 'icon' => 'dashboard'],

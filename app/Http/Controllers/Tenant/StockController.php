@@ -15,7 +15,7 @@ class StockController extends Controller
 {
     public function index(): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         $products = $tenant->products()
             ->where('is_active', true)
@@ -31,7 +31,7 @@ class StockController extends Controller
 
     public function update(Request $request, Product $product): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->authorize('update', $product);
 
         $data = $request->validate([

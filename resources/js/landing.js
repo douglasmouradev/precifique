@@ -255,6 +255,45 @@ function initCookieConsent() {
     });
 }
 
+function initLandingFaq() {
+    const root = document.getElementById('landing-faq');
+    if (!root) {
+        return;
+    }
+
+    let open = null;
+
+    root.querySelectorAll('[data-faq-toggle]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const id = button.dataset.faqToggle;
+            const panel = root.querySelector(`[data-faq-panel="${id}"]`);
+            const icon = button.querySelector('[data-faq-icon]');
+            const next = open === id ? null : id;
+
+            root.querySelectorAll('[data-faq-panel]').forEach((item) => {
+                item.classList.add('hidden');
+            });
+            root.querySelectorAll('[data-faq-toggle]').forEach((item) => {
+                item.setAttribute('aria-expanded', 'false');
+                const itemIcon = item.querySelector('[data-faq-icon]');
+                if (itemIcon) {
+                    itemIcon.textContent = '+';
+                }
+            });
+
+            open = next;
+
+            if (panel && open === id) {
+                panel.classList.remove('hidden');
+                button.setAttribute('aria-expanded', 'true');
+                if (icon) {
+                    icon.textContent = '−';
+                }
+            }
+        });
+    });
+}
+
 function bootLanding() {
     initLandingIntro();
     initScrollProgressBar();
@@ -263,6 +302,7 @@ function bootLanding() {
     initLandingHeaderScroll();
     initCookieConsent();
     initLocaleSwitcher();
+    initLandingFaq();
 }
 
 if (document.readyState === 'loading') {

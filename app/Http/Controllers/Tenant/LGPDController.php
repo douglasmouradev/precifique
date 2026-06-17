@@ -25,7 +25,7 @@ class LGPDController extends Controller
 
     public function storeConsent(Request $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $version = (string) config('lgpd.policy_version', '1.0');
 
         $request->validate([
@@ -45,7 +45,7 @@ class LGPDController extends Controller
                 ->with('success', 'Finalize o pagamento para ativar o Premium.');
         }
 
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if ($tenant && ! $tenant->onboarding_completed) {
             return redirect()->route('onboarding.welcome')
@@ -63,14 +63,14 @@ class LGPDController extends Controller
 
     public function portal(): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         return view('lgpd.portal', compact('tenant'));
     }
 
     public function export(): StreamedResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $data = $this->lgpd->exportTenantData($tenant);
 
         return response()->streamDownload(
@@ -87,7 +87,7 @@ class LGPDController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if (! Auth::guard('tenant')->validate([
             'email' => $tenant->email,

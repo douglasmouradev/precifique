@@ -42,10 +42,15 @@ Route::middleware('guest:tenant')->group(function () {
     Route::post('/recuperar-senha', [TenantPasswordResetController::class, 'sendReset'])->middleware('throttle:tenant-password')->name('tenant.password.email');
     Route::get('/redefinir-senha/{token}', [TenantPasswordResetController::class, 'showReset'])->name('tenant.password.reset');
     Route::post('/redefinir-senha', [TenantPasswordResetController::class, 'reset'])->middleware('throttle:tenant-password')->name('tenant.password.store');
+
+    Route::get('/auth/2fa', [TenantTwoFactorChallengeController::class, 'create'])->name('tenant.two-factor.challenge');
+    Route::post('/auth/2fa', [TenantTwoFactorChallengeController::class, 'store'])
+        ->middleware('throttle:tenant-login')
+        ->name('tenant.two-factor.challenge.store');
 });
 
 Route::post('/sair', [TenantAuthController::class, 'logout'])
-    ->middleware('auth:tenant')
+    ->middleware('auth.tenant_or_member')
     ->name('tenant.logout');
 
 Route::middleware('auth:tenant')->group(function () {
@@ -56,11 +61,6 @@ Route::middleware('auth:tenant')->group(function () {
     Route::post('/auth/verificar-email/reenviar', [TenantEmailVerificationController::class, 'send'])
         ->middleware('throttle:6,1')
         ->name('tenant.verification.send');
-
-    Route::get('/auth/2fa', [TenantTwoFactorChallengeController::class, 'create'])->name('tenant.two-factor.challenge');
-    Route::post('/auth/2fa', [TenantTwoFactorChallengeController::class, 'store'])
-        ->middleware('throttle:tenant-login')
-        ->name('tenant.two-factor.challenge.store');
 
     Route::prefix('onboarding')->name('onboarding.')->middleware('throttle:tenant-onboarding')->group(function () {
         Route::get('/welcome', [OnboardingController::class, 'welcome'])->name('welcome');

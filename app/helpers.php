@@ -1,6 +1,10 @@
 <?php
 
 declare(strict_types=1);
+
+use App\Models\Tenant;
+use Illuminate\Support\Facades\App as AppFacade;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Pdo\Mysql;
 
@@ -50,4 +54,23 @@ function sql_month(string $column): string
         'pgsql' => "EXTRACT(MONTH FROM {$column})::INTEGER",
         default => "MONTH({$column})",
     };
+}
+
+/**
+ * Tenant autenticado (owner ou membro da equipe).
+ */
+function current_tenant(): ?Tenant
+{
+    if (AppFacade::bound('currentTenant')) {
+        $tenant = AppFacade::make('currentTenant');
+
+        return $tenant instanceof Tenant ? $tenant : null;
+    }
+
+    $tenant = Auth::guard('tenant')->user();
+    if ($tenant instanceof Tenant) {
+        return $tenant;
+    }
+
+    return Auth::guard('tenant_member')->user()?->tenant;
 }

@@ -40,7 +40,7 @@ class UpdatePricingRequest extends FormRequest
     {
         $validator->after(function (Validator $validator): void {
             $margin = (float) $this->input('profit_margin_percent');
-            $tenant = Auth::guard('tenant')->user();
+            $tenant = current_tenant();
 
             if ($margin === (float) ProfitMargin::HundredFifty->value && ! $tenant?->isPremium()) {
                 $validator->errors()->add('profit_margin_percent', 'Margem de 150% disponível apenas no Premium.');

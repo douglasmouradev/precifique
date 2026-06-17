@@ -35,7 +35,7 @@ class SaleController extends Controller
 
     public function index(Request $request): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $filters = $request->only(['payment_method', 'month', 'year']);
         $query = $this->filteredSalesQuery($tenant, $filters);
 
@@ -67,7 +67,7 @@ class SaleController extends Controller
 
     public function export(Request $request): StreamedResponse|RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $filters = $request->only(['payment_method', 'month', 'year']);
         $count = $this->filteredSalesQuery($tenant, $filters)->count();
         $threshold = (int) config('precifique.exports.sales_async_threshold', 200);
@@ -98,7 +98,7 @@ class SaleController extends Controller
 
     public function downloadExport(SaleExportRequest $saleExportRequest): StreamedResponse|RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         abort_unless($saleExportRequest->tenant_id === $tenant->id, 403);
         abort_unless($saleExportRequest->status === 'completed' && $saleExportRequest->file_path, 404);
 
@@ -117,7 +117,7 @@ class SaleController extends Controller
 
     public function create(): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $products = $tenant->products()->where('is_active', true)->orderBy('name')->get();
 
         return view('sales.create', compact('products'));
@@ -125,7 +125,7 @@ class SaleController extends Controller
 
     public function store(StoreSaleRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $quantity = $request->integer('quantity');
 
         $sale = DB::transaction(function () use ($tenant, $request, $quantity) {
@@ -186,7 +186,7 @@ class SaleController extends Controller
 
     public function update(UpdateSaleRequest $request, Sale $sale): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->authorize('update', $sale);
 
         $newQuantity = $request->integer('quantity');
@@ -229,7 +229,7 @@ class SaleController extends Controller
 
     public function destroy(Sale $sale): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->authorize('delete', $sale);
 
         DB::transaction(function () use ($sale, $tenant): void {

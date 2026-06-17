@@ -21,7 +21,7 @@ class TenantVariableCostController extends Controller
 
     public function index(): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $variableCosts = $tenant->tenantVariableCosts()->latest()->get();
         $total = $variableCosts->where('is_active', true)->sum('amount');
 
@@ -30,7 +30,7 @@ class TenantVariableCostController extends Controller
 
     public function store(StoreTenantVariableCostRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $cost = $tenant->tenantVariableCosts()->create($request->validated());
         $this->audit->log($tenant, 'tenant_variable_cost.created', $cost, [], $request);
 
@@ -39,7 +39,7 @@ class TenantVariableCostController extends Controller
 
     public function update(UpdateTenantVariableCostRequest $request, TenantVariableCost $tenantVariableCost): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->authorize('update', $tenantVariableCost);
 
         $tenantVariableCost->update($request->validated());
@@ -50,7 +50,7 @@ class TenantVariableCostController extends Controller
 
     public function destroy(TenantVariableCost $tenantVariableCost): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->authorize('delete', $tenantVariableCost);
 
         $tenantVariableCost->delete();

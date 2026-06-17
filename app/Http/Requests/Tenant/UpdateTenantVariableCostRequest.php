@@ -11,7 +11,7 @@ class UpdateTenantVariableCostRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Auth::guard('tenant')->check();
+        return Auth::guard('tenant')->check() || Auth::guard('tenant_member')->check();
     }
 
     /** @return array<string, mixed> */

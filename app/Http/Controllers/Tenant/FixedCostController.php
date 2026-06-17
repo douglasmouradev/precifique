@@ -22,7 +22,7 @@ class FixedCostController extends Controller
 
     public function index(): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $fixedCosts = $tenant->fixedCosts()->latest()->get();
         $total = $fixedCosts->where('is_active', true)->sum('amount');
 
@@ -31,7 +31,7 @@ class FixedCostController extends Controller
 
     public function store(StoreFixedCostRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $cost = $tenant->fixedCosts()->create($request->validated());
         $this->audit->log($tenant, 'fixed_cost.created', $cost, [], $request);
         TenantDashboardChanged::dispatch($tenant);
@@ -41,7 +41,7 @@ class FixedCostController extends Controller
 
     public function update(UpdateFixedCostRequest $request, FixedCost $fixedCost): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->authorize('update', $fixedCost);
 
         $fixedCost->update($request->validated());
@@ -53,7 +53,7 @@ class FixedCostController extends Controller
 
     public function destroy(FixedCost $fixedCost): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->authorize('delete', $fixedCost);
 
         $fixedCost->delete();

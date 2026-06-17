@@ -6,6 +6,10 @@ import { initTenantCookies } from './tenant-cookies';
 import { initNotificationBell } from './notification-bell';
 import { initLocaleSwitcher } from './locale-switcher';
 import { initTenantAiAssistant } from './tenant-ai-assistant';
+import { initDropdowns } from './dropdown';
+import { initAdminNavigation } from './admin-navigation';
+import { initSalesForms } from './sales-form';
+import { initBillingPix } from './billing-pix';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -25,6 +29,10 @@ function bootApp() {
     initNotificationBell();
     initLocaleSwitcher();
     initTenantAiAssistant();
+    initDropdowns();
+    initAdminNavigation();
+    initSalesForms();
+    initBillingPix();
 }
 
 if (document.readyState === 'loading') {

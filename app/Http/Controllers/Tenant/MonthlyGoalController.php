@@ -17,7 +17,7 @@ class MonthlyGoalController extends Controller
 {
     public function edit(): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $now = now();
 
         $goal = MonthlyGoal::where('tenant_id', $tenant->id)
@@ -30,7 +30,7 @@ class MonthlyGoalController extends Controller
 
     public function store(StoreMonthlyGoalRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         $goal = new MonthlyGoal([
             'tenant_id' => $tenant->id,

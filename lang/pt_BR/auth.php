@@ -55,6 +55,12 @@ return [
         'message' => 'Enviamos um link de verificação. Clique no e-mail para continuar.',
         'resend' => 'Reenviar e-mail de verificação',
     ],
+    'two_factor' => [
+        'title' => 'Autenticação em duas etapas',
+        'code_label' => 'Código de autenticação',
+        'confirm' => 'Confirmar',
+        'invalid_code' => 'Código de autenticação inválido.',
+    ],
     'back_to_site' => '← Voltar ao site',
     'back_to_login' => 'Voltar ao login',
 ];

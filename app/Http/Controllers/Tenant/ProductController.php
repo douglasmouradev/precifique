@@ -32,7 +32,7 @@ class ProductController extends Controller
 
     public function index(Request $request): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $query = $tenant->products()->latest();
 
         if ($request->boolean('unpriced')) {
@@ -52,7 +52,7 @@ class ProductController extends Controller
 
     public function create(): View|RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if (! $this->planLimits->canCreateProduct($tenant)) {
             return redirect()->route('tenant.billing.upgrade')
@@ -64,7 +64,7 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if (! $this->planLimits->canCreateProduct($tenant)) {
             return redirect()->route('tenant.billing.upgrade')
@@ -90,7 +90,7 @@ class ProductController extends Controller
     public function edit(Product $product): View
     {
         $this->authorize('update', $product);
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $priceHistories = $product->priceHistories()->limit(8)->get();
 
         return view('products.edit', compact('product', 'tenant', 'priceHistories'));
@@ -99,7 +99,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
         $this->authorize('update', $product);
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         $this->updateProduct->execute(
             $tenant,
@@ -119,7 +119,7 @@ class ProductController extends Controller
     public function duplicate(Product $product): RedirectResponse
     {
         $this->authorize('view', $product);
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if (! $this->planLimits->canCreateProduct($tenant)) {
             return redirect()->route('tenant.billing.upgrade')
@@ -136,7 +136,7 @@ class ProductController extends Controller
     public function destroy(Product $product): RedirectResponse
     {
         $this->authorize('delete', $product);
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         $this->audit->log($tenant, 'product.deleted', $product, ['name' => $product->name]);
         $product->delete();

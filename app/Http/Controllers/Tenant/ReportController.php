@@ -18,7 +18,7 @@ class ReportController extends Controller
 
     public function monthly(MonthlyReportRequest $request): BinaryFileResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $path = $this->reports->generateMonthlyReport($tenant, $request->year(), $request->month());
 
         return response()->download($path, basename($path));

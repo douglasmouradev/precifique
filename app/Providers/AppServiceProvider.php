@@ -61,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
     private function registerViewComposers(): void
     {
         View::composer('layouts.tenant', function ($view): void {
-            $tenant = auth('tenant')->user();
+            $tenant = current_tenant();
             if (! $tenant) {
                 return;
             }
@@ -77,7 +77,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $bind = function (string $modelClass): \Closure {
             return function (string $value) use ($modelClass) {
-                $tenantId = auth('tenant')->id();
+                $tenantId = current_tenant()?->id;
                 abort_unless($tenantId, 404);
 
                 return $modelClass::query()

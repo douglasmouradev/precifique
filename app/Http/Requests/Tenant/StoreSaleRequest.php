@@ -19,7 +19,7 @@ class StoreSaleRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        $tenantId = Auth::guard('tenant')->id();
+        $tenantId = current_tenant()?->id;
 
         return [
             'product_id' => [

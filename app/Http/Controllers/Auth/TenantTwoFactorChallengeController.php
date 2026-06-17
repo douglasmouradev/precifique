@@ -31,7 +31,7 @@ class TenantTwoFactorChallengeController extends Controller
         $tenant = Tenant::find($tenantId);
 
         if (! $tenant || ! $tenant->two_factor_secret || ! $totp->verify((string) $tenant->two_factor_secret, $request->input('code'))) {
-            return back()->withErrors(['code' => __('Invalid authentication code.')]);
+            return back()->withErrors(['code' => __('auth.two_factor.invalid_code')]);
         }
 
         session()->forget('tenant_login_two_factor_id');

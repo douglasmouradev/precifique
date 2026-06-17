@@ -15,7 +15,7 @@ class TwoFactorController extends Controller
 {
     public function show(TotpService $totp): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $secret = $tenant->two_factor_secret;
 
         if (! $secret) {
@@ -32,7 +32,7 @@ class TwoFactorController extends Controller
 
     public function confirm(Request $request, TotpService $totp): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $request->validate(['code' => ['required', 'string', 'size:6']]);
 
         if (! $tenant->two_factor_secret || ! $totp->verify((string) $tenant->two_factor_secret, $request->input('code'))) {
@@ -49,7 +49,7 @@ class TwoFactorController extends Controller
     {
         $request->validate(['password' => ['required', 'current_password:tenant']]);
 
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $tenant->forceFill([
             'two_factor_secret' => null,
             'two_factor_confirmed_at' => null,

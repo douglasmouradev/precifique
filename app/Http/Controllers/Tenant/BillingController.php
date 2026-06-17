@@ -21,7 +21,7 @@ class BillingController extends Controller
 
     public function upgrade(): View
     {
-        $tenant = Auth::guard('tenant')->user()->load('subscription');
+        $tenant = current_tenant()->load('subscription');
         $plan = Plan::where('slug', 'premium')->first();
 
         return view('billing.upgrade', compact('plan', 'tenant'));
@@ -29,7 +29,7 @@ class BillingController extends Controller
 
     public function stripeCheckout(): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $plan = Plan::where('slug', 'premium')->firstOrFail();
         $url = $this->payments->createStripeCheckout($tenant, $plan);
 
@@ -38,7 +38,7 @@ class BillingController extends Controller
 
     public function pix(): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $plan = Plan::where('slug', 'premium')->firstOrFail();
         $pix = $this->payments->createMercadoPagoPix($tenant, $plan);
 
@@ -48,7 +48,7 @@ class BillingController extends Controller
     public function success(Request $request): RedirectResponse
     {
         $sessionId = (string) $request->query('session_id', '');
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if ($tenant?->isPremium()) {
             return redirect()->route('tenant.dashboard')->with('success', __('messages.billing.payment_confirmed'));
@@ -63,7 +63,7 @@ class BillingController extends Controller
 
     public function pixStatus(): \Illuminate\Http\JsonResponse
     {
-        $tenant = Auth::guard('tenant')->user()->fresh();
+        $tenant = current_tenant()->fresh();
 
         return response()->json([
             'premium' => $tenant->isPremium(),
@@ -77,7 +77,7 @@ class BillingController extends Controller
 
     public function portal(): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $url = $this->payments->createStripePortalSession($tenant);
 
         if ($url === null) {

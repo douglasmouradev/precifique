@@ -288,20 +288,24 @@
 
     {{-- FAQ --}}
     <x-landing.scroll-3d-section id="faq" intensity="subtle" class="py-20 bg-white">
-        <div class="max-w-3xl mx-auto px-4" x-data="{ open: null }">
+        <div class="max-w-3xl mx-auto px-4" id="landing-faq">
             <x-landing.reveal>
             <h2 class="font-display text-3xl font-bold text-center mb-12">{{ __('landing.faq') }}</h2>
             </x-landing.reveal>
             @foreach(__('landing.faq_items') as $i => $faq)
             <x-landing.reveal :delay="$i * 60" class="border-b border-gray-200">
-                <button type="button" id="faq-btn-{{ $i }}" @click="open = open === {{ $i }} ? null : {{ $i }}"
-                    class="w-full py-4 text-left font-semibold flex justify-between"
-                    :aria-expanded="open === {{ $i }}"
-                    aria-controls="faq-panel-{{ $i }}">
+                <button
+                    type="button"
+                    id="faq-btn-{{ $i }}"
+                    data-faq-toggle="{{ $i }}"
+                    class="w-full py-4 text-left font-semibold flex justify-between touch-manipulation"
+                    aria-expanded="false"
+                    aria-controls="faq-panel-{{ $i }}"
+                >
                     {{ $faq['q'] }}
-                    <span aria-hidden="true" x-text="open === {{ $i }} ? '−' : '+'"></span>
+                    <span data-faq-icon aria-hidden="true">+</span>
                 </button>
-                <div id="faq-panel-{{ $i }}" x-show="open === {{ $i }}" x-collapse class="pb-4 text-gray-600" role="region" aria-labelledby="faq-btn-{{ $i }}">{{ $faq['a'] }}</div>
+                <div id="faq-panel-{{ $i }}" data-faq-panel="{{ $i }}" class="hidden pb-4 text-gray-600" role="region" aria-labelledby="faq-btn-{{ $i }}">{{ $faq['a'] }}</div>
             </x-landing.reveal>
             @endforeach
         </div>

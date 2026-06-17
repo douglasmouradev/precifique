@@ -99,7 +99,7 @@ class AdminMetricsService
         for ($i = 5; $i >= 0; $i--) {
             $month = now()->subMonths($i);
             $trend[] = [
-                'month' => $month->translatedFormat('M/y'),
+                'month' => $month->format('m/y'),
                 'count' => Tenant::whereYear('created_at', $month->year)
                     ->whereMonth('created_at', $month->month)
                     ->count(),
@@ -125,7 +125,7 @@ class AdminMetricsService
                 ->sum('plans.price_monthly');
 
             $trend[] = [
-                'month' => $month->translatedFormat('M/y'),
+                'month' => $month->format('m/y'),
                 'mrr' => $mrr,
             ];
         }

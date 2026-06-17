@@ -9,7 +9,7 @@
     ];
 @endphp
 
-<nav x-data="{ open: false }" class="bg-white border-b border-slate-200/80 sticky top-0 z-30">
+<nav id="admin-navigation" class="bg-white border-b border-slate-200/80 sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 gap-4">
 
@@ -38,7 +38,7 @@
                 <div class="hidden sm:block">
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors max-w-[12rem]">
+                            <button type="button" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors max-w-[12rem]">
                                 <span class="w-8 h-8 rounded-full bg-brand/15 text-brand-dark flex items-center justify-center text-xs font-bold shrink-0">
                                     {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                 </span>
@@ -59,10 +59,18 @@
                     </x-dropdown>
                 </div>
 
-                <button @click="open = !open" class="md:hidden p-2 rounded-lg hover:bg-slate-100 shrink-0" aria-label="Menu">
-                    <svg class="h-6 w-6 text-slate-600" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                <button
+                    type="button"
+                    data-admin-nav-toggle
+                    class="md:hidden p-2 rounded-lg hover:bg-slate-100 shrink-0 touch-manipulation"
+                    aria-expanded="false"
+                    aria-label="Menu"
+                >
+                    <svg data-admin-nav-icon-open class="h-6 w-6 text-slate-600" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg data-admin-nav-icon-close class="h-6 w-6 text-slate-600 hidden" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -70,7 +78,7 @@
     </div>
 
     {{-- Menu mobile --}}
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden md:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1">
+    <div data-admin-nav-panel class="hidden md:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1">
         @foreach($adminLinks as $link)
         <a href="{{ route($link['route']) }}"
            class="block px-3 py-2 rounded-lg text-sm font-medium {{ request()->routeIs($link['match']) ? 'bg-brand/10 text-brand-dark' : 'text-slate-600' }}">

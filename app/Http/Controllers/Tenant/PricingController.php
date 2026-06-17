@@ -38,7 +38,7 @@ class PricingController extends Controller
     {
         $this->authorize('view', $product);
         $product->load(['technicalSheets', 'variableCosts', 'additionalCosts', 'laborCosts', 'priceHistories']);
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $margins = ProfitMargin::forPlan($tenant->plan->value ?? (string) $tenant->plan);
 
         return view('pricing.edit', compact('product', 'margins', 'tenant'));
@@ -47,7 +47,7 @@ class PricingController extends Controller
     public function update(UpdatePricingRequest $request, Product $product): RedirectResponse
     {
         $this->authorize('update', $product);
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         $payload = $this->updatePricing->execute($request, $product, $tenant);
         $result = $payload['result'];
@@ -60,7 +60,7 @@ class PricingController extends Controller
     public function aiSuggest(AiPricingSuggestRequest $request, Product $product): JsonResponse
     {
         $this->authorize('view', $product);
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->aiUsage->assertCanUse($tenant);
 
         $payload = $request->validated();
@@ -87,7 +87,7 @@ class PricingController extends Controller
 
         $data = $request->validated();
         $margin = (float) $data['profit_margin_percent'];
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if (! $this->planLimits->isMarginAllowed($tenant, $margin)) {
             return response()->json(['message' => __('messages.pricing.invalid_margin')], 422);
@@ -101,7 +101,7 @@ class PricingController extends Controller
     public function compare(PreviewPricingRequest $request, Product $product): JsonResponse
     {
         $this->authorize('view', $product);
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $data = $request->validated();
         $margins = $request->input('margins');
 

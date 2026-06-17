@@ -55,6 +55,12 @@ return [
         'message' => 'We sent a verification link. Click the email to continue.',
         'resend' => 'Resend verification email',
     ],
+    'two_factor' => [
+        'title' => 'Two-factor authentication',
+        'code_label' => 'Authentication code',
+        'confirm' => 'Confirm',
+        'invalid_code' => 'Invalid authentication code.',
+    ],
     'back_to_site' => '← Back to website',
     'back_to_login' => 'Back to login',
 ];

@@ -19,7 +19,7 @@ class QuoteController extends Controller
 
     public function pdf(Product $product): Response
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->authorize('view', $product);
 
         $product->load(['laborCosts', 'variableCosts', 'additionalCosts', 'technicalSheets']);

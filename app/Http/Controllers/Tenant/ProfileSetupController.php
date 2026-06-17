@@ -19,7 +19,7 @@ class ProfileSetupController extends Controller
 
     public function show(): View|RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if (! $this->lgpdService->hasRequiredConsents($tenant)) {
             return redirect()->route('lgpd.consent');
@@ -37,7 +37,7 @@ class ProfileSetupController extends Controller
 
     public function store(StoreProfileSetupRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $tenant->update($request->profileAttributes());
 
         return redirect()->route('tenant.dashboard')
@@ -51,7 +51,7 @@ class ProfileSetupController extends Controller
 
     public function update(StoreProfileSetupRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $tenant->update($request->profileAttributes());
 
         return redirect()->route('tenant.dashboard')

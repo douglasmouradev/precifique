@@ -43,7 +43,7 @@ class WebhookController extends Controller
 
     private function resolveTenant()
     {
-        return Auth::guard('tenant')->user()
+        return current_tenant()
             ?? Auth::guard('tenant_member')->user()?->tenant;
     }
 }

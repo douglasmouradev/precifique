@@ -37,6 +37,11 @@ class SetLocale
             return (string) $tenant->locale;
         }
 
+        $member = Auth::guard('tenant_member')->user();
+        if ($member?->tenant && $this->isSupported((string) ($member->tenant->locale ?? ''))) {
+            return (string) $member->tenant->locale;
+        }
+
         $cookie = $request->cookie('locale');
         if (is_string($cookie) && $this->isSupported($cookie)) {
             return $cookie;

@@ -22,7 +22,7 @@ class AIController extends Controller
 
     public function chat(Request $request): JsonResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $this->aiUsage->assertCanUse($tenant);
 
         $data = $request->validate(['question' => ['required', 'string', 'max:1000']]);

@@ -98,10 +98,6 @@ class NotificationController extends Controller
 
     private function resolveTenant(): ?Tenant
     {
-        $tenant = Auth::guard('tenant')->user();
-
-        return $tenant instanceof Tenant
-            ? $tenant
-            : Auth::guard('tenant_member')->user()?->tenant;
+        return current_tenant();
     }
 }

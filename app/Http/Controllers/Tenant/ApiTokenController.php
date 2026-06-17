@@ -16,7 +16,7 @@ class ApiTokenController extends Controller
 {
     public function store(StoreApiTokenRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $abilities = $request->validated('abilities', TenantApiAbilities::defaultForWeb());
 
         $plain = TenantApiToken::issue($tenant, $request->validated('name'), $abilities);
@@ -28,7 +28,7 @@ class ApiTokenController extends Controller
 
     public function destroy(TenantApiToken $token): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         abort_unless($token->tenant_id === $tenant->id, 403);
 
         $token->delete();
@@ -38,7 +38,7 @@ class ApiTokenController extends Controller
 
     public function updatePreferences(UpdateNotificationPreferencesRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         $tenant->update(['notification_preferences' => $request->preferences()]);
 
         return back()->with('success', __('app.messages.preferences_updated'));

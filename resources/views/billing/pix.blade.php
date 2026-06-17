@@ -3,27 +3,14 @@
 @section('breadcrumb') {{ __('billing.pix_page.breadcrumb') }} @endsection
 
 @section('content')
-<div class="max-w-lg mx-auto text-center py-6 animate-fade-in" x-data="{
-    premium: {{ auth('tenant')->user()->isPremium() ? 'true' : 'false' }},
-    pollTimer: null,
-    init() {
-        if (this.premium) return;
-        this.pollTimer = setInterval(() => this.checkStatus(), 5000);
-    },
-    checkStatus() {
-        fetch('{{ route('tenant.billing.pix.status') }}', { headers: { 'Accept': 'application/json' } })
-            .then(r => r.json())
-            .then(d => {
-                if (d.premium) {
-                    this.premium = true;
-                    clearInterval(this.pollTimer);
-                    window.toast?.success(@js(__('billing.pix_page.toast_confirmed')));
-                    setTimeout(() => window.location.href = '{{ route('tenant.dashboard') }}', 1500);
-                }
-            })
-            .catch(() => {});
-    },
-}" x-init="init()">
+<div
+    id="billing-pix-page"
+    class="max-w-lg mx-auto text-center py-6 animate-fade-in"
+    data-premium="{{ current_tenant()?->isPremium() ? '1' : '0' }}"
+    data-status-url="{{ route('tenant.billing.pix.status') }}"
+    data-dashboard-url="{{ route('tenant.dashboard') }}"
+    data-toast-message="{{ __('billing.pix_page.toast_confirmed') }}"
+>
     <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand/15 text-3xl mb-6">📱</div>
     <h1 class="ui-page-title">{{ __('billing.pix_page.heading') }}</h1>
 
@@ -39,9 +26,9 @@
         @if(!empty($pix['qr_code']))
         <label class="ui-label text-left">{{ __('billing.pix_page.copy_paste_label') }}</label>
         <textarea readonly class="ui-input text-xs font-mono" rows="4">{{ $pix['qr_code'] }}</textarea>
-        <p class="text-sm text-slate-500 mt-4" x-show="!premium">{{ __('billing.pix_page.waiting_activation') }}</p>
-        <p class="text-sm text-emerald-600 font-medium mt-4" x-show="premium" x-cloak>{{ __('billing.pix_page.payment_confirmed') }}</p>
-        <p class="text-xs text-slate-400 mt-2" x-show="!premium">{{ __('billing.pix_page.checking_payment') }}</p>
+        <p class="text-sm text-slate-500 mt-4 @if(current_tenant()?->isPremium()) hidden @endif" data-pix-waiting>{{ __('billing.pix_page.waiting_activation') }}</p>
+        <p class="text-sm text-emerald-600 font-medium mt-4 @unless(current_tenant()?->isPremium()) hidden @endunless" data-pix-confirmed>{{ __('billing.pix_page.payment_confirmed') }}</p>
+        <p class="text-xs text-slate-400 mt-2 @if(current_tenant()?->isPremium()) hidden @endif" data-pix-checking>{{ __('billing.pix_page.checking_payment') }}</p>
         @endif
     </x-ui.card>
     @endif

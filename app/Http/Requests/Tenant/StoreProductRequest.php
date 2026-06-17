@@ -12,7 +12,7 @@ class StoreProductRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Auth::guard('tenant')->check();
+        return Auth::guard('tenant')->check() || Auth::guard('tenant_member')->check();
     }
 
     /** @return array<string, mixed> */
@@ -29,7 +29,7 @@ class StoreProductRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            $tenant = Auth::guard('tenant')->user();
+            $tenant = current_tenant();
             if ($tenant && $tenant->interface_mode === 'artesanato' && ! $this->hasFile('photo')) {
                 $validator->errors()->add('photo', 'Foto obrigatória para artesanato.');
             }

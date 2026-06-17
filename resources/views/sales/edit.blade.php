@@ -6,7 +6,7 @@
 <x-ui.page-header :title="__('sales.edit.page_title')" :subtitle="$sale->product?->name" />
 
 <x-ui.card class="max-w-xl">
-    <form method="POST" action="{{ route('tenant.sales.update', $sale) }}" class="space-y-5" x-data="{ payment: '{{ $sale->payment_method->value ?? $sale->payment_method }}' }">
+    <form method="POST" action="{{ route('tenant.sales.update', $sale) }}" class="space-y-5" data-sales-form>
         @csrf
         @method('PUT')
         <div class="grid grid-cols-2 gap-4">
@@ -25,13 +25,16 @@
         </div>
         <div>
             <label class="ui-label">{{ __('sales.payment_method') }}</label>
-            <input type="hidden" name="payment_method" :value="payment">
+            <input type="hidden" name="payment_method" data-sales-payment value="{{ $sale->payment_method->value ?? $sale->payment_method }}">
             <div class="grid grid-cols-3 gap-2 mt-1">
                 @foreach(\App\Enums\PaymentMethod::cases() as $method)
-                <button type="button" @click="payment = '{{ $method->value }}'"
-                    :aria-pressed="payment === '{{ $method->value }}'"
-                    class="px-3 py-3 rounded-xl border text-sm font-semibold transition-colors"
-                    :class="payment === '{{ $method->value }}' ? 'bg-brand border-brand text-ink shadow-sm' : 'bg-white border-slate-200 text-slate-600'">
+                @php $selected = ($sale->payment_method->value ?? $sale->payment_method) === $method->value; @endphp
+                <button
+                    type="button"
+                    data-sales-payment-option="{{ $method->value }}"
+                    aria-pressed="{{ $selected ? 'true' : 'false' }}"
+                    class="px-3 py-3 rounded-xl border text-sm font-semibold transition-colors touch-manipulation {{ $selected ? 'bg-brand border-brand text-ink shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300' }}"
+                >
                     {{ $method->label() }}
                 </button>
                 @endforeach

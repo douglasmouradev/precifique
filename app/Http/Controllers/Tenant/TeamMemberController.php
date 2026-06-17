@@ -43,7 +43,7 @@ class TeamMemberController extends Controller
     private function ownerTenant()
     {
         if (Auth::guard('tenant')->check()) {
-            return Auth::guard('tenant')->user();
+            return current_tenant();
         }
 
         $member = Auth::guard('tenant_member')->user();

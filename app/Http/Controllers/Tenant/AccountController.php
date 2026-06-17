@@ -19,7 +19,7 @@ class AccountController extends Controller
 {
     public function index(TenantNotificationPreferences $preferences): View
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
         if (! $tenant) {
             $tenant = Auth::guard('tenant_member')->user()?->tenant;
         }
@@ -49,15 +49,19 @@ class AccountController extends Controller
 
     public function updateProfile(UpdateAccountProfileRequest $request): RedirectResponse
     {
-        Auth::guard('tenant')->user()->update($request->profileAttributes());
+        abort_unless(Auth::guard('tenant')->check(), 403);
+
+        current_tenant()?->update($request->profileAttributes());
 
         return back()->with('success', __('app.messages.profile_updated'));
     }
 
     public function updatePassword(UpdateAccountPasswordRequest $request): RedirectResponse
     {
-        $tenant = Auth::guard('tenant')->user();
-        $tenant->update(['password' => $request->validated('password')]);
+        abort_unless(Auth::guard('tenant')->check(), 403);
+
+        $tenant = current_tenant();
+        $tenant?->update(['password' => $request->validated('password')]);
 
         return back()->with('success', __('app.messages.password_updated'));
     }

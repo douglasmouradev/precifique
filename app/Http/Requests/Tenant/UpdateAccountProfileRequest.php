@@ -21,7 +21,7 @@ class UpdateAccountProfileRequest extends FormRequest
      */
     public function rules(): array
     {
-        $tenantId = Auth::guard('tenant')->id();
+        $tenantId = current_tenant()?->id;
 
         return [
             'name' => ['required', 'string', 'max:255'],

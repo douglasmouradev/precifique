@@ -13,7 +13,7 @@ class PlanMiddleware
 {
     public function handle(Request $request, Closure $next, string $requiredPlan = 'premium'): Response
     {
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if (! $tenant) {
             return redirect()->route('tenant.login');

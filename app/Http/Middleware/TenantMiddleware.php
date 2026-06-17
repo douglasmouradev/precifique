@@ -42,12 +42,12 @@ class TenantMiddleware
             return redirect()->route('lgpd.consent');
         }
 
-        if (! $tenant->profile_setup_completed && ! $request->routeIs('tenant.profile.*')) {
-            return redirect()->route('tenant.profile.setup');
-        }
-
         if (! $tenant->onboarding_completed && ! $request->routeIs('onboarding.*')) {
             return redirect()->route('onboarding.welcome');
+        }
+
+        if (! $tenant->profile_setup_completed && ! $request->routeIs('tenant.profile.*')) {
+            return redirect()->route('tenant.profile.setup');
         }
 
         return $next($request);
