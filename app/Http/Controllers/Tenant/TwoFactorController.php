@@ -34,7 +34,6 @@ class TwoFactorController extends Controller
 
         return view('tenant.two-factor', [
             'qrUri' => $totp->getQrUri($secret, $tenant->email),
-            'secret' => $secret,
             'enabled' => $tenant->hasTwoFactorEnabled(),
         ]);
     }
@@ -52,7 +51,7 @@ class TwoFactorController extends Controller
         $tenant->forceFill(['two_factor_confirmed_at' => now()])->save();
         session(['tenant_two_factor_verified_at' => now()->timestamp]);
 
-        return back()->with('success', __('Two-factor authentication enabled.'));
+        return back()->with('success', __('app.account.two_factor_enabled'));
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -68,6 +67,6 @@ class TwoFactorController extends Controller
         ])->save();
         session()->forget('tenant_two_factor_verified_at');
 
-        return back()->with('success', __('Two-factor authentication disabled.'));
+        return back()->with('success', __('app.account.two_factor_disabled'));
     }
 }

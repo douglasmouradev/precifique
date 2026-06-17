@@ -9,6 +9,7 @@ return [
     'hero_title' => 'Price with confidence',
     'hero_subtitle' => 'Calculate real costs, profit margin and selling price for food, services and handmade products.',
     'meta_description' => 'Precifique — calculate real costs, profit margin and selling price. Free Premium trial.',
+    'og_title' => 'Precifique — Smart pricing',
     'cookie_message' => 'We use essential cookies to improve your experience.',
     'cookie_accept' => 'Accept',
     'plans' => 'Plans',

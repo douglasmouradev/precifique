@@ -29,6 +29,10 @@ class ImageUploadService
 
         $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
         Storage::disk($disk)->delete($path);
+        $thumb = preg_replace('/\.jpg$/', '_thumb.jpg', $path);
+        if ($thumb !== $path) {
+            Storage::disk($disk)->delete($thumb);
+        }
     }
 
     private function storeOptimizedImage(UploadedFile $file, string $directory): string
@@ -42,6 +46,10 @@ class ImageUploadService
         $optimized = $this->optimize($file);
         Storage::disk($disk)->put($path, $optimized, ['visibility' => 'public']);
 
+        $thumbPath = preg_replace('/\.jpg$/', '_thumb.jpg', $path);
+        $thumb = $this->optimize($file, (int) config('precifique.uploads.product_image_thumb_max_width', 480));
+        Storage::disk($disk)->put($thumbPath, $thumb, ['visibility' => 'public']);
+
         return $path;
     }
 
@@ -50,7 +58,7 @@ class ImageUploadService
         $maxKb = (int) config('precifique.uploads.product_image_max_kb', 4096);
         if ($file->getSize() > $maxKb * 1024) {
             throw ValidationException::withMessages([
-                'photo' => "A imagem deve ter no máximo {$maxKb} KB.",
+                'photo' => __('uploads.max_size', ['max' => $maxKb]),
             ]);
         }
 
@@ -58,14 +66,14 @@ class ImageUploadService
         $allowed = config('precifique.uploads.allowed_mimes', []);
         if ($mime && ! in_array($mime, $allowed, true)) {
             throw ValidationException::withMessages([
-                'photo' => 'Formato de imagem não permitido.',
+                'photo' => __('uploads.invalid_format'),
             ]);
         }
 
         $size = @getimagesize($file->getRealPath());
         if ($size === false) {
             throw ValidationException::withMessages([
-                'photo' => 'Arquivo de imagem inválido.',
+                'photo' => __('uploads.invalid_file'),
             ]);
         }
 
@@ -74,12 +82,12 @@ class ImageUploadService
         $maxH = (int) config('precifique.uploads.product_image_max_height', 4000);
         if ($width > $maxW || $height > $maxH) {
             throw ValidationException::withMessages([
-                'photo' => "Dimensões máximas: {$maxW}×{$maxH} px.",
+                'photo' => __('uploads.max_dimensions', ['width' => $maxW, 'height' => $maxH]),
             ]);
         }
     }
 
-    private function optimize(UploadedFile $file): string
+    private function optimize(UploadedFile $file, ?int $maxWidth = null): string
     {
         if (! extension_loaded('gd')) {
             return (string) file_get_contents($file->getRealPath());
@@ -93,7 +101,7 @@ class ImageUploadService
         }
 
         [$width, $height, $type] = $info;
-        $maxWidth = (int) config('precifique.uploads.product_image_display_max_width', 1200);
+        $maxWidth ??= (int) config('precifique.uploads.product_image_display_max_width', 1200);
 
         $source = match ($type) {
             IMAGETYPE_JPEG => @imagecreatefromjpeg($sourcePath),

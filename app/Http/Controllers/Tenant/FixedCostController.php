@@ -11,6 +11,7 @@ use App\Http\Requests\Tenant\StoreFixedCostRequest;
 use App\Http\Requests\Tenant\UpdateFixedCostRequest;
 use App\Models\FixedCost;
 use App\Services\AuditService;
+use App\Support\ForgetsTenantSetupProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -18,6 +19,7 @@ use Illuminate\View\View;
 class FixedCostController extends Controller
 {
     use AuthorizesTenantResource;
+    use ForgetsTenantSetupProgress;
 
     public function __construct(
         private readonly AuditService $audit,
@@ -39,6 +41,7 @@ class FixedCostController extends Controller
         $cost = $tenant->fixedCosts()->create($request->validated());
         $this->audit->log($tenant, 'fixed_cost.created', $cost, [], $request);
         TenantDashboardChanged::dispatch($tenant);
+        $this->forgetTenantSetupProgress($tenant);
 
         return back()->with('success', __('messages.fixed_cost.created'));
     }
@@ -51,6 +54,7 @@ class FixedCostController extends Controller
         $fixedCost->update($request->validated());
         $this->audit->log($tenant, 'fixed_cost.updated', $fixedCost, [], $request);
         TenantDashboardChanged::dispatch($tenant);
+        $this->forgetTenantSetupProgress($tenant);
 
         return back()->with('success', __('messages.fixed_cost.updated'));
     }
@@ -63,6 +67,7 @@ class FixedCostController extends Controller
         $fixedCost->delete();
         $this->audit->log($tenant, 'fixed_cost.deleted', null, ['id' => $fixedCost->id]);
         TenantDashboardChanged::dispatch($tenant);
+        $this->forgetTenantSetupProgress($tenant);
 
         return back()->with('success', __('messages.fixed_cost.removed'));
     }

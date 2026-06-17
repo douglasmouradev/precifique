@@ -1,6 +1,6 @@
 @extends('layouts.landing')
 
-@section('title', 'Precifique — Precificação inteligente')
+@section('title', __('landing.og_title'))
 
 @section('content')
 {{-- Intro + página — intro usa JS vanilla em landing.js --}}

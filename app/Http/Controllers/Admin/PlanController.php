@@ -39,6 +39,6 @@ class PlanController extends Controller
             'stripe_price_id' => $data['stripe_price_id'] ?? null,
         ]);
 
-        return back()->with('success', 'Plano atualizado.');
+        return back()->with('success', __('admin.plans_page.updated'));
     }
 }

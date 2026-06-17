@@ -65,6 +65,10 @@ return [
     ],
     'impersonate_password_invalid' => 'Incorrect administrator password.',
     'back_to_site' => '← Back to website',
+
+    'password_reset' => [
+        'success' => 'Password reset successfully.',
+    ],
     'back_to_login' => 'Back to login',
 
     'admin_login' => [

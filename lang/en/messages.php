@@ -90,5 +90,6 @@ return [
         'loading' => 'Consulting specialist…',
         'no_answer' => 'No answer.',
         'error' => 'Error contacting AI.',
+        'fallback_tip' => 'Review your fixed costs monthly to stay competitive.',
     ],
 ];

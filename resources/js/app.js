@@ -5,29 +5,38 @@ import { initConfirmDelete } from './confirm-delete';
 import { initTenantCookies } from './tenant-cookies';
 import { initNotificationBell } from './notification-bell';
 import { initLocaleSwitcher } from './locale-switcher';
-import { initTenantAiAssistant } from './tenant-ai-assistant';
 import { initDropdowns } from './dropdown';
-import { initAdminNavigation } from './admin-navigation';
-import { initSalesForms } from './sales-form';
-import { initBillingPix } from './billing-pix';
-import { initPricingWizard } from './pricing-wizard';
 import { initModals } from './modal';
 import { initProfileFlash } from './profile-flash';
+import { initAnalyticsEvents } from './analytics-events';
 
-function bootApp() {
+const lazyModules = [
+    { selector: '#tenant-ai-assistant', load: () => import('./tenant-ai-assistant').then((m) => m.initTenantAiAssistant) },
+    { selector: '#admin-navigation', load: () => import('./admin-navigation').then((m) => m.initAdminNavigation) },
+    { selector: '[data-sales-form]', load: () => import('./sales-form').then((m) => m.initSalesForms) },
+    { selector: '#billing-pix-page', load: () => import('./billing-pix').then((m) => m.initBillingPix) },
+    { selector: '#pricing-wizard', load: () => import('./pricing-wizard').then((m) => m.initPricingWizard) },
+];
+
+async function bootApp() {
     initTenantSidebar();
     initConfirmDelete();
     initTenantCookies();
     initNotificationBell();
     initLocaleSwitcher();
-    initTenantAiAssistant();
     initDropdowns();
-    initAdminNavigation();
-    initSalesForms();
-    initBillingPix();
-    initPricingWizard();
     initModals();
     initProfileFlash();
+    initAnalyticsEvents();
+
+    await Promise.all(
+        lazyModules
+            .filter((mod) => document.querySelector(mod.selector))
+            .map(async (mod) => {
+                const init = await mod.load();
+                init();
+            }),
+    );
 }
 
 if (document.readyState === 'loading') {
@@ -36,7 +45,7 @@ if (document.readyState === 'loading') {
     bootApp();
 }
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && document.body?.dataset?.sw !== 'off') {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(() => {});
     });

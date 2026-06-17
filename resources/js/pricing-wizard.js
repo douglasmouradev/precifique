@@ -12,7 +12,9 @@ function debounce(fn, ms) {
 function formatBrl(value) {
     const number = Number(value);
     if (Number.isNaN(number)) return 'R$ 0,00';
-    return number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const locale = document.documentElement.lang || 'pt-BR';
+
+    return number.toLocaleString(locale, { style: 'currency', currency: 'BRL' });
 }
 
 export function initPricingWizard() {

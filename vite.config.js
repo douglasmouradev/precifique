@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/landing.js',
                 'resources/js/dashboard-charts.js',
+                'resources/js/two-factor-qr.js',
             ],
             refresh: true,
         }),

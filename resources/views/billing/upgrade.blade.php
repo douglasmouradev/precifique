@@ -1,6 +1,7 @@
 @extends('layouts.tenant')
 @section('title', __('billing.title_upgrade'))
 @section('breadcrumb') {{ __('billing.breadcrumb') }} @endsection
+@section('analytics_page', 'billing_upgrade')
 
 @section('content')
 @if($tenant->isPremium())
@@ -33,16 +34,8 @@
     </x-ui.alert>
     @endif
 
-    <div class="text-center mb-10 md:mb-12">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand/25 to-amber-100/80 mb-6 ring-1 ring-brand/25 shadow-premium-glow">
-            <x-ui.nav-icon name="spark" class="w-8 h-8 text-brand-dark" />
-        </div>
-        <h1 class="ui-page-title text-balance">{{ __('billing.unlock_title') }}</h1>
-        <p class="ui-page-subtitle mt-3 max-w-lg mx-auto">
-            {{ __('billing.unlock_subtitle') }}
-        </p>
-        <p class="text-xs text-slate-400 mt-4">{{ __('billing.social_proof') }}</p>
-    </div>
+    <x-ui.page-header :title="__('billing.unlock_title')" :subtitle="__('billing.unlock_subtitle')" class="mb-10 md:mb-12 text-center [&>div]:mx-auto" />
+    <p class="text-xs text-slate-400 text-center -mt-6 mb-10">{{ __('billing.social_proof') }}</p>
 
     <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
         <x-ui.card class="border border-slate-200/80 bg-slate-50/30">

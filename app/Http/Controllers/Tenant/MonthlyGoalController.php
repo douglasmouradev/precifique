@@ -9,6 +9,7 @@ use App\Events\TenantDashboardChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreMonthlyGoalRequest;
 use App\Models\MonthlyGoal;
+use App\Support\ForgetsTenantSetupProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -17,6 +18,7 @@ use Illuminate\View\View;
 class MonthlyGoalController extends Controller
 {
     use AuthorizesTenantResource;
+    use ForgetsTenantSetupProgress;
 
     public function edit(): View
     {
@@ -54,6 +56,7 @@ class MonthlyGoalController extends Controller
         );
 
         TenantDashboardChanged::dispatch($tenant);
+        $this->forgetTenantSetupProgress($tenant);
 
         return redirect()->route('tenant.dashboard')->with('success', __('messages.goal.saved'));
     }

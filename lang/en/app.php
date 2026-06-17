@@ -6,6 +6,12 @@ return [
     'locale' => 'English',
     'locale_short' => 'EN',
     'language' => 'Language',
+    'skip_to_content' => 'Skip to content',
+
+    'menu_page' => [
+        'title' => 'Menu',
+        'subtitle' => 'Quick access to all areas',
+    ],
 
     'nav' => [
         'dashboard' => 'Dashboard',
@@ -94,6 +100,8 @@ return [
         'two_factor_desc' => 'Protect your account with an authenticator app.',
         'two_factor_active' => '2FA is enabled on this account.',
         'two_factor_scan' => 'Scan the QR code in Google Authenticator or similar.',
+        'two_factor_enabled' => 'Two-factor authentication enabled.',
+        'two_factor_disabled' => 'Two-factor authentication disabled.',
         'enable_2fa' => 'Set up 2FA',
         'disable_2fa' => 'Disable 2FA',
         'email_unverified' => 'Your email is not verified yet.',

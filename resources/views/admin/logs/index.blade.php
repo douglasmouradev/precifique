@@ -3,6 +3,17 @@
         <x-ui.page-header :title="__('admin.logs.title')" :subtitle="__('admin.logs_page.subtitle')" />
     </x-slot>
     <div class="py-6 max-w-6xl mx-auto sm:px-6 space-y-8 animate-fade-in">
+        <form method="GET" class="flex flex-wrap gap-3 items-end">
+            <div class="min-w-[12rem] flex-1">
+                <label class="ui-label">{{ __('admin.logs_page.filter_search') }}</label>
+                <input type="search" name="q" value="{{ $search ?? '' }}" class="ui-input" placeholder="{{ __('admin.logs_page.filter_search_placeholder') }}">
+            </div>
+            <div class="min-w-[10rem]">
+                <label class="ui-label">{{ __('admin.logs_page.action') }}</label>
+                <input type="text" name="action" value="{{ $action ?? '' }}" class="ui-input" placeholder="ai.*">
+            </div>
+            <x-ui.button type="submit" variant="secondary">{{ __('admin.logs_page.filter_submit') }}</x-ui.button>
+        </form>
         <div>
             <h3 class="ui-section-title">{{ __('admin.logs_page.ai_title') }}</h3>
             <x-ui.card class="divide-y divide-slate-100 p-0 overflow-hidden">

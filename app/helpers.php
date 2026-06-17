@@ -113,3 +113,24 @@ function tenant_member_can(string $ability): bool
         default => true,
     };
 }
+
+/**
+ * URL pública de foto de produto (display ou thumbnail).
+ */
+function product_photo_url(?string $path, string $variant = 'display'): ?string
+{
+    if ($path === null || $path === '') {
+        return null;
+    }
+
+    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+
+    if ($variant === 'thumb') {
+        $thumbPath = preg_replace('/\.jpg$/', '_thumb.jpg', $path);
+        if (\Illuminate\Support\Facades\Storage::disk($disk)->exists($thumbPath)) {
+            return asset('storage/'.$thumbPath);
+        }
+    }
+
+    return asset('storage/'.$path);
+}

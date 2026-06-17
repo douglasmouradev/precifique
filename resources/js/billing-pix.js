@@ -38,6 +38,7 @@ export function initBillingPix() {
             const data = await response.json();
             if (data.premium) {
                 showPremium();
+                window.precifiqueTrack?.('pix_confirmed', { plan: 'premium' });
                 window.clearInterval(timer);
                 window.toast?.success(toastMessage);
                 window.setTimeout(() => {

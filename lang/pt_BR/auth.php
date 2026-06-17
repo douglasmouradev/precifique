@@ -65,6 +65,10 @@ return [
     ],
     'impersonate_password_invalid' => 'Senha de administrador incorreta.',
     'back_to_site' => '← Voltar ao site',
+
+    'password_reset' => [
+        'success' => 'Senha redefinida.',
+    ],
     'back_to_login' => 'Voltar ao login',
 
     'admin_login' => [

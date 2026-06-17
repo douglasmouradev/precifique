@@ -19,14 +19,13 @@
         @else
         <p class="text-sm text-slate-600 mb-4">{{ __('app.account.two_factor_scan') }}</p>
         <div class="bg-white p-4 rounded-lg inline-block mb-4">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode($qrUri) }}" alt="QR 2FA" width="180" height="180">
+            <canvas id="two-factor-qr-canvas" data-qr-uri="{{ $qrUri }}" width="180" height="180" aria-label="{{ __('app.account.two_factor_scan') }}"></canvas>
         </div>
-        <p class="text-xs text-slate-400 mb-4 break-all">Secret: {{ $secret }}</p>
         <form method="POST" action="{{ route('tenant.account.two-factor.confirm') }}" class="space-y-4">
             @csrf
             <div>
                 <label class="ui-label">{{ __('auth.two_factor.code_label') }}</label>
-                <input name="code" maxlength="6" required class="ui-input">
+                <input name="code" maxlength="6" required class="ui-input" inputmode="numeric" autocomplete="one-time-code">
                 @error('code')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
             </div>
             <x-ui.button type="submit">{{ __('auth.two_factor.confirm') }}</x-ui.button>
@@ -35,3 +34,7 @@
     </x-ui.card>
 </div>
 @endsection
+
+@push('scripts')
+@vite('resources/js/two-factor-qr.js')
+@endpush

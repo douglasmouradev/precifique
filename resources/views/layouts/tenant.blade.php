@@ -9,6 +9,7 @@
         <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'App') — Precifique</title>
     <link rel="preconnect" href="{{ config('app.url') }}" crossorigin>
+    <x-analytics />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-ui.toast-container />
     @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
@@ -67,7 +68,8 @@
         ],
     ];
 @endphp
-<body class="bg-paper font-sans text-ink min-h-screen">
+<body class="bg-paper font-sans text-ink min-h-screen" data-analytics-page="@yield('analytics_page', '')">
+    <x-ui.skip-link />
 
     <div
         id="tenant-sidebar-overlay"
@@ -205,7 +207,7 @@
         <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-red-50 text-red-800 text-sm border border-red-200 px-4 py-3" data-flash="error" role="alert" aria-live="assertive">{{ session('error') }}</div>
         @endif
 
-        <main class="flex-1 px-4 md:px-8 py-6 md:py-8 pb-24 lg:pb-8 app-shell-bg animate-fade-in">
+        <main id="main-content" class="flex-1 px-4 md:px-8 py-6 md:py-8 pb-24 lg:pb-8 app-shell-bg animate-fade-in">
             @isset($setupProgress)
             <x-ui.setup-progress :progress="$setupProgress" />
             @endisset
@@ -233,7 +235,7 @@
     @if($tenant?->isPremium())
     <div
         id="tenant-ai-assistant"
-        class="hidden fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-md"
+        class="hidden fixed bottom-20 right-4 lg:bottom-4 z-50 w-[calc(100%-2rem)] max-w-md"
         role="dialog"
         aria-labelledby="tenant-ai-title"
         aria-hidden="true"

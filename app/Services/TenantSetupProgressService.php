@@ -5,13 +5,47 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Tenant;
+use Illuminate\Support\Facades\Cache;
 
 class TenantSetupProgressService
 {
+    private const int CACHE_TTL_SECONDS = 300;
+
     /**
      * @return array{percent: int, completed: int, total: int, steps: list<array{key: string, label: string, done: bool, url: string|null}>}
      */
     public function for(Tenant $tenant): array
+    {
+        return Cache::remember(
+            $this->cacheKey($tenant->id, 'full'),
+            self::CACHE_TTL_SECONDS,
+            fn () => $this->computeFor($tenant),
+        );
+    }
+
+    /**
+     * @return list<array{key: string, label: string, done: bool, url: string}>
+     */
+    public function forDashboard(Tenant $tenant): array
+    {
+        return Cache::remember(
+            $this->cacheKey($tenant->id, 'dashboard'),
+            self::CACHE_TTL_SECONDS,
+            fn () => $this->computeDashboardSteps($tenant),
+        );
+    }
+
+    public function forget(Tenant|int $tenant): void
+    {
+        $id = $tenant instanceof Tenant ? $tenant->id : $tenant;
+        Cache::forget($this->cacheKey($id, 'full'));
+        Cache::forget($this->cacheKey($id, 'dashboard'));
+    }
+
+    /**
+     * @return array{percent: int, completed: int, total: int, steps: list<array{key: string, label: string, done: bool, url: string|null}>}
+     */
+    private function computeFor(Tenant $tenant): array
     {
         $steps = $this->setupSteps($tenant);
         $completed = collect($steps)->where('done', true)->count();
@@ -26,11 +60,9 @@ class TenantSetupProgressService
     }
 
     /**
-     * Passos operacionais exibidos no dashboard (sem LGPD/onboarding inicial).
-     *
      * @return list<array{key: string, label: string, done: bool, url: string}>
      */
-    public function forDashboard(Tenant $tenant): array
+    private function computeDashboardSteps(Tenant $tenant): array
     {
         $productStats = $tenant->products()
             ->where('is_active', true)
@@ -77,6 +109,11 @@ class TenantSetupProgressService
                 'url' => route('tenant.sales.create'),
             ],
         ];
+    }
+
+    private function cacheKey(int $tenantId, string $scope): string
+    {
+        return "tenant_setup_progress:{$tenantId}:{$scope}";
     }
 
     /**

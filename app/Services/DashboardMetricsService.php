@@ -167,7 +167,7 @@ class DashboardMetricsService
 
             return Cache::remember($key, now()->endOfDay(), fn () => $this->ai->dailyTip($niche));
         } catch (\Throwable) {
-            return 'Revise seus custos fixos mensalmente para manter preços competitivos.';
+            return __('messages.ai.fallback_tip');
         }
     }
 }

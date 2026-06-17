@@ -1,23 +1,31 @@
 <x-app-layout>
     <x-slot name="header">
-        <x-ui.page-header title="LGPD — Consentimentos" subtitle="Registro de aceites de termos e privacidade" />
+        <x-ui.page-header :title="__('admin.lgpd_page.title')" :subtitle="__('admin.lgpd_page.subtitle')" />
     </x-slot>
-    <div class="py-6 max-w-6xl mx-auto sm:px-6">
+    <div class="py-6 max-w-6xl mx-auto sm:px-6 animate-fade-in">
         <x-ui.card class="overflow-x-auto p-0">
             <table class="ui-table">
                 <thead>
-                    <tr><th>Data</th><th>Tenant</th><th>Tipo</th><th>Versão</th><th>IP</th></tr>
+                    <tr>
+                        <th>{{ __('admin.lgpd_page.date') }}</th>
+                        <th>{{ __('admin.lgpd_page.tenant') }}</th>
+                        <th>{{ __('admin.lgpd_page.type') }}</th>
+                        <th>{{ __('admin.lgpd_page.version') }}</th>
+                        <th>{{ __('admin.lgpd_page.ip') }}</th>
+                    </tr>
                 </thead>
                 <tbody>
-                @foreach($consents as $c)
-                <tr>
-                    <td class="text-slate-500">{{ $c->consented_at->format('d/m/Y H:i') }}</td>
+                @forelse($consents as $c)
+                <tr class="hover:bg-slate-50/50 transition-colors">
+                    <td class="text-slate-500 tabular-nums">{{ $c->consented_at->format('d/m/Y H:i') }}</td>
                     <td>{{ $c->tenant?->name ?? '—' }}</td>
                     <td>{{ $c->consent_type }}</td>
                     <td>{{ $c->version }}</td>
                     <td class="text-slate-400">{{ $c->ip_address }}</td>
                 </tr>
-                @endforeach
+                @empty
+                <tr><td colspan="5" class="p-0"><x-ui.empty-state icon="dashboard" :title="__('admin.lgpd_page.empty')" class="border-0 shadow-none" /></td></tr>
+                @endforelse
                 </tbody>
             </table>
         </x-ui.card>

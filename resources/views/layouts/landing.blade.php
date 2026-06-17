@@ -7,16 +7,20 @@
     <meta name="keywords" content="precificação, MEI, custos, margem de lucro, ficha técnica, pequenos negócios">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
+    @foreach(['pt_BR' => '', 'en' => '/en'] as $locale => $prefix)
+    <link rel="alternate" hreflang="{{ str_replace('_', '-', $locale) }}" href="{{ url($prefix ?: '/') }}">
+    @endforeach
+    <link rel="alternate" hreflang="x-default" href="{{ url('/') }}">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="{{ app()->getLocale() === 'en' ? 'en_US' : 'pt_BR' }}">
     <meta property="og:site_name" content="Precifique">
-    <meta property="og:title" content="@yield('og_title', 'Precifique — Precificação inteligente')">
-    <meta property="og:description" content="@yield('meta_description', 'Pare de chutar preços. Calcule custos, margem e lucro com confiança.')">
+    <meta property="og:title" content="@yield('og_title', __('landing.og_title'))">
+    <meta property="og:description" content="@yield('meta_description', __('landing.meta_description'))">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="{{ asset('images/og-precifique.svg') }}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('og_title', 'Precifique — Precificação inteligente')">
-    <meta name="twitter:description" content="@yield('meta_description', 'Pare de chutar preços. Calcule custos, margem e lucro com confiança.')">
+    <meta name="twitter:title" content="@yield('og_title', __('landing.og_title'))">
+    <meta name="twitter:description" content="@yield('meta_description', __('landing.meta_description'))">
     <meta name="twitter:image" content="{{ asset('images/og-precifique.svg') }}">
     <x-head-icons />
     <link rel="manifest" href="{{ asset('manifest.json') }}">
@@ -83,7 +87,8 @@
     </script>
 </head>
 <body class="landing-page bg-paper text-ink font-sans antialiased overflow-x-hidden">
-    @yield('content')
+    <x-ui.skip-link />
+    <main id="main-content">@yield('content')</main>
 
     <div
         id="landing-cookie-banner"

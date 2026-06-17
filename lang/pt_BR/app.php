@@ -6,6 +6,12 @@ return [
     'locale' => 'Português',
     'locale_short' => 'PT',
     'language' => 'Idioma',
+    'skip_to_content' => 'Ir para o conteúdo',
+
+    'menu_page' => [
+        'title' => 'Menu',
+        'subtitle' => 'Acesso rápido a todas as áreas',
+    ],
 
     'nav' => [
         'dashboard' => 'Dashboard',
@@ -94,6 +100,8 @@ return [
         'two_factor_desc' => 'Proteja sua conta com um aplicativo autenticador.',
         'two_factor_active' => '2FA ativo nesta conta.',
         'two_factor_scan' => 'Escaneie o QR code no Google Authenticator ou similar.',
+        'two_factor_enabled' => 'Autenticação em duas etapas ativada.',
+        'two_factor_disabled' => 'Autenticação em duas etapas desativada.',
         'enable_2fa' => 'Configurar 2FA',
         'disable_2fa' => 'Desativar 2FA',
         'email_unverified' => 'Seu e-mail ainda não foi verificado.',

@@ -15,6 +15,7 @@ use App\Http\Requests\Tenant\UpdateProductRequest;
 use App\Models\Product;
 use App\Services\AuditService;
 use App\Services\PlanLimitService;
+use App\Support\ForgetsTenantSetupProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,7 @@ use RuntimeException;
 class ProductController extends Controller
 {
     use AuthorizesTenantResource;
+    use ForgetsTenantSetupProgress;
 
     public function __construct(
         private readonly PlanLimitService $planLimits,
@@ -88,6 +90,7 @@ class ProductController extends Controller
         }
 
         TenantDashboardChanged::dispatch($tenant);
+        $this->forgetTenantSetupProgress($tenant);
 
         return redirect()->route('tenant.pricing.edit', $product);
     }
@@ -116,6 +119,7 @@ class ProductController extends Controller
         );
 
         TenantDashboardChanged::dispatch($tenant);
+        $this->forgetTenantSetupProgress($tenant);
 
         return redirect()->route('tenant.products.index')
             ->with('success', __('messages.product.updated'));
@@ -133,6 +137,7 @@ class ProductController extends Controller
 
         $copy = $this->duplicateProduct->execute($tenant, $product);
         TenantDashboardChanged::dispatch($tenant);
+        $this->forgetTenantSetupProgress($tenant);
 
         return redirect()->route('tenant.pricing.edit', $copy)
             ->with('success', __('messages.product.duplicated'));
@@ -146,6 +151,7 @@ class ProductController extends Controller
         $this->audit->log($tenant, 'product.deleted', $product, ['name' => $product->name]);
         $product->delete();
         TenantDashboardChanged::dispatch($tenant);
+        $this->forgetTenantSetupProgress($tenant);
 
         return redirect()->route('tenant.products.index')
             ->with('success', __('messages.product.deleted'));

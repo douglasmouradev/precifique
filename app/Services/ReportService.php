@@ -74,7 +74,7 @@ class ReportService
         $sheet->fromArray(['Produto', 'Preço venda', 'Margem %', 'Estoque'], null, 'A1');
 
         $row = 2;
-        foreach ($tenant->products()->get() as $product) {
+        foreach ($tenant->products()->orderBy('name')->get(['name', 'selling_price', 'profit_margin_percent', 'stock_quantity']) as $product) {
             $sheet->fromArray([
                 $product->name,
                 $product->selling_price,

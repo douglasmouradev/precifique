@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Services\LGPDService;
+use App\Support\ForgetsTenantSetupProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class LGPDController extends Controller
 {
     use AuthorizesTenantResource;
+    use ForgetsTenantSetupProgress;
 
     public function __construct(
         private readonly LGPDService $lgpd,
@@ -43,16 +45,18 @@ class LGPDController extends Controller
             $this->lgpd->recordConsent($tenant, $request, 'marketing', $version);
         }
 
+        $this->forgetTenantSetupProgress($tenant);
+
         if (session()->pull('onboarding_selected_plan') === 'premium') {
             return redirect()->route('tenant.billing.upgrade')
-                ->with('success', 'Finalize o pagamento para ativar o Premium.');
+                ->with('success', __('lgpd.portal.finish_premium_payment'));
         }
 
         $tenant = current_tenant();
 
         if ($tenant && ! $tenant->onboarding_completed) {
             return redirect()->route('onboarding.welcome')
-                ->with('success', 'Termos aceitos! Vamos configurar sua conta.');
+                ->with('success', __('lgpd.portal.terms_accepted'));
         }
 
         $redirect = redirect()->route('tenant.dashboard');
@@ -89,7 +93,7 @@ class LGPDController extends Controller
         $this->authorizeTenantOwner();
 
         $request->validate([
-            'confirm' => ['required', 'in:EXCLUIR'],
+            'confirm' => ['required', 'in:EXCLUIR,DELETE'],
             'password' => ['required', 'string'],
         ]);
 
@@ -99,7 +103,7 @@ class LGPDController extends Controller
             'email' => $tenant->email,
             'password' => $request->input('password'),
         ])) {
-            return back()->withErrors(['password' => 'Senha incorreta.']);
+            return back()->withErrors(['password' => __('lgpd.portal.wrong_password')]);
         }
 
         $this->lgpd->anonymizeTenant($tenant);
@@ -107,6 +111,6 @@ class LGPDController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home')->with('success', 'Conta anonimizada conforme LGPD.');
+        return redirect()->route('home')->with('success', __('lgpd.portal.account_anonymized'));
     }
 }

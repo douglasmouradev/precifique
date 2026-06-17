@@ -90,5 +90,6 @@ return [
         'loading' => 'Consultando especialista…',
         'no_answer' => 'Sem resposta.',
         'error' => 'Erro ao consultar a IA.',
+        'fallback_tip' => 'Revise seus custos fixos mensalmente para manter preços competitivos.',
     ],
 ];

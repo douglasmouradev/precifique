@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,11 +10,12 @@
     <x-ui.toast-container />
 </head>
 <body class="bg-paper font-sans text-ink min-h-screen">
+    <x-ui.skip-link />
     <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-30">
         <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
             <a href="{{ route('home') }}"><x-ui.logo variant="full" size="sm" /></a>
             <form method="POST" action="{{ route('tenant.logout') }}">@csrf
-                <button type="submit" class="text-sm text-slate-500 hover:text-red-500">Sair</button>
+                <button type="submit" class="text-sm text-slate-500 hover:text-red-500">{{ __('app.nav.logout') }}</button>
             </form>
         </div>
     </header>
@@ -23,7 +24,7 @@
     <div class="max-w-3xl mx-auto px-4 pt-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm border border-emerald-200" data-flash="success" role="status">{{ session('success') }}</div>
     @endif
 
-    <main>@yield('content')</main>
+    <main id="main-content">@yield('content')</main>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {

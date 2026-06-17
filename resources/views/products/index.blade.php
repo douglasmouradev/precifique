@@ -33,7 +33,8 @@
         @if($product->photo_path)
         <div class="aspect-[16/10] overflow-hidden bg-slate-100">
             <img
-                src="{{ asset('storage/'.$product->photo_path) }}"
+                src="{{ product_photo_url($product->photo_path) }}"
+                srcset="{{ product_photo_url($product->photo_path, 'thumb') }} 480w, {{ product_photo_url($product->photo_path) }} 1200w"
                 alt="{{ $product->name }}"
                 width="640"
                 height="400"

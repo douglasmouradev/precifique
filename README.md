@@ -46,7 +46,7 @@ Acesse http://127.0.0.1:8000/entrar — `demo@precifique.com.br` / `demo1234`
 
 | Perfil | URL | Credenciais |
 |--------|-----|-------------|
-| Superadmin | `/login` | `admin@precifique.com.br` / `Precifique@2026` |
+| Superadmin | `/entrar` | `admin@precifique.com.br` / `Precifique@2026` |
 | Tenant demo | `/entrar` | `demo@precifique.com.br` / `demo1234` |
 | Novo tenant | `/cadastro` | Cadastro livre |
 
@@ -76,7 +76,7 @@ docker compose up -d
 
 ## Painel admin — Métricas SaaS
 
-No dashboard do superadmin (`/login`), dois indicadores medem a saúde do negócio:
+No dashboard do superadmin (`/entrar` após login unificado), dois indicadores medem a saúde do negócio:
 
 ### MRR — *Monthly Recurring Revenue* (Receita recorrente mensal)
 

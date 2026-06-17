@@ -34,6 +34,7 @@ return [
     'custom_order' => 'Encomenda sob demanda',
     'section_materials' => '2. Ficha técnica (materiais)',
     'materials_hint' => '— liste ingredientes ou materiais principais',
+    'section_variables' => '3. Custos variáveis e adicionais',
     'add_material' => '+ Adicionar material',
     'section_labor' => 'Mão de obra',
     'labor_hint' => '— quanto vale seu tempo?',

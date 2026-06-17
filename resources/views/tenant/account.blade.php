@@ -124,7 +124,7 @@
         </form>
 
         @if($apiTokens->isEmpty())
-        <p class="text-sm text-slate-500">{{ __('app.account.no_tokens') }}</p>
+        <x-ui.empty-state icon="dashboard" :title="__('app.account.no_tokens')" class="border-0 shadow-none py-6" />
         @else
         <ul class="divide-y divide-slate-100">
             @foreach($apiTokens as $token)

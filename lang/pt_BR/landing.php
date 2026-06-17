@@ -9,6 +9,7 @@ return [
     'hero_title' => 'Precifique com confiança',
     'hero_subtitle' => 'Calcule custos reais, margem de lucro e preço de venda para alimentos, serviços e artesanato.',
     'meta_description' => 'Precifique — calcule custos reais, margem de lucro e preço de venda para alimentos, serviços e artesanato. Trial Premium grátis.',
+    'og_title' => 'Precifique — Precificação inteligente',
     'cookie_message' => 'Usamos cookies essenciais para melhorar sua experiência.',
     'cookie_accept' => 'Aceitar',
     'plans' => 'Planos',

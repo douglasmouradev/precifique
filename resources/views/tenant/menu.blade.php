@@ -1,9 +1,9 @@
 @extends('layouts.tenant')
-@section('title', 'Menu')
-@section('breadcrumb') Menu @endsection
+@section('title', __('app.menu_page.title'))
+@section('breadcrumb') {{ __('app.menu_page.title') }} @endsection
 
 @section('content')
-<x-ui.page-header title="Menu" subtitle="Acesso rápido a todas as áreas" />
+<x-ui.page-header :title="__('app.menu_page.title')" :subtitle="__('app.menu_page.subtitle')" />
 
 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-2xl">
     @foreach($links as $link)

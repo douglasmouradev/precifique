@@ -33,6 +33,7 @@ return [
     'description' => 'Description',
     'custom_order' => 'Made-to-order',
     'section_materials' => '2. Bill of materials',
+    'section_variables' => '3. Variable and additional costs',
     'materials_hint' => '— list main ingredients or materials',
     'add_material' => '+ Add material',
     'section_labor' => 'Labor',

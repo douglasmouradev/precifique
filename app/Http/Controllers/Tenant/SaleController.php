@@ -15,6 +15,7 @@ use App\Models\SaleExportRequest;
 use App\Services\AuditService;
 use App\Services\SalesExportService;
 use App\Services\TenantNotificationService;
+use App\Support\ForgetsTenantSetupProgress;
 use App\Support\SalePeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class SaleController extends Controller
 {
     use AuthorizesTenantResource;
+    use ForgetsTenantSetupProgress;
 
     public function __construct(
         private readonly AuditService $audit,
@@ -169,6 +171,7 @@ class SaleController extends Controller
         ], $request);
 
         SaleRecorded::dispatch($tenant, $sale);
+        $this->forgetTenantSetupProgress($tenant);
 
         if ($tenant->sales()->count() === 1) {
             $this->notifications->notify(
@@ -251,6 +254,7 @@ class SaleController extends Controller
             $sale->delete();
         });
 
+        $this->forgetTenantSetupProgress($tenant);
         $this->audit->log($tenant, 'sale.deleted', null, ['sale_id' => $sale->id]);
 
         return back()->with('success', __('messages.sale.deleted'));

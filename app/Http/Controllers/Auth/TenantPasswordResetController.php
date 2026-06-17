@@ -57,7 +57,7 @@ class TenantPasswordResetController extends Controller
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('tenant.login')->with('success', 'Senha redefinida.')
+            ? redirect()->route('tenant.login')->with('success', __('auth.password_reset.success'))
             : back()->withErrors(['email' => __($status)]);
     }
 }

@@ -170,9 +170,9 @@
     <x-ui.card>
         <details class="pricing-collapsible" open>
         <summary>
-            2. Ficha técnica (materiais)
+            {{ __('pricing.section_materials') }}
             @if($beginner)
-            <span class="text-slate-400 font-normal text-sm">— liste ingredientes ou materiais principais</span>
+            <span class="text-slate-400 font-normal text-sm">{{ __('pricing.materials_hint') }}</span>
             @endif
         </summary>
         <div data-pricing-materials></div>
@@ -184,7 +184,7 @@
     @if(!$beginner)
     <x-ui.card>
         <details class="pricing-collapsible" open>
-        <summary>3. Custos variáveis e adicionais</summary>
+        <summary>{{ __('pricing.section_variables') }}</summary>
         <p class="text-sm text-slate-500 mb-3">{{ __('pricing.variables_hint') }}</p>
         <div data-pricing-variable-costs></div>
         <button type="button" data-pricing-add-variable class="text-brand text-sm font-semibold mb-6 block hover:text-brand-dark">+ {{ __('pricing.add_variable') }}</button>
@@ -301,10 +301,10 @@
     @if(!$beginner)
     <x-ui.card>
         <details class="pricing-collapsible" open>
-        <summary>5. Estoque</summary>
+        <summary>{{ __('pricing.section_stock') }}</summary>
         <div class="grid grid-cols-2 gap-4">
-            <div><label class="ui-label">Quantidade</label><input name="stock_quantity" type="number" value="{{ $product->stock_quantity }}" class="ui-input"></div>
-            <div><label class="ui-label">Alerta mínimo</label><input name="min_stock_alert" type="number" value="{{ $product->min_stock_alert }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.stock_quantity') }}</label><input name="stock_quantity" type="number" value="{{ $product->stock_quantity }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.stock_alert') }}</label><input name="min_stock_alert" type="number" value="{{ $product->min_stock_alert }}" class="ui-input"></div>
         </div>
         </details>
     </x-ui.card>

@@ -11,8 +11,10 @@
         <title>{{ config('app.name', 'Precifique') }} — Admin</title>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <x-analytics />
     </head>
     <body class="font-sans antialiased bg-paper text-ink">
+        <x-ui.skip-link />
         <div class="min-h-screen app-shell-bg">
             @include('layouts.navigation')
 
@@ -26,7 +28,7 @@
             @endisset
 
             <!-- Page Content -->
-            <main class="animate-fade-in">
+            <main id="main-content" class="animate-fade-in">
                 {{ $slot }}
             </main>
         </div>
