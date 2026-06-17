@@ -24,6 +24,7 @@ return [
 
     'trial' => [
         'notify_days_before' => (int) env('TRIAL_NOTIFY_DAYS_BEFORE', 3),
+        'engagement_days' => array_map('intval', explode(',', env('TRIAL_ENGAGEMENT_DAYS', '3,7'))),
     ],
 
     'pix' => [

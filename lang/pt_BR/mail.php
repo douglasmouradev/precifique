@@ -21,6 +21,19 @@ return [
         'body' => 'Seu período de teste Premium do Precifique termina em **:date**.',
         'cta_intro' => 'Para continuar com produtos ilimitados, IA e relatórios:',
         'button' => 'Fazer upgrade',
+        'notification_title' => 'Trial Premium acabando',
+        'notification_body' => 'Trial até :date. Faça upgrade para manter os recursos.',
+    ],
+
+    'trial_engagement' => [
+        'subject' => 'Dica Precifique — dia :day do seu trial',
+        'heading' => 'Olá, :name!',
+        'day_3_body' => 'Você está no **3º dia** do trial Premium. Que tal cadastrar seu primeiro produto e ver o preço ideal em minutos?',
+        'day_7_body' => 'Já se passou uma semana desde que você entrou no Precifique. Seu trial Premium vai até **:date** — aproveite IA, relatórios e produtos ilimitados.',
+        'button_product' => 'Cadastrar produto',
+        'button_upgrade' => 'Ver planos Premium',
+        'notification_title' => 'Dica do trial — dia :day',
+        'notification_body' => 'Confira o próximo passo para aproveitar seu trial Premium.',
     ],
 
     'payment_failed' => [

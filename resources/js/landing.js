@@ -3,13 +3,6 @@ import './landing-scroll-3d';
 import { initLocaleSwitcher } from './locale-switcher';
 import { initLandingPricingDemo } from './landing-pricing-demo';
 
-import Alpine from 'alpinejs';
-import intersect from '@alpinejs/intersect';
-import collapse from '@alpinejs/collapse';
-
-Alpine.plugin(intersect);
-Alpine.plugin(collapse);
-
 window.precifiqueCloseIntroOverlay = function precifiqueCloseIntroOverlay() {
     try {
         sessionStorage.setItem('precifique_intro_seen', '1');
@@ -312,9 +305,6 @@ if (document.readyState === 'loading') {
 } else {
     bootLanding();
 }
-
-window.Alpine = Alpine;
-Alpine.start();
 
 window.setTimeout(() => {
     document.querySelectorAll('.scroll-reveal:not(.is-visible)').forEach((el) => {

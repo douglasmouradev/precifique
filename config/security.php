@@ -8,7 +8,7 @@ return [
   |--------------------------------------------------------------------------
   | Content Security Policy
   |--------------------------------------------------------------------------
-  | Alpine e scripts inline do Blade exigem 'unsafe-inline' até migrarmos para nonces.
+  | style-src ainda usa 'unsafe-inline' por estilos inline do Tailwind/Vite.
   */
     'csp' => env('SECURITY_CSP_ENABLED', true),
 

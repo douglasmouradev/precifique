@@ -6,7 +6,7 @@ SaaS de precificação para mão de obra e produtos artesanais, alimentícios e 
 
 - PHP 8.3+ / Laravel 11
 - MySQL 8.3+
-- Blade + Alpine.js + Tailwind CSS v3
+- Blade + JavaScript puro + Tailwind CSS v3
 - Redis (cache/filas)
 - Gemini / Groq / Anthropic (IA multi-provedor — Premium)
 - Stripe + Mercado Pago (PIX)
@@ -200,6 +200,7 @@ Veja `DESIGN.md` para tokens, componentes UI e convenções visuais (landing + a
 - Semanal: lembrete de meta
 - Diário: alerta de estoque baixo
 - Diário: e-mail de trial expirando (`NotifyTrialExpiringJob`)
+- Diário: e-mails de engajamento no trial — dias 3 e 7 (`NotifyTrialEngagementJob`)
 
 Configure o cron: `* * * * * php artisan schedule:run`
 
@@ -210,3 +211,12 @@ Veja `.env.example` para `AI_PROVIDER`, `GEMINI_*`, `GROQ_*`, `ANTHROPIC_*`, `ST
 ## API REST
 
 Documentação: [docs/API.md](docs/API.md)
+
+### Deploy rápido na VPS (após `git push`)
+
+```bash
+cd /www/wwwroot/precifique.tdesksolutions.com.br
+./scripts/deploy-pull.sh
+```
+
+Ou manualmente: `git pull origin main`, `npm run build`, `php artisan view:cache`. Detalhes em [docs/VPS.md](docs/VPS.md).

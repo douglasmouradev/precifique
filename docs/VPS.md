@@ -136,10 +136,20 @@ user=www
 
 ## Script automatizado
 
+Deploy completo (primeira vez ou mudanças grandes):
+
 ```bash
 chmod +x scripts/deploy-vps.sh
 ./scripts/deploy-vps.sh
 # ou: APP_DIR=/www/wwwroot/precifique.tdesksolutions.com.br ./scripts/deploy-vps.sh
+```
+
+Deploy rápido após `git push` (pull + build + cache):
+
+```bash
+chmod +x scripts/deploy-pull.sh
+./scripts/deploy-pull.sh
+# ou: APP_DIR=/www/wwwroot/precifique.tdesksolutions.com.br ./scripts/deploy-pull.sh
 ```
 
 ## Backup MySQL (VPS)

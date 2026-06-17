@@ -43,8 +43,10 @@ class NotifyTrialExpiringJob implements ShouldQueue
                         $notifications->notify(
                             $tenant,
                             'trial_expiring',
-                            'Seu trial Premium está acabando',
-                            'Trial até '.$tenant->trial_ends_at?->format('d/m/Y').'. Faça upgrade para manter os recursos.',
+                            __('mail.trial_expiring.notification_title'),
+                            __('mail.trial_expiring.notification_body', [
+                                'date' => $tenant->trial_ends_at?->format('d/m/Y'),
+                            ]),
                             route('tenant.billing.upgrade'),
                         );
                     }

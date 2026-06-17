@@ -47,13 +47,13 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')">Meu perfil</x-dropdown-link>
+                            <x-dropdown-link :href="route('profile.edit')">{{ __('admin.nav.my_profile') }}</x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button
                                     type="submit"
                                     class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out"
-                                >Sair</button>
+                                >{{ __('admin.nav.logout') }}</button>
                             </form>
                         </x-slot>
                     </x-dropdown>
@@ -64,7 +64,7 @@
                     data-admin-nav-toggle
                     class="md:hidden p-2 rounded-lg hover:bg-slate-100 shrink-0 touch-manipulation"
                     aria-expanded="false"
-                    aria-label="Menu"
+                    aria-label="{{ __('admin.nav.menu') }}"
                 >
                     <svg data-admin-nav-icon-open class="h-6 w-6 text-slate-600" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -90,10 +90,10 @@
                 <x-ui.locale-switcher />
             </div>
             <a href="{{ route('home') }}" class="block px-3 py-2 text-sm text-slate-600">{{ __('admin.nav.site') }}</a>
-            <a href="{{ route('profile.edit') }}" class="block px-3 py-2 text-sm text-slate-600">Meu perfil</a>
+            <a href="{{ route('profile.edit') }}" class="block px-3 py-2 text-sm text-slate-600">{{ __('admin.nav.my_profile') }}</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="block w-full text-left px-3 py-2 text-sm text-red-600">Sair</button>
+                <button type="submit" class="block w-full text-left px-3 py-2 text-sm text-red-600">{{ __('admin.nav.logout') }}</button>
             </form>
         </div>
     </div>

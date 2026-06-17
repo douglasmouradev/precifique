@@ -21,6 +21,19 @@ return [
         'body' => 'Your Precifique Premium trial period ends on **:date**.',
         'cta_intro' => 'To keep unlimited products, AI and reports:',
         'button' => 'Upgrade',
+        'notification_title' => 'Premium trial ending soon',
+        'notification_body' => 'Trial until :date. Upgrade to keep your features.',
+    ],
+
+    'trial_engagement' => [
+        'subject' => 'Precifique tip — day :day of your trial',
+        'heading' => 'Hello, :name!',
+        'day_3_body' => 'You are on **day 3** of your Premium trial. Why not add your first product and see the ideal price in minutes?',
+        'day_7_body' => 'A week has passed since you joined Precifique. Your Premium trial runs until **:date** — enjoy AI, reports and unlimited products.',
+        'button_product' => 'Add a product',
+        'button_upgrade' => 'View Premium plans',
+        'notification_title' => 'Trial tip — day :day',
+        'notification_body' => 'See the next step to make the most of your Premium trial.',
     ],
 
     'payment_failed' => [
