@@ -51,6 +51,14 @@
         @apply bg-white/85 backdrop-blur-xl border-b border-slate-200/70 shadow-[0_1px_0_0_rgba(255,255,255,0.8)_inset];
     }
 
+    #tenant-main.tenant-sidebar-open {
+        @apply lg:pl-[16.5rem];
+    }
+
+    #tenant-cookie-banner.tenant-sidebar-open {
+        @apply lg:left-[16.5rem];
+    }
+
     .ui-input {
         @apply w-full rounded-xl border-slate-200 bg-white text-sm shadow-sm
                focus:border-brand focus:ring-2 focus:ring-brand/15 transition-colors;

@@ -34,12 +34,11 @@ export function initTenantSidebar() {
         }
 
         if (main) {
-            main.classList.toggle('lg:pl-[16.5rem]', open);
+            main.classList.toggle('tenant-sidebar-open', open);
         }
 
         if (cookieBanner) {
-            cookieBanner.classList.toggle('lg:left-[16.5rem]', open);
-            cookieBanner.classList.toggle('lg:left-0', !open);
+            cookieBanner.classList.toggle('tenant-sidebar-open', open);
         }
 
         toggle.setAttribute('aria-expanded', String(open));

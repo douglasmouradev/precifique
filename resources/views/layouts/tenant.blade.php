@@ -82,7 +82,7 @@
 
     <aside
         id="tenant-sidebar"
-        class="fixed inset-y-0 left-0 z-50 w-[16.5rem] max-w-[85vw] ui-sidebar-premium text-white flex flex-col shadow-sidebar transition-transform duration-300 ease-out -translate-x-full pointer-events-none"
+        class="fixed inset-y-0 left-0 z-[75] w-[16.5rem] max-w-[85vw] ui-sidebar-premium text-white flex flex-col shadow-sidebar transition-transform duration-300 ease-out -translate-x-full pointer-events-none"
         aria-hidden="true"
     >
         <div class="px-4 py-4 border-b border-white/[0.06] flex items-center gap-2">
