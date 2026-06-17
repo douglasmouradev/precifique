@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400" aria-hidden="true">
+  <rect width="640" height="400" fill="#F8FAFC"/>
+  <rect x="0" y="0" width="88" height="400" fill="#0D0D0D"/>
+  <rect x="16" y="20" width="56" height="8" rx="4" fill="#00C896" opacity="0.9"/>
+  <rect x="88" y="0" width="552" height="52" fill="#FFFFFF"/>
+  <line x1="88" y1="52" x2="640" y2="52" stroke="#E2E8F0"/>
+  <rect x="112" y="20" width="140" height="8" rx="4" fill="#0D0D0D" opacity="0.85"/>
+  <rect x="112" y="36" width="200" height="6" rx="3" fill="#94A3B8"/>
+  <rect x="112" y="72" width="320" height="296" rx="16" fill="#FFFFFF" stroke="#E2E8F0"/>
+  <rect x="132" y="92" width="120" height="8" rx="4" fill="#64748B"/>
+  <rect x="132" y="112" width="180" height="10" rx="5" fill="#0D0D0D" opacity="0.9"/>
+  <rect x="132" y="136" width="140" height="6" rx="3" fill="#CBD5E1"/>
+  <rect x="132" y="160" width="44" height="28" rx="8" fill="#F1F5F9"/>
+  <text x="144" y="178" fill="#64748B" font-family="system-ui,sans-serif" font-size="11" font-weight="600">30%</text>
+  <rect x="184" y="160" width="44" height="28" rx="8" fill="#00C896"/>
+  <text x="194" y="178" fill="#0D0D0D" font-family="system-ui,sans-serif" font-size="11" font-weight="700">50%</text>
+  <rect x="236" y="160" width="44" height="28" rx="8" fill="#F1F5F9"/>
+  <text x="246" y="178" fill="#64748B" font-family="system-ui,sans-serif" font-size="11" font-weight="600">70%</text>
+  <rect x="288" y="160" width="44" height="28" rx="8" fill="#F1F5F9"/>
+  <text x="296" y="178" fill="#64748B" font-family="system-ui,sans-serif" font-size="11" font-weight="600">100%</text>
+  <rect x="132" y="204" width="280" height="88" rx="14" fill="#E8FBF4"/>
+  <text x="148" y="228" fill="#64748B" font-family="system-ui,sans-serif" font-size="11">Pre&#231;o final sugerido</text>
+  <text x="148" y="268" fill="#00A67D" font-family="system-ui,sans-serif" font-size="36" font-weight="700">R$ 38,25</text>
+  <rect x="132" y="308" width="120" height="5" rx="2.5" fill="#94A3B8"/>
+  <text x="360" y="312" fill="#0D0D0D" font-family="system-ui,sans-serif" font-size="11" font-weight="600">R$ 25,50</text>
+  <rect x="132" y="328" width="100" height="5" rx="2.5" fill="#00C896" opacity="0.5"/>
+  <text x="360" y="332" fill="#00A67D" font-family="system-ui,sans-serif" font-size="11" font-weight="600">R$ 12,75</text>
+  <rect x="448" y="72" width="168" height="296" rx="16" fill="#0D0D0D"/>
+  <rect x="468" y="92" width="80" height="6" rx="3" fill="#64748B"/>
+  <rect x="468" y="112" width="128" height="5" rx="2.5" fill="#334155"/>
+  <rect x="468" y="128" width="108" height="5" rx="2.5" fill="#334155"/>
+  <rect x="468" y="144" width="116" height="5" rx="2.5" fill="#334155"/>
+  <rect x="468" y="176" width="128" height="64" rx="10" fill="#00C896" opacity="0.15"/>
+  <circle cx="532" cy="208" r="16" fill="#00C896" opacity="0.35"/>
+  <rect x="468" y="256" width="96" height="5" rx="2.5" fill="#475569"/>
+  <rect x="468" y="272" width="120" height="5" rx="2.5" fill="#475569"/>
+  <rect x="468" y="320" width="128" height="32" rx="10" fill="#00C896"/>
+  <rect x="492" y="332" width="80" height="6" rx="3" fill="#0D0D0D" opacity="0.85"/>
+</svg>

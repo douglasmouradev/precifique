@@ -316,15 +316,7 @@
                 @foreach(__('landing.preview_cards') as $i => $card)
                 <x-landing.reveal :delay="$i * 80" class="card-3d landing-card overflow-hidden !p-0">
                     <div class="relative aspect-[16/10] bg-slate-100 border-b border-slate-200/80 overflow-hidden">
-                        <img
-                            src="{{ asset($card['image']) }}"
-                            alt="{{ $card['title'] }} — Precifique"
-                            class="w-full h-full object-cover object-top"
-                            loading="lazy"
-                            decoding="async"
-                            width="640"
-                            height="400"
-                        >
+                        <x-landing.preview-art :name="$card['preview']" :label="$card['title'].' — Precifique'" />
                     </div>
                     <div class="p-5">
                         <h3 class="font-display font-bold text-lg text-ink mb-1">{{ $card['title'] }}</h3>
