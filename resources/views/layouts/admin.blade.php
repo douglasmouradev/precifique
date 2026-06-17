@@ -19,6 +19,7 @@
         ['route' => 'admin.tenants.index', 'label' => __('admin.nav.tenants'), 'icon' => 'products', 'match' => 'admin.tenants.*'],
         ['route' => 'admin.plans.index', 'label' => __('admin.nav.plans'), 'icon' => 'revenue', 'match' => 'admin.plans.*'],
         ['route' => 'admin.logs.index', 'label' => __('admin.nav.logs'), 'icon' => 'reports', 'match' => 'admin.logs.*'],
+        ['route' => 'admin.failed-jobs.index', 'label' => __('admin.nav.failed_jobs'), 'icon' => 'edit', 'match' => 'admin.failed-jobs.*'],
         ['route' => 'admin.lgpd', 'label' => __('admin.nav.lgpd'), 'icon' => 'edit', 'match' => 'admin.lgpd'],
     ];
 @endphp
@@ -93,6 +94,9 @@
         @endif
 
         <main id="main-content" class="flex-1 px-4 md:px-8 py-6 md:py-8 app-shell-bg animate-fade-in max-w-7xl w-full mx-auto">
+            @isset($header)
+            <div class="mb-6">{{ $header }}</div>
+            @endisset
             {{ $slot ?? '' }}
             @yield('content')
         </main>

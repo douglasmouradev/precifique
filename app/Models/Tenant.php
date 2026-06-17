@@ -52,6 +52,7 @@ class Tenant extends Authenticatable implements CanResetPasswordContract, MustVe
         'is_active',
         'two_factor_secret',
         'two_factor_confirmed_at',
+        'two_factor_recovery_codes',
         'created_by',
     ];
 
@@ -72,6 +73,7 @@ class Tenant extends Authenticatable implements CanResetPasswordContract, MustVe
             'email_verified_at' => 'datetime',
             'two_factor_secret' => 'encrypted',
             'two_factor_confirmed_at' => 'datetime',
+            'two_factor_recovery_codes' => 'encrypted:array',
             'notification_preferences' => 'array',
             'niche_metadata' => 'array',
             'niche' => NicheType::class,

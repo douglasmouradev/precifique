@@ -1,27 +1,12 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
-    </div>
+@extends('layouts.auth')
+@section('title', __('auth.confirm_password.title'))
+@section('content')
+<h1 class="font-display text-xl font-semibold text-center mb-2">{{ __('auth.confirm_password.heading') }}</h1>
+<p class="text-sm text-slate-500 text-center mb-6">{{ __('auth.confirm_password.subtitle') }}</p>
 
-    <form method="POST" action="{{ route('password.confirm') }}">
-        @csrf
-
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+<form method="POST" action="{{ route('password.confirm') }}" class="space-y-4">
+    @csrf
+    <x-ui.input :label="__('auth.login.password')" name="password" type="password" required autocomplete="current-password" />
+    <x-ui.button variant="secondary" type="submit" class="w-full py-3">{{ __('auth.confirm_password.submit') }}</x-ui.button>
+</form>
+@endsection

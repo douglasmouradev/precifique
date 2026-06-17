@@ -1,25 +1,19 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+@extends('layouts.auth')
+@section('title', __('auth.forgot_password.title'))
+@section('content')
+<h1 class="font-display text-xl font-semibold text-center mb-2">{{ __('auth.forgot_password.heading') }}</h1>
+<p class="text-sm text-slate-500 text-center mb-6">{{ __('auth.forgot_password.subtitle') }}</p>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@if(session('status'))
+<x-ui.alert class="ui-alert-success mb-4">{{ session('status') }}</x-ui.alert>
+@endif
 
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+<form method="POST" action="{{ route('password.email') }}" class="space-y-4">
+    @csrf
+    <x-ui.input :label="__('auth.forgot_password.email')" name="email" type="email" required autofocus />
+    <x-ui.button variant="secondary" type="submit" class="w-full py-3">{{ __('auth.forgot_password.submit') }}</x-ui.button>
+</form>
+@endsection
+@section('footer')
+<a href="{{ route('login') }}" class="text-brand font-medium hover:underline">{{ __('auth.back_to_login') }}</a>
+@endsection

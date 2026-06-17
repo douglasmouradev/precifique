@@ -2,18 +2,48 @@
     <x-slot name="header">
         <x-ui.page-header :title="__('admin.logs.title')" :subtitle="__('admin.logs_page.subtitle')" />
     </x-slot>
-    <div class="py-6 max-w-6xl mx-auto sm:px-6 space-y-8 animate-fade-in">
-        <form method="GET" class="flex flex-wrap gap-3 items-end">
-            <div class="min-w-[12rem] flex-1">
-                <label class="ui-label">{{ __('admin.logs_page.filter_search') }}</label>
-                <input type="search" name="q" value="{{ $search ?? '' }}" class="ui-input" placeholder="{{ __('admin.logs_page.filter_search_placeholder') }}">
-            </div>
-            <div class="min-w-[10rem]">
-                <label class="ui-label">{{ __('admin.logs_page.action') }}</label>
-                <input type="text" name="action" value="{{ $action ?? '' }}" class="ui-input" placeholder="ai.*">
-            </div>
-            <x-ui.button type="submit" variant="secondary">{{ __('admin.logs_page.filter_submit') }}</x-ui.button>
-        </form>
+
+    <form method="GET" class="flex flex-wrap gap-3 items-end mb-8">
+        <div class="min-w-[12rem] flex-1">
+            <label class="ui-label">{{ __('admin.logs_page.filter_search') }}</label>
+            <input type="search" name="q" value="{{ $search ?? '' }}" class="ui-input" placeholder="{{ __('admin.logs_page.filter_search_placeholder') }}">
+        </div>
+        <div class="min-w-[10rem]">
+            <label class="ui-label">{{ __('admin.logs_page.action') }}</label>
+            <input type="text" name="action" value="{{ $action ?? '' }}" class="ui-input" placeholder="ai.*">
+        </div>
+        <x-ui.button type="submit" variant="secondary">{{ __('admin.logs_page.filter_submit') }}</x-ui.button>
+    </form>
+
+    <div class="space-y-8">
+        <div>
+            <h3 class="ui-section-title">{{ __('admin.logs_page.system_title') }}</h3>
+            <x-ui.card class="overflow-x-auto p-0">
+                <table class="ui-table">
+                    <thead>
+                        <tr>
+                            <th>{{ __('admin.logs_page.date') }}</th>
+                            <th>{{ __('admin.logs_page.admin_user') }}</th>
+                            <th>{{ __('admin.logs_page.action') }}</th>
+                            <th>{{ __('admin.logs_page.ip') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($systemLogs as $log)
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="text-slate-500 tabular-nums">{{ $log->created_at->format('d/m/Y H:i') }}</td>
+                        <td>{{ $log->user?->email ?? '—' }}</td>
+                        <td><code class="text-xs">{{ $log->action }}</code></td>
+                        <td class="text-slate-400">{{ $log->ip_address }}</td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="4" class="p-0"><x-ui.empty-state icon="dashboard" :title="__('admin.logs_page.empty_system')" class="border-0 shadow-none" /></td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </x-ui.card>
+        </div>
+
         <div>
             <h3 class="ui-section-title">{{ __('admin.logs_page.ai_title') }}</h3>
             <x-ui.card class="divide-y divide-slate-100 p-0 overflow-hidden">
@@ -27,6 +57,7 @@
                 @endforelse
             </x-ui.card>
         </div>
+
         <div>
             <h3 class="ui-section-title">{{ __('admin.logs_page.audit_title') }}</h3>
             <x-ui.card class="overflow-x-auto p-0">

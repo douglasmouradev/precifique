@@ -56,6 +56,8 @@ return [
 
     'security_contact' => env('SECURITY_CONTACT_EMAIL', 'security@precifique.com.br'),
 
+    'admin_session_lifetime' => (int) env('ADMIN_SESSION_LIFETIME', 120),
+
     'api_docs_token' => env('API_DOCS_TOKEN'),
 
     'hsts' => env('SECURITY_HSTS_ENABLED', env('APP_ENV') === 'production'),

@@ -220,11 +220,26 @@
             <div><x-ui.button type="submit">{{ __('members.add_webhook') }}</x-ui.button></div>
         </form>
         @foreach($webhooks as $hook)
-        <div class="flex justify-between items-center py-2 border-t border-slate-100 text-sm">
-            <code class="text-xs break-all">{{ $hook->url }}</code>
-            <form method="POST" action="{{ route('tenant.account.webhooks.destroy', $hook) }}">@csrf @method('DELETE')
-                <button type="submit" class="text-red-600 text-xs">{{ __('members.remove') }}</button>
-            </form>
+        <div class="py-3 border-t border-slate-100">
+            <div class="flex justify-between items-start gap-3 text-sm mb-2">
+                <code class="text-xs break-all flex-1">{{ $hook->url }}</code>
+                <form method="POST" action="{{ route('tenant.account.webhooks.destroy', $hook) }}">@csrf @method('DELETE')
+                    <button type="submit" class="text-red-600 text-xs shrink-0">{{ __('members.remove') }}</button>
+                </form>
+            </div>
+            @if($hook->deliveryLogs->isNotEmpty())
+            <div class="rounded-lg bg-slate-50 p-3">
+                <p class="text-xs font-semibold text-slate-600 mb-2">{{ __('members.webhook_deliveries') }}</p>
+                <ul class="space-y-1 text-xs text-slate-500">
+                    @foreach($hook->deliveryLogs as $delivery)
+                    <li class="flex justify-between gap-2">
+                        <span><code>{{ $delivery->event }}</code> — {{ $delivery->success ? __('members.webhook_ok') : __('members.webhook_failed') }}</span>
+                        <span class="tabular-nums shrink-0">{{ $delivery->created_at->format('d/m H:i') }}@if($delivery->http_status) ({{ $delivery->http_status }})@endif</span>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
         </div>
         @endforeach
     </x-ui.card>

@@ -42,7 +42,7 @@ class AccountController extends Controller
             'apiAbilities' => TenantApiAbilities::all(),
             'notificationPrefs' => $preferences->for($tenant),
             'members' => $tenant->members()->latest()->get(),
-            'webhooks' => $tenant->webhooks()->latest()->get(),
+            'webhooks' => $tenant->webhooks()->with(['deliveryLogs' => fn ($q) => $q->latest('created_at')->limit(5)])->latest()->get(),
             'isOwner' => Auth::guard('tenant')->check(),
         ]);
     }

@@ -2,16 +2,21 @@
 @section('title', __('auth.two_factor.title'))
 
 @section('content')
-<div class="max-w-md mx-auto">
-    <h1 class="text-xl font-display font-semibold text-ink mb-4">{{ __('auth.two_factor.title') }}</h1>
-    <form method="POST" action="{{ route('tenant.two-factor.challenge.store') }}" class="space-y-4">
-        @csrf
-        <div>
-            <label class="ui-label">{{ __('auth.two_factor.code_label') }}</label>
-            <input name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" required class="ui-input text-center tracking-widest" autocomplete="one-time-code">
-            @error('code')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+<h1 class="text-xl font-display font-semibold text-ink text-center mb-2">{{ __('auth.two_factor.title') }}</h1>
+<p class="text-sm text-slate-500 text-center mb-6">{{ __('auth.two_factor.subtitle') }}</p>
+
+<form method="POST" action="{{ route('tenant.two-factor.challenge.store') }}" class="space-y-4">
+    @csrf
+    <x-ui.input :label="__('auth.two_factor.code_label')" name="code" maxlength="6" inputmode="numeric" autocomplete="one-time-code" class="text-center tracking-[0.3em] text-lg" />
+    @error('code')<p class="text-red-600 text-sm">{{ $message }}</p>@enderror
+
+    <details class="text-sm text-slate-500">
+        <summary class="cursor-pointer font-medium text-slate-600">{{ __('auth.two_factor.use_recovery') }}</summary>
+        <div class="mt-3">
+            <x-ui.input :label="__('auth.two_factor.recovery_label')" name="recovery_code" autocomplete="off" />
         </div>
-        <x-ui.button type="submit" class="w-full">{{ __('auth.two_factor.confirm') }}</x-ui.button>
-    </form>
-</div>
+    </details>
+
+    <x-ui.button type="submit" class="w-full">{{ __('auth.two_factor.confirm') }}</x-ui.button>
+</form>
 @endsection

@@ -4,6 +4,8 @@
     'trialEndsAt' => null,
     'productsWithoutPrice' => 0,
     'onboardingComplete' => true,
+    'maxProducts' => null,
+    'productCount' => 0,
 ])
 
 @php
@@ -21,11 +23,24 @@
             'action' => ['label' => __('dashboard.activate_premium'), 'url' => route('tenant.billing.upgrade')],
         ];
     }
+    if ($maxProducts && $productCount >= $maxProducts) {
+        $alerts[] = [
+            'type' => 'warning',
+            'message' => __('dashboard.product_limit_reached', ['count' => $productCount, 'max' => $maxProducts]),
+            'action' => ['label' => __('dashboard.upgrade'), 'url' => route('tenant.billing.upgrade')],
+        ];
+    } elseif ($maxProducts && $productCount >= max(1, (int) floor($maxProducts * 0.8))) {
+        $alerts[] = [
+            'type' => 'info',
+            'message' => __('dashboard.product_limit_near', ['count' => $productCount, 'max' => $maxProducts]),
+            'action' => ['label' => __('dashboard.upgrade'), 'url' => route('tenant.billing.upgrade')],
+        ];
+    }
     if ($productsWithoutPrice > 0) {
         $alerts[] = [
             'type' => 'info',
             'message' => '<strong>'.$productsWithoutPrice.'</strong> '.__('dashboard.products_without_price'),
-            'action' => ['label' => __('dashboard.price_now'), 'url' => route('tenant.products.index')],
+            'action' => ['label' => __('dashboard.price_now'), 'url' => route('tenant.products.index', ['unpriced' => 1])],
         ];
     }
     $primary = $alerts[0] ?? null;

@@ -26,6 +26,23 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'Precifique')</title>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Precifique",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "{{ config('app.url') }}",
+        "description": "@yield('meta_description', __('landing.meta_description'))",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "BRL",
+            "description": "Trial Premium de 14 dias"
+        }
+    }
+    </script>
     <link rel="preconnect" href="{{ config('app.url') }}" crossorigin>
     @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
@@ -46,10 +63,10 @@
             }
             var skipIntro = window.matchMedia('(max-width: 767px)').matches
                 || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (skipIntro || sessionStorage.getItem('precifique_intro_seen')) {
+            if (skipIntro || localStorage.getItem('precifique_intro_seen')) {
                 document.documentElement.classList.add('landing-intro-seen');
                 if (skipIntro) {
-                    try { sessionStorage.setItem('precifique_intro_seen', '1'); } catch (e) {}
+                    try { localStorage.setItem('precifique_intro_seen', '1'); } catch (e) {}
                 }
                 document.addEventListener('DOMContentLoaded', function () {
                     var el = document.getElementById('landing-intro-overlay');

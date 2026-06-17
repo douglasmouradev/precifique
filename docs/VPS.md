@@ -114,6 +114,15 @@ chmod -R 775 storage bootstrap/cache
 
 Veja exemplo em [PRODUCTION.md](PRODUCTION.md). Aponte `root` para `/www/wwwroot/precifique.tdesksolutions.com.br/public`.
 
+**Bloqueio de uploads públicos** (quando `SECURITY_PRIVATE_UPLOADS=true`):
+
+```nginx
+location ^~ /storage/products/ { deny all; return 404; }
+location ^~ /storage/logos/ { deny all; return 404; }
+```
+
+Fotos e logos passam a ser servidas apenas via rota autenticada `tenant.media.show`.
+
 ```bash
 sudo certbot --nginx -d seu-dominio.com.br
 ```

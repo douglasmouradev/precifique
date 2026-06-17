@@ -7,12 +7,14 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Services\DashboardMetricsService;
+use App\Services\PlanLimitService;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     public function __construct(
         private readonly DashboardMetricsService $metrics,
+        private readonly PlanLimitService $planLimits,
     ) {}
 
     public function index(): View
@@ -20,6 +22,10 @@ class DashboardController extends Controller
         $tenant = current_tenant();
         abort_unless($tenant instanceof Tenant, 403);
 
-        return view('dashboard.index', $this->metrics->for($tenant));
+        $data = $this->metrics->for($tenant);
+        $data['maxProducts'] = $this->planLimits->maxProducts($tenant);
+        $data['productLimitCount'] = $this->planLimits->currentProductCount($tenant);
+
+        return view('dashboard.index', $data);
     }
 }

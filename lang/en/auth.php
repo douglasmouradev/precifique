@@ -54,9 +54,19 @@ return [
     'verify_email' => [
         'title' => 'Verify email',
         'heading' => 'Verify your email',
+        'subtitle' => 'We sent a verification link. Click the email to continue.',
         'message' => 'We sent a verification link. Click the email to continue.',
+        'link_sent' => 'A new verification link has been sent to your email.',
         'resend' => 'Resend verification email',
+        'logout' => 'Log out',
     ],
+    'confirm_password' => [
+        'title' => 'Confirm password',
+        'heading' => 'Secure area',
+        'subtitle' => 'Please confirm your password before continuing.',
+        'submit' => 'Confirm',
+    ],
+    'admin_session_expired' => 'Your administrator session expired. Please sign in again.',
     'two_factor' => [
         'title' => 'Two-factor authentication',
         'subtitle' => 'Enter the 6-digit code from your authenticator app.',

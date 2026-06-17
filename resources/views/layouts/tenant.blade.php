@@ -195,6 +195,17 @@
         @if(session('warning'))
         <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-amber-50 text-amber-800 text-sm border border-amber-200 px-4 py-3" data-flash="warning" role="status" aria-live="polite">{{ session('warning') }}</div>
         @endif
+        @if(session('recovery_codes'))
+        <div class="mx-4 md:mx-8 mt-4 rounded-xl bg-slate-900 text-white text-sm px-4 py-4" role="status">
+            <p class="font-semibold mb-2">{{ __('auth.two_factor.recovery_saved_title') }}</p>
+            <p class="text-slate-300 text-xs mb-3">{{ __('auth.two_factor.recovery_saved_hint') }}</p>
+            <ul class="grid sm:grid-cols-2 gap-2 font-mono text-xs">
+                @foreach(session('recovery_codes') as $code)
+                <li class="bg-white/10 rounded px-2 py-1">{{ $code }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
         @if(session()->has('impersonating_from_admin'))
         <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-violet-50 text-violet-900 text-sm border border-violet-200 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <span>{{ __('messages.support_mode') }}</span>
@@ -293,6 +304,9 @@
 
     @stack('scripts')
     <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('{{ asset('sw.js') }}', { scope: '/' }).catch(() => {});
+    }
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-flash]').forEach((el) => {
             const type = el.dataset.flash;

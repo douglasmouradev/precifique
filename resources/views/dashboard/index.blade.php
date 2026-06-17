@@ -51,6 +51,8 @@
     :trial-ends-at="$tenant->trial_ends_at"
     :products-without-price="$productsWithoutPrice"
     :onboarding-complete="$onboardingComplete"
+    :max-products="$maxProducts ?? null"
+    :product-count="$productLimitCount ?? $productsCount"
 />
 
 <div class="grid lg:grid-cols-3 gap-4 md:gap-5 mb-8">

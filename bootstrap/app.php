@@ -4,6 +4,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Middleware\AuthenticateTenantApi;
 use App\Http\Middleware\AuthenticateTenantOrMember;
 use App\Http\Middleware\CheckTenantApiAbility;
+use App\Http\Middleware\EnsureAdminSessionTimeout;
 use App\Http\Middleware\EnsureAdminTwoFactor;
 use App\Http\Middleware\EnsureAdminTwoFactorEnrolled;
 use App\Http\Middleware\EnsureTenantApiReady;
@@ -44,6 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'superadmin' => SuperAdminMiddleware::class,
             'admin.2fa' => EnsureAdminTwoFactor::class,
             'admin.2fa.enrolled' => EnsureAdminTwoFactorEnrolled::class,
+            'admin.session' => EnsureAdminSessionTimeout::class,
             'auth.tenant.api' => AuthenticateTenantApi::class,
             'tenant.api.ready' => EnsureTenantApiReady::class,
             'tenant.api.ability' => CheckTenantApiAbility::class,

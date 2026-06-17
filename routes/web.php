@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\FailedJobController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\TenantManagementController;
 use App\Http\Controllers\ApiDocsController;
@@ -79,7 +80,7 @@ Route::post('/webhooks/mercadopago', [BillingController::class, 'mercadopagoWebh
     ->name('webhooks.mercadopago')
     ->withoutMiddleware([VerifyCsrfToken::class]);
 
-Route::middleware(['auth', 'superadmin', 'admin.2fa.enrolled', 'admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'superadmin', 'admin.session', 'admin.2fa.enrolled', 'admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/tenants', [AdminDashboardController::class, 'tenants'])->name('tenants.index');
     Route::get('/tenants/create', [TenantManagementController::class, 'create'])->name('tenants.create');
@@ -93,6 +94,7 @@ Route::middleware(['auth', 'superadmin', 'admin.2fa.enrolled', 'admin.2fa'])->pr
     Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
     Route::patch('/plans/{plan}', [PlanController::class, 'update'])->name('plans.update');
     Route::get('/logs', [AuditLogController::class, 'index'])->name('logs.index');
+    Route::get('/failed-jobs', [FailedJobController::class, 'index'])->name('failed-jobs.index');
 });
 
 Route::middleware('auth')->get('/dashboard', function () {

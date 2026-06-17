@@ -2,7 +2,7 @@
     <x-slot name="header">
         <x-ui.page-header :title="__('admin.plans_page.title')" :subtitle="__('admin.plans_page.subtitle')" />
     </x-slot>
-    <div class="py-6 max-w-3xl mx-auto sm:px-6 space-y-6 animate-fade-in">
+    <div class="space-y-6 max-w-3xl">
         @forelse($plans as $plan)
         <x-ui.card class="p-6">
             <form method="POST" action="{{ route('admin.plans.update', $plan) }}" class="space-y-4">

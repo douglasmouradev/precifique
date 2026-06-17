@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class TwoFactorRecoveryService
@@ -22,18 +22,18 @@ class TwoFactorRecoveryService
     /**
      * @return array<int, string>
      */
-    public function store(User $user, array $plainCodes): array
+    public function store(Model $model, array $plainCodes): array
     {
         $hashed = array_map(fn (string $code) => hash('sha256', str_replace('-', '', strtolower($code))), $plainCodes);
-        $user->forceFill(['two_factor_recovery_codes' => $hashed])->save();
+        $model->forceFill(['two_factor_recovery_codes' => $hashed])->save();
 
         return $plainCodes;
     }
 
-    public function consume(User $user, string $code): bool
+    public function consume(Model $model, string $code): bool
     {
         $normalized = hash('sha256', str_replace(['-', ' '], '', strtolower($code)));
-        $stored = $user->two_factor_recovery_codes;
+        $stored = $model->two_factor_recovery_codes;
 
         if (! is_array($stored) || $stored === []) {
             return false;
@@ -45,7 +45,7 @@ class TwoFactorRecoveryService
         }
 
         unset($stored[$index]);
-        $user->forceFill(['two_factor_recovery_codes' => array_values($stored)])->save();
+        $model->forceFill(['two_factor_recovery_codes' => array_values($stored)])->save();
 
         return true;
     }

@@ -129,7 +129,7 @@
                 </p>
             </div>
         </div>
-        <div class="absolute bottom-8 inset-x-0 flex flex-col items-center gap-2 text-gray-500 pointer-events-none animate-bounce" aria-hidden="true">
+        <div class="absolute bottom-8 inset-x-0 flex flex-col items-center gap-2 text-gray-500 pointer-events-none" aria-hidden="true">
             <span class="text-[10px] uppercase tracking-[0.2em]">{{ __('landing.scroll_hint') }}</span>
             <svg class="w-5 h-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
         </div>

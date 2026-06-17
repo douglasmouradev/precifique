@@ -42,5 +42,7 @@ return [
     'product' => 'Produto',
     'total' => 'Total',
     'date' => 'Data',
+    'product_limit_reached' => 'Você atingiu o limite de :max produtos no plano Basic (:count/:max).',
+    'product_limit_near' => 'Você está perto do limite do plano Basic (:count/:max produtos).',
     'no_sales_yet' => 'Nenhuma venda ainda.',
 ];

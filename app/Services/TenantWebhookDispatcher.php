@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Tenant;
 use App\Models\TenantWebhook;
+use App\Models\WebhookDeliveryLog;
 use App\Rules\SafeWebhookUrl;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -49,9 +50,31 @@ class TenantWebhookDispatcher
                     ]);
                 }
 
-                $request->post($hook->url, $body);
-                $hook->update(['last_triggered_at' => now()]);
+                $response = $request->post($hook->url, $body);
+                $success = $response->successful();
+
+                WebhookDeliveryLog::query()->create([
+                    'tenant_webhook_id' => $hook->id,
+                    'event' => $event,
+                    'http_status' => $response->status(),
+                    'success' => $success,
+                    'error_message' => $success ? null : mb_substr((string) $response->body(), 0, 500),
+                    'created_at' => now(),
+                ]);
+
+                if ($success) {
+                    $hook->update(['last_triggered_at' => now()]);
+                }
             } catch (\Throwable $e) {
+                WebhookDeliveryLog::query()->create([
+                    'tenant_webhook_id' => $hook->id,
+                    'event' => $event,
+                    'http_status' => null,
+                    'success' => false,
+                    'error_message' => mb_substr($e->getMessage(), 0, 500),
+                    'created_at' => now(),
+                ]);
+
                 Log::warning('Tenant webhook failed', [
                     'webhook_id' => $hook->id,
                     'event' => $event,

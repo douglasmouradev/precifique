@@ -57,9 +57,19 @@ return [
     'verify_email' => [
         'title' => 'Verificar e-mail',
         'heading' => 'Verifique seu e-mail',
+        'subtitle' => 'Enviamos um link de verificação. Clique no e-mail para continuar.',
         'message' => 'Enviamos um link de verificação. Clique no e-mail para continuar.',
+        'link_sent' => 'Um novo link de verificação foi enviado para seu e-mail.',
         'resend' => 'Reenviar e-mail de verificação',
+        'logout' => 'Sair',
     ],
+    'confirm_password' => [
+        'title' => 'Confirmar senha',
+        'heading' => 'Área segura',
+        'subtitle' => 'Confirme sua senha antes de continuar.',
+        'submit' => 'Confirmar',
+    ],
+    'admin_session_expired' => 'Sua sessão de administrador expirou. Entre novamente.',
     'two_factor' => [
         'title' => 'Autenticação em duas etapas',
         'subtitle' => 'Informe o código de 6 dígitos do seu aplicativo autenticador.',

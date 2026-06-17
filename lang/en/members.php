@@ -19,4 +19,7 @@ return [
     'webhook_url' => 'Webhook URL',
     'webhook_secret' => 'Secret (optional)',
     'add_webhook' => 'Add webhook',
+    'webhook_deliveries' => 'Recent deliveries',
+    'webhook_ok' => 'OK',
+    'webhook_failed' => 'Failed',
 ];

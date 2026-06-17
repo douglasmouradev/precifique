@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\SystemAuditLog;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -34,6 +35,18 @@ class AuditLogController extends Controller
             ->limit(20)
             ->get();
 
-        return view('admin.logs.index', compact('logs', 'aiLogs', 'search', 'action'));
+        $systemLogs = SystemAuditLog::with('user')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('action', 'like', "%{$search}%")
+                        ->orWhereHas('user', fn ($u) => $u->where('email', 'like', "%{$search}%"));
+                });
+            })
+            ->when($action !== '', fn ($query) => $query->where('action', 'like', "%{$action}%"))
+            ->latest('created_at')
+            ->limit(30)
+            ->get();
+
+        return view('admin.logs.index', compact('logs', 'aiLogs', 'systemLogs', 'search', 'action'));
     }
 }

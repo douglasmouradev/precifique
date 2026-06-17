@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\TenantMember;
 use App\Services\TotpService;
+use App\Services\TwoFactorRecoveryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,14 +25,31 @@ class TenantTwoFactorChallengeController extends Controller
         return view('auth.tenant-two-factor-challenge');
     }
 
-    public function store(Request $request, TotpService $totp): RedirectResponse
+    public function store(Request $request, TotpService $totp, TwoFactorRecoveryService $recovery): RedirectResponse
     {
-        $request->validate(['code' => ['required', 'string', 'size:6']]);
+        $request->validate([
+            'code' => ['nullable', 'string'],
+            'recovery_code' => ['nullable', 'string'],
+        ]);
 
         $tenantId = session('tenant_login_two_factor_id');
         $tenant = Tenant::find($tenantId);
 
-        if (! $tenant || ! $tenant->two_factor_secret || ! $totp->verify((string) $tenant->two_factor_secret, $request->input('code'))) {
+        if (! $tenant || ! $tenant->hasTwoFactorEnabled()) {
+            return redirect()->route('tenant.login');
+        }
+
+        $code = (string) $request->input('code', '');
+        $recoveryCode = (string) $request->input('recovery_code', '');
+        $verified = false;
+
+        if ($recoveryCode !== '') {
+            $verified = $recovery->consume($tenant, $recoveryCode);
+        } elseif (preg_match('/^\d{6}$/', $code)) {
+            $verified = $tenant->two_factor_secret && $totp->verify((string) $tenant->two_factor_secret, $code);
+        }
+
+        if (! $verified) {
             return back()->withErrors(['code' => __('auth.two_factor.invalid_code')]);
         }
 

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Rules\ValidTurnstile;
+use App\Services\TurnstileService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,10 +29,16 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ];
+
+        if (app(TurnstileService::class)->isEnabled()) {
+            $rules['cf-turnstile-response'] = ['required', 'string', new ValidTurnstile];
+        }
+
+        return $rules;
     }
 
     /**

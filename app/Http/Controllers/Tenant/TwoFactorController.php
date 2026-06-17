@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Services\TotpService;
+use App\Services\TwoFactorRecoveryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,7 +39,7 @@ class TwoFactorController extends Controller
         ]);
     }
 
-    public function confirm(Request $request, TotpService $totp): RedirectResponse
+    public function confirm(Request $request, TotpService $totp, TwoFactorRecoveryService $recovery): RedirectResponse
     {
         $this->authorizeTenantOwner();
         $tenant = current_tenant();
@@ -48,10 +49,15 @@ class TwoFactorController extends Controller
             return back()->withErrors(['code' => __('auth.two_factor.invalid_code')]);
         }
 
+        $plainCodes = $recovery->generateSet();
+        $recovery->store($tenant, $plainCodes);
+
         $tenant->forceFill(['two_factor_confirmed_at' => now()])->save();
         session(['tenant_two_factor_verified_at' => now()->timestamp]);
 
-        return back()->with('success', __('app.account.two_factor_enabled'));
+        return back()
+            ->with('success', __('app.account.two_factor_enabled'))
+            ->with('recovery_codes', $plainCodes);
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -64,6 +70,7 @@ class TwoFactorController extends Controller
         $tenant->forceFill([
             'two_factor_secret' => null,
             'two_factor_confirmed_at' => null,
+            'two_factor_recovery_codes' => null,
         ])->save();
         session()->forget('tenant_two_factor_verified_at');
 

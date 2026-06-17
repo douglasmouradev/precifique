@@ -43,4 +43,6 @@ return [
     'total' => 'Total',
     'date' => 'Date',
     'no_sales_yet' => 'No sales yet.',
+    'product_limit_reached' => 'You reached the Basic plan limit of :max products (:count/:max).',
+    'product_limit_near' => 'You are close to the Basic plan product limit (:count/:max).',
 ];

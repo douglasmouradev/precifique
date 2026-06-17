@@ -100,6 +100,7 @@ return [
         'tenants' => 'Tenants',
         'plans' => 'Planos',
         'logs' => 'Logs',
+        'failed_jobs' => 'Filas',
         'lgpd' => 'LGPD',
         'two_factor' => '2FA',
         'site' => 'Site',
@@ -177,5 +178,18 @@ return [
         'filter_search' => 'Buscar',
         'filter_search_placeholder' => 'Tenant ou ação…',
         'filter_submit' => 'Filtrar',
+        'system_title' => 'Auditoria do sistema (admin)',
+        'admin_user' => 'Administrador',
+        'empty_system' => 'Nenhum evento de sistema registrado.',
+    ],
+
+    'failed_jobs' => [
+        'title' => 'Jobs com falha',
+        'subtitle' => 'Últimas 50 entradas da tabela failed_jobs',
+        'queue' => 'Fila',
+        'connection' => 'Conexão',
+        'failed_at' => 'Falhou em',
+        'exception' => 'Exceção',
+        'empty' => 'Nenhum job com falha.',
     ],
 ];
