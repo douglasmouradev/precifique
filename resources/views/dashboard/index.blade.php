@@ -45,35 +45,29 @@
 </x-ui.card>
 @endif
 
-@if($tenant->onTrial())
-<x-ui.alert type="warning" class="mb-6">
-    {!! __('dashboard.trial_until', ['date' => '<strong>'.$tenant->trial_ends_at->format('d/m/Y').'</strong>']) !!}
-    <a href="{{ route('tenant.billing.upgrade') }}" class="underline font-semibold ml-1">{{ __('dashboard.upgrade') }}</a>
-</x-ui.alert>
-@elseif(!$tenant->isPremium() && $tenant->trial_ends_at && $tenant->trial_ends_at->isPast())
-<x-ui.alert type="warning" class="mb-6">
-    {{ __('dashboard.trial_ended') }}
-    <a href="{{ route('tenant.billing.upgrade') }}" class="underline font-semibold">{{ __('dashboard.activate_premium') }}</a>
-    {{ __('dashboard.trial_ended_suffix') }}
-</x-ui.alert>
-@endif
+<x-ui.dashboard-alerts
+    :tenant="$tenant"
+    :on-trial="$tenant->onTrial()"
+    :trial-ends-at="$tenant->trial_ends_at"
+    :products-without-price="$productsWithoutPrice"
+    :onboarding-complete="$onboardingComplete"
+/>
 
-@if($productsWithoutPrice > 0)
-<x-ui.alert type="warning" class="mb-6">
-    <strong>{{ $productsWithoutPrice }}</strong> {{ __('dashboard.products_without_price') }}
-    <a href="{{ route('tenant.products.index') }}" class="font-semibold underline ml-1">{{ __('dashboard.price_now') }}</a>
-</x-ui.alert>
-@endif
-
-<div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5 mb-8 [&>div]:shadow-sm">
-    <x-ui.stat :label="__('dashboard.revenue_month')" icon="revenue" accent="brand"
+<div class="grid lg:grid-cols-3 gap-4 md:gap-5 mb-8">
+    <x-ui.hero-stat
+        class="lg:col-span-2"
+        :label="__('dashboard.revenue_month')"
         :value="'R$ '.number_format($monthRevenue, 2, ',', '.')"
-        :trend="$goalAmount > 0 ? __('dashboard.goal_percent', ['percent' => number_format($goalProgress, 0)]) : ''" />
-    <x-ui.stat :label="__('dashboard.active_products')" icon="products" accent="blue" :value="(string) $productsCount" />
-    <x-ui.stat :label="__('dashboard.sales_month')" icon="sales" accent="violet" :value="(string) $salesCount" />
-    <x-ui.stat :label="__('dashboard.monthly_goal')" icon="goals" accent="amber"
-        :value="'R$ '.number_format($goalAmount, 2, ',', '.')"
-        :trend="$goalAmount > 0 ? __('dashboard.goal_progress', ['percent' => number_format(min(100, $goalProgress), 0)]) : __('dashboard.set_goal')" />
+        :trend="$goalAmount > 0 ? __('dashboard.goal_percent', ['percent' => number_format($goalProgress, 0)]) : null"
+        :href="route('tenant.sales.index')"
+    />
+    <div class="grid sm:grid-cols-3 lg:grid-cols-1 gap-4">
+        <x-ui.stat :label="__('dashboard.active_products')" icon="products" accent="blue" :value="(string) $productsCount" />
+        <x-ui.stat :label="__('dashboard.sales_month')" icon="sales" accent="violet" :value="(string) $salesCount" />
+        <x-ui.stat :label="__('dashboard.monthly_goal')" icon="goals" accent="amber"
+            :value="'R$ '.number_format($goalAmount, 2, ',', '.')"
+            :trend="$goalAmount > 0 ? __('dashboard.goal_progress', ['percent' => number_format(min(100, $goalProgress), 0)]) : __('dashboard.set_goal')" />
+    </div>
 </div>
 
 @if($goalAmount > 0)

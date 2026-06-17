@@ -5,7 +5,7 @@ import { initLandingPricingDemo } from './landing-pricing-demo';
 
 window.precifiqueCloseIntroOverlay = function precifiqueCloseIntroOverlay() {
     try {
-        sessionStorage.setItem('precifique_intro_seen', '1');
+        localStorage.setItem('precifique_intro_seen', '1');
     } catch (_) {
         /* storage bloqueado */
     }
@@ -47,13 +47,13 @@ function initLandingIntro() {
         return;
     }
 
-    try {
-        if (sessionStorage.getItem('precifique_intro_seen')) {
-            overlay.remove();
+        try {
+            if (localStorage.getItem('precifique_intro_seen')) {
+                overlay.remove();
 
-            return;
-        }
-    } catch (_) {
+                return;
+            }
+        } catch (_) {
         overlay.remove();
 
         return;

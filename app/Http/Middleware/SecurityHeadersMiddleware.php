@@ -22,6 +22,8 @@ class SecurityHeadersMiddleware
             'Permissions-Policy',
             'camera=(), microphone=(), geolocation=(), payment=()'
         );
+        $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
+        $response->headers->set('Cross-Origin-Resource-Policy', 'same-origin');
 
         if (config('security.csp')) {
             $nonce = $request->attributes->get('csp_nonce');

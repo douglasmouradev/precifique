@@ -1,5 +1,4 @@
 <x-app-layout>
-    <div class="py-6 max-w-6xl mx-auto px-4 sm:px-6">
         <x-ui.page-header :title="__('admin.dashboard.title')" :subtitle="__('admin.dashboard.subtitle')" class="mb-8" />
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <x-ui.stat :label="__('admin.dashboard.stats.tenants')" icon="products" accent="blue" :value="(string) $totalTenants" />
@@ -108,5 +107,4 @@
                 @endforeach
             </div>
         </x-ui.card>
-    </div>
 </x-app-layout>

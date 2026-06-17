@@ -58,5 +58,10 @@ return [
         'checking_payment' => 'Verificando pagamento a cada 5 segundos…',
         'toast_confirmed' => 'Pagamento confirmado! Bem-vindo ao Premium.',
         'back_dashboard' => '← Voltar ao dashboard',
+        'step_scan' => 'Escanear',
+        'step_pay' => 'Pagar',
+        'step_done' => 'Ativo',
+        'scan_title' => 'Valor do PIX',
+        'expires_hint' => 'O QR Code expira em alguns minutos',
     ],
 ];

@@ -16,6 +16,14 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
+
+Route::get('/.well-known/security.txt', function () {
+    $contact = (string) config('security.security_contact');
+    $body = "Contact: mailto:{$contact}\nPreferred-Languages: pt-BR, en\nCanonical: ".url('/.well-known/security.txt')."\n";
+
+    return response($body, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+})->name('security.txt');
+
 Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 Route::get('/docs/api', ApiDocsController::class)->middleware(RestrictPublicDocs::class)->name('docs.api');
 Route::get('/openapi.yaml', fn () => response()->file(public_path('openapi.yaml'), ['Content-Type' => 'application/yaml']))

@@ -214,6 +214,9 @@ Veja `.env.example` para `AI_PROVIDER`, `GEMINI_*`, `GROQ_*`, `ANTHROPIC_*`, `ST
 | `TENANT_DEMO_ENABLED` | `false` |
 | `SECURITY_PUBLIC_API_DOCS` | `false` |
 | `SECURITY_SIGNED_PRODUCT_PHOTOS` | `true` |
+| `SECURITY_PRIVATE_UPLOADS` | `true` (fotos em disco privado) |
+| `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | CAPTCHA Cloudflare (opcional) |
+| `API_DOCS_TOKEN` | Bearer para `/docs/api` quando docs fechados |
 | `MP_WEBHOOK_SECRET` / `STRIPE_WEBHOOK_SECRET` | Obrigatórios |
 | `ADMIN_PASSWORD` | Senha forte; configure 2FA em `/profile/two-factor` após primeiro login |
 

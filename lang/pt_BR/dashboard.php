@@ -23,6 +23,7 @@ return [
     'products_without_price' => 'produto(s) ainda sem preço de venda.',
     'price_now' => 'Precificar agora',
     'revenue_month' => 'Faturamento do mês',
+    'view_details' => 'Ver detalhes',
     'goal_percent' => ':percent% da meta',
     'active_products' => 'Produtos ativos',
     'sales_month' => 'Vendas do mês',

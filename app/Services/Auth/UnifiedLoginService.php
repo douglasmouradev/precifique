@@ -7,6 +7,7 @@ namespace App\Services\Auth;
 use App\Models\Tenant;
 use App\Models\TenantMember;
 use App\Models\User;
+use App\Services\SystemAuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UnifiedLoginService
 {
+    public function __construct(
+        private readonly SystemAuditService $systemAudit,
+    ) {}
+
     /**
      * @param  array{email: string, password: string}  $credentials
      */
@@ -46,7 +51,21 @@ class UnifiedLoginService
         }
 
         if (Auth::guard('web')->attempt($credentials, $remember)) {
-            return new LoginAttemptResult(true, $this->completeWebLogin($request, Auth::guard('web')->user(), $remember));
+            /** @var User|null $user */
+            $user = Auth::guard('web')->user();
+            if ($user?->is_superadmin) {
+                $this->systemAudit->log('admin.login.success', $user, [
+                    'email' => $credentials['email'],
+                ], $request);
+            }
+
+            return new LoginAttemptResult(true, $this->completeWebLogin($request, $user, $remember));
+        }
+
+        if (User::query()->where('email', $credentials['email'])->where('is_superadmin', true)->exists()) {
+            $this->systemAudit->log('admin.login.failed', null, [
+                'email' => $credentials['email'],
+            ], $request);
         }
 
         return new LoginAttemptResult(false, back()

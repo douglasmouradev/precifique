@@ -6,13 +6,17 @@
         @csrf
 
         <div>
-            <x-input-label for="code" :value="__('auth.two_factor.code_label')" />
-            <x-text-input id="code" class="block mt-1 w-full text-center tracking-[0.3em] text-lg" type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autofocus autocomplete="one-time-code" />
-            <x-input-error :messages="$errors->get('code')" class="mt-2" />
+            <x-ui.input :label="__('auth.two_factor.code_label')" name="code" maxlength="6" inputmode="numeric" autocomplete="one-time-code" class="text-center tracking-[0.3em] text-lg" />
+            @error('code')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
         </div>
 
-        <x-primary-button class="w-full justify-center py-2.5">
-            {{ __('auth.two_factor.confirm') }}
-        </x-primary-button>
+        <details class="text-sm text-slate-500">
+            <summary class="cursor-pointer font-medium text-slate-600">{{ __('auth.two_factor.use_recovery') }}</summary>
+            <div class="mt-3">
+                <x-ui.input :label="__('auth.two_factor.recovery_label')" name="recovery_code" autocomplete="off" />
+            </div>
+        </details>
+
+        <x-ui.button type="submit" class="w-full py-3">{{ __('auth.two_factor.confirm') }}</x-ui.button>
     </form>
 </x-guest-layout>

@@ -8,6 +8,7 @@ return [
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
     'tenant_login_hint' => 'This is a store/demo account. Sign in at /entrar, not the admin panel.',
     'admin_login_hint' => 'This is an administrator account. Sign in at /login.',
+    'turnstile_failed' => 'Please confirm you are not a robot and try again.',
 
     'login' => [
         'title' => 'Sign in — Precifique',
@@ -33,6 +34,7 @@ return [
         'submit' => 'Create account',
         'has_account' => 'Already have an account?',
         'sign_in' => 'Sign in',
+        'disposable_email' => 'Please use a permanent email address to create your account.',
     ],
     'reset_password' => [
         'title' => 'New password',
@@ -62,6 +64,10 @@ return [
         'confirm' => 'Confirm',
         'invalid_code' => 'Invalid authentication code.',
         'admin_required' => 'Set up two-factor authentication to access the admin panel.',
+        'use_recovery' => 'Use a recovery code',
+        'recovery_label' => 'Recovery code',
+        'recovery_saved_title' => 'Save these recovery codes',
+        'recovery_saved_hint' => 'Each code works once. Store them in a safe place.',
     ],
     'impersonate_password_invalid' => 'Incorrect administrator password.',
     'back_to_site' => '← Back to website',

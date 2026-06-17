@@ -58,5 +58,10 @@ return [
         'checking_payment' => 'Checking payment every 5 seconds…',
         'toast_confirmed' => 'Payment confirmed! Welcome to Premium.',
         'back_dashboard' => '← Back to dashboard',
+        'step_scan' => 'Scan',
+        'step_pay' => 'Pay',
+        'step_done' => 'Active',
+        'scan_title' => 'PIX amount',
+        'expires_hint' => 'QR code expires in a few minutes',
     ],
 ];

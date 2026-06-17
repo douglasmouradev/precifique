@@ -13,6 +13,11 @@ class RestrictPublicDocs
     public function handle(Request $request, Closure $next): Response
     {
         if (! config('security.public_api_docs')) {
+            $token = (string) config('security.api_docs_token', '');
+            if ($token !== '' && $request->bearerToken() === $token) {
+                return $next($request);
+            }
+
             abort(404);
         }
 

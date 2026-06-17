@@ -27,7 +27,7 @@ class ImageUploadService
             return;
         }
 
-        $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+        $disk = $this->uploadDisk();
         Storage::disk($disk)->delete($path);
         $thumb = preg_replace('/\.jpg$/', '_thumb.jpg', $path);
         if ($thumb !== $path) {
@@ -35,20 +35,30 @@ class ImageUploadService
         }
     }
 
+    public function uploadDisk(): string
+    {
+        if (config('filesystems.default') === 's3') {
+            return 's3';
+        }
+
+        return config('security.private_uploads') ? 'uploads' : 'public';
+    }
+
     private function storeOptimizedImage(UploadedFile $file, string $directory): string
     {
         $this->validate($file);
 
-        $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+        $disk = $this->uploadDisk();
         $filename = Str::uuid()->toString().'.jpg';
         $path = $directory.'/'.$filename;
 
         $optimized = $this->optimize($file);
-        Storage::disk($disk)->put($path, $optimized, ['visibility' => 'public']);
+        $options = $disk === 'public' ? ['visibility' => 'public'] : [];
+        Storage::disk($disk)->put($path, $optimized, $options);
 
         $thumbPath = preg_replace('/\.jpg$/', '_thumb.jpg', $path);
         $thumb = $this->optimize($file, (int) config('precifique.uploads.product_image_thumb_max_width', 480));
-        Storage::disk($disk)->put($thumbPath, $thumb, ['visibility' => 'public']);
+        Storage::disk($disk)->put($thumbPath, $thumb, $options);
 
         return $path;
     }

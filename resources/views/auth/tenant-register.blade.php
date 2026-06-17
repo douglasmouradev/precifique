@@ -21,6 +21,7 @@
         <option value="outro" @selected(old('niche') === 'outro')>{{ __('app.niches.outro') }}</option>
     </x-ui.select>
     <x-ui.button variant="secondary" type="submit" class="w-full py-3">{{ __('auth.register.submit') }}</x-ui.button>
+    <x-ui.turnstile class="mt-2" />
 </form>
 @endsection
 @section('footer')

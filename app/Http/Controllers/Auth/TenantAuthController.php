@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\TenantRegisterRequest;
 use App\Models\Tenant;
 use App\Services\Auth\UnifiedLoginService;
+use App\Services\TurnstileService;
 use App\Support\TenantNicheMapper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,12 +23,19 @@ class TenantAuthController extends Controller
         return view('auth.tenant-login');
     }
 
-    public function login(Request $request, UnifiedLoginService $login): RedirectResponse
+    public function login(Request $request, UnifiedLoginService $login, TurnstileService $turnstile): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
+            'cf-turnstile-response' => $turnstile->isEnabled() ? ['required', 'string'] : ['nullable'],
         ]);
+
+        if (! $turnstile->verify($request->input('cf-turnstile-response'), $request->ip())) {
+            return back()->withErrors(['email' => __('auth.turnstile_failed')])->onlyInput('email');
+        }
+
+        unset($credentials['cf-turnstile-response']);
 
         return $login->attempt($request, $credentials)->response;
     }
@@ -37,9 +45,14 @@ class TenantAuthController extends Controller
         return view('auth.tenant-register');
     }
 
-    public function register(TenantRegisterRequest $request): RedirectResponse
+    public function register(TenantRegisterRequest $request, TurnstileService $turnstile): RedirectResponse
     {
+        if (! $turnstile->verify($request->input('cf-turnstile-response'), $request->ip())) {
+            return back()->withErrors(['email' => __('auth.turnstile_failed')])->withInput();
+        }
+
         $data = $request->validated();
+        unset($data['cf-turnstile-response']);
         $niche = TenantNicheMapper::map($data);
 
         $tenant = Tenant::create([

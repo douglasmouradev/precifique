@@ -8,6 +8,10 @@ return [
     'throttle' => 'Muitas tentativas. Tente novamente em :seconds segundos.',
     'tenant_login_hint' => 'Esta conta é de loja/demo. Use o login em /entrar, não o painel admin.',
     'admin_login_hint' => 'Esta conta é de administrador. Use o login em /login.',
+    'turnstile_failed' => 'Confirme que você não é um robô e tente novamente.',
+    'impersonate_password_invalid' => 'Senha de administrador incorreta.',
+    'back_to_site' => '← Voltar ao site',
+    'back_to_login' => 'Voltar ao login',
 
     'login' => [
         'title' => 'Entrar — Precifique',
@@ -33,6 +37,7 @@ return [
         'submit' => 'Criar conta',
         'has_account' => 'Já tem conta?',
         'sign_in' => 'Entrar',
+        'disposable_email' => 'Use um e-mail permanente para criar sua conta.',
     ],
     'reset_password' => [
         'title' => 'Nova senha',
@@ -62,15 +67,14 @@ return [
         'confirm' => 'Confirmar',
         'invalid_code' => 'Código de autenticação inválido.',
         'admin_required' => 'Configure a autenticação em duas etapas para acessar o painel admin.',
+        'use_recovery' => 'Usar código de recuperação',
+        'recovery_label' => 'Código de recuperação',
+        'recovery_saved_title' => 'Guarde estes códigos de recuperação',
+        'recovery_saved_hint' => 'Cada código só pode ser usado uma vez. Armazene em local seguro.',
     ],
-    'impersonate_password_invalid' => 'Senha de administrador incorreta.',
-    'back_to_site' => '← Voltar ao site',
-
     'password_reset' => [
         'success' => 'Senha redefinida.',
     ],
-    'back_to_login' => 'Voltar ao login',
-
     'admin_login' => [
         'heading' => 'Entrar como admin',
         'panel_subtitle' => 'Painel administrativo',

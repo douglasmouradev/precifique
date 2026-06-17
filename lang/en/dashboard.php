@@ -23,6 +23,7 @@ return [
     'products_without_price' => 'product(s) still without a selling price.',
     'price_now' => 'Set prices now',
     'revenue_month' => 'Monthly revenue',
+    'view_details' => 'View details',
     'goal_percent' => ':percent% of goal',
     'active_products' => 'Active products',
     'sales_month' => 'Sales this month',

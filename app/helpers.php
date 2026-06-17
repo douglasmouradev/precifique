@@ -119,20 +119,32 @@ function tenant_member_can(string $ability): bool
  */
 function product_photo_url(?string $path, string $variant = 'display'): ?string
 {
+    return tenant_media_url($path, $variant);
+}
+
+/**
+ * URL assinada de mídia do tenant (foto de produto ou logo).
+ */
+function tenant_media_url(?string $path, string $variant = 'display'): ?string
+{
     if ($path === null || $path === '') {
         return null;
     }
 
-    if (config('security.signed_product_photos')) {
+    $useSigned = config('security.signed_product_photos')
+        || config('security.private_uploads')
+        || app(\App\Services\ImageUploadService::class)->uploadDisk() !== 'public';
+
+    if ($useSigned) {
         return \Illuminate\Support\Facades\URL::temporarySignedRoute(
-            'tenant.products.photo',
+            'tenant.media.show',
             now()->addMinutes(30),
             ['path' => $path],
             absolute: true
         ).($variant !== 'display' ? '?variant='.urlencode($variant) : '');
     }
 
-    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+    $disk = app(\App\Services\ImageUploadService::class)->uploadDisk();
 
     if ($variant === 'thumb') {
         $thumbPath = preg_replace('/\.jpg$/', '_thumb.jpg', $path);

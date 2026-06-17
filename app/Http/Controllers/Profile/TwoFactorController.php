@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Profile;
 
 use App\Http\Controllers\Controller;
 use App\Services\TotpService;
+use App\Services\TwoFactorRecoveryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,7 @@ class TwoFactorController extends Controller
         ]);
     }
 
-    public function confirm(Request $request, TotpService $totp): RedirectResponse
+    public function confirm(Request $request, TotpService $totp, TwoFactorRecoveryService $recovery): RedirectResponse
     {
         $user = Auth::user();
         abort_unless($user?->is_superadmin, 403);
@@ -42,12 +43,16 @@ class TwoFactorController extends Controller
             return back()->withErrors(['code' => __('auth.two_factor.invalid_code')]);
         }
 
+        $plainCodes = $recovery->generateSet();
+        $recovery->store($user, $plainCodes);
+
         $user->forceFill(['two_factor_confirmed_at' => now()])->save();
         session(['two_factor_verified_at' => now()->timestamp]);
 
         return redirect()
             ->route('admin.dashboard')
-            ->with('success', __('app.account.two_factor_enabled'));
+            ->with('success', __('app.account.two_factor_enabled'))
+            ->with('recovery_codes', $plainCodes);
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -60,6 +65,7 @@ class TwoFactorController extends Controller
         $user->forceFill([
             'two_factor_secret' => null,
             'two_factor_confirmed_at' => null,
+            'two_factor_recovery_codes' => null,
         ])->save();
         session()->forget('two_factor_verified_at');
 

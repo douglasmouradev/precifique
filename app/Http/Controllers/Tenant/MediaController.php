@@ -5,15 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class ProductPhotoController extends Controller
+class MediaController extends Controller
 {
-    public function show(Request $request, string $path): StreamedResponse
+    public function show(Request $request, string $path, ImageUploadService $images): StreamedResponse
     {
-        if (! preg_match('#^products/\d+/[a-f0-9\-]+\.jpg$#i', $path)) {
+        if (! preg_match('#^(products|logos)/\d+/[a-f0-9\-]+\.jpg$#i', $path)) {
             abort(404);
         }
 
@@ -27,7 +28,7 @@ class ProductPhotoController extends Controller
             }
         }
 
-        $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+        $disk = $images->uploadDisk();
 
         if (! Storage::disk($disk)->exists($resolved)) {
             if ($variant === 'thumb' && Storage::disk($disk)->exists($path)) {

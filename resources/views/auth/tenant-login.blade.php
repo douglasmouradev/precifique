@@ -13,6 +13,7 @@
         {{ __('auth.login.remember_me') }}
     </label>
     <x-ui.button variant="secondary" type="submit" class="w-full py-3">{{ __('auth.login.submit') }}</x-ui.button>
+    <x-ui.turnstile class="mt-2" />
 </form>
 @endsection
 @section('footer')
