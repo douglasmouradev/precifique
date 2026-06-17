@@ -2,7 +2,7 @@
     <x-slot name="header">
         <x-ui.page-header :title="__('admin.lgpd_page.title')" :subtitle="__('admin.lgpd_page.subtitle')" />
     </x-slot>
-    <div class="py-6 max-w-6xl mx-auto sm:px-6 animate-fade-in">
+    <div class="space-y-8">
         <x-ui.card class="overflow-x-auto p-0">
             <table class="ui-table">
                 <thead>

@@ -1,8 +1,13 @@
 @extends('layouts.auth')
 @section('title', __('lgpd.consent.title'))
 @section('content')
-<h1 class="font-display text-xl font-semibold mb-2">{{ __('lgpd.consent.heading') }}</h1>
-<p class="text-sm text-slate-500 mb-6">{{ __('lgpd.consent.subtitle') }}</p>
+<div class="text-center mb-6">
+    <div class="w-14 h-14 rounded-2xl bg-brand/10 text-brand flex items-center justify-center mx-auto mb-4">
+        <x-ui.nav-icon name="spark" class="w-7 h-7" />
+    </div>
+    <h1 class="font-display text-xl font-semibold mb-2">{{ __('lgpd.consent.heading') }}</h1>
+    <p class="text-sm text-slate-500">{{ __('lgpd.consent.subtitle') }}</p>
+</div>
 
 <form method="POST" action="{{ route('lgpd.consent.store') }}" class="space-y-4">
     @csrf

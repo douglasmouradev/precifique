@@ -6,7 +6,7 @@
             </x-slot:actions>
         </x-ui.page-header>
     </x-slot>
-    <div class="py-6 max-w-lg mx-auto sm:px-6">
+    <div class="max-w-lg mx-auto">
         <x-ui.card class="p-6">
             <form method="POST" action="{{ route('admin.tenants.store') }}" class="space-y-4">
                 @csrf

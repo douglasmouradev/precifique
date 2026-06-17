@@ -207,10 +207,13 @@
         </div>
         @endif
         @if(session()->has('impersonating_from_admin'))
-        <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-violet-50 text-violet-900 text-sm border border-violet-200 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <span>{{ __('messages.support_mode') }}</span>
+        <div class="sticky top-14 z-[65] bg-amber-400 text-amber-950 text-sm font-semibold px-4 md:px-8 py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 shadow-md border-b border-amber-500/40" role="alert" aria-live="assertive">
+            <span class="flex items-center gap-2">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                {{ __('messages.support_mode') }}
+            </span>
             <form method="POST" action="{{ route('tenant.impersonate.stop') }}">@csrf
-                <button type="submit" class="text-sm font-semibold text-violet-700 hover:underline">{{ __('messages.support_exit') }}</button>
+                <button type="submit" class="text-sm font-bold underline underline-offset-2 hover:text-amber-900">{{ __('messages.support_exit') }}</button>
             </form>
         </div>
         @endif

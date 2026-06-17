@@ -8,13 +8,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans text-ink antialiased bg-paper min-h-screen relative gradient-mesh">
-    <x-ui.locale-switcher class="absolute top-4 right-4" />
+    <x-ui.skip-link />
+    <x-ui.locale-switcher class="absolute top-4 right-4 z-20" />
     @php
         $step = $step ?? 0;
         $steps = array_values(__('onboarding.layout.steps'));
     @endphp
     <div class="min-h-screen flex flex-col">
-        <header class="border-b border-slate-200/70 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+        <header class="border-b border-slate-200/70 bg-white/90 backdrop-blur-md sticky top-0 z-10 shadow-sm">
             <div class="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
                 <a href="{{ route('home') }}"><x-ui.logo variant="full" size="md" /></a>
                 @if($step > 0)
@@ -32,8 +33,8 @@
             @endif
         </header>
 
-        <main class="flex-1 flex flex-col items-center justify-center px-4 py-12 sm:py-16">
-            <div class="w-full max-w-2xl">
+        <main id="main-content" class="flex-1 flex flex-col items-center justify-center px-4 py-12 sm:py-16">
+            <div class="w-full max-w-2xl animate-fade-in">
                 @yield('content')
             </div>
         </main>

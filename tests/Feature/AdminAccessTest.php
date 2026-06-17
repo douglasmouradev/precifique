@@ -51,6 +51,7 @@ class AdminAccessTest extends TestCase
             'admin.plans.index',
             'admin.logs.index',
             'admin.lgpd',
+            'admin.failed-jobs.index',
         ];
 
         foreach ($routes as $route) {
@@ -87,5 +88,37 @@ class AdminAccessTest extends TestCase
         $this->actingAs($user)
             ->get(route('admin.dashboard'))
             ->assertForbidden();
+    }
+
+    public function test_superadmin_can_export_tenants_csv(): void
+    {
+        $admin = $this->superAdmin();
+
+        $response = $this->actingAsEnrolledSuperAdmin($admin)
+            ->get(route('admin.tenants.export'));
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
+    }
+
+    public function test_superadmin_can_export_audit_logs_csv(): void
+    {
+        $admin = $this->superAdmin();
+
+        $response = $this->actingAsEnrolledSuperAdmin($admin)
+            ->get(route('admin.logs.export'));
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
+    }
+
+    public function test_superadmin_can_retry_all_failed_jobs(): void
+    {
+        $admin = $this->superAdmin();
+
+        $this->actingAsEnrolledSuperAdmin($admin)
+            ->post(route('admin.failed-jobs.retry-all'))
+            ->assertRedirect()
+            ->assertSessionHas('success');
     }
 }

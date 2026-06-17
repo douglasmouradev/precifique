@@ -85,7 +85,11 @@ class TenantManagementController extends Controller
 
     public function show(Tenant $tenant): View
     {
-        $tenant->load(['subscription.plan', 'lgpdConsents' => fn ($q) => $q->latest('consented_at')->limit(5)]);
+        $tenant->load([
+            'subscription.plan',
+            'lgpdConsents' => fn ($q) => $q->latest('consented_at')->limit(5),
+            'auditLogs' => fn ($q) => $q->latest('created_at')->limit(15),
+        ]);
 
         return view('admin.tenants.show', compact('tenant'));
     }

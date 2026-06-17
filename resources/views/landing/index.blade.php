@@ -2,6 +2,23 @@
 
 @section('title', __('landing.og_title'))
 
+@push('head')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'FAQPage',
+    'mainEntity' => collect(__('landing.faq_items'))->map(fn ($faq) => [
+        '@type' => 'Question',
+        'name' => $faq['q'],
+        'acceptedAnswer' => [
+            '@type' => 'Answer',
+            'text' => $faq['a'],
+        ],
+    ])->values()->all(),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+</script>
+@endpush
+
 @section('content')
 {{-- Intro + página — intro usa JS vanilla em landing.js --}}
 <div id="landing-page">
@@ -37,7 +54,7 @@
             </p>
 
             <div class="w-full mt-10">
-                <div class="flex justify-between text-xs text-gray-500 mb-2 tabular-nums">
+                <div class="flex justify-between text-xs text-slate-500 mb-2 tabular-nums">
                     <span id="landing-intro-status">{{ __('landing.intro_preparing') }}</span>
                     <span><span id="landing-intro-pct">0</span>%</span>
                 </div>
@@ -151,7 +168,7 @@
                         <x-ui.nav-icon :name="$nicheIcons[$i]" class="w-7 h-7" />
                     </div>
                     <h3 class="font-display font-bold text-xl">{{ $n['title'] }}</h3>
-                    <p class="text-gray-600 mt-2">{{ $n['text'] }}</p>
+                    <p class="text-slate-600 mt-2">{{ $n['text'] }}</p>
                 </x-landing.reveal>
                 @endforeach
             </div>
@@ -281,7 +298,34 @@
                         <x-ui.nav-icon name="spark" class="w-5 h-5" />
                     </div>
                     <h3 class="font-display font-bold text-lg text-slate-800 mb-2">{{ $t['title'] }}</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">{{ $t['text'] }}</p>
+                    <p class="text-slate-600 text-sm leading-relaxed">{{ $t['text'] }}</p>
+                </x-landing.reveal>
+                @endforeach
+            </div>
+        </div>
+    </x-landing.scroll-3d-section>
+
+    {{-- Prévia do produto --}}
+    <x-landing.scroll-3d-section id="preview" intensity="subtle" class="py-20 bg-white border-y border-slate-100">
+        <div class="max-w-6xl mx-auto px-4">
+            <x-landing.reveal>
+            <h2 class="landing-section-title text-center mb-3">{{ __('landing.preview_title') }}</h2>
+            <p class="text-center text-slate-500 mb-12 max-w-xl mx-auto">{{ __('landing.preview_subtitle') }}</p>
+            </x-landing.reveal>
+            <div class="grid md:grid-cols-3 gap-6">
+                @foreach(__('landing.preview_cards') as $i => $card)
+                <x-landing.reveal :delay="$i * 80" class="card-3d landing-card overflow-hidden !p-0">
+                    <div class="h-36 bg-gradient-to-br from-slate-100 to-slate-50 border-b border-slate-200/80 p-4 flex flex-col justify-end">
+                        <div class="space-y-2">
+                            <div class="h-2 w-3/4 rounded bg-brand/30"></div>
+                            <div class="h-2 w-1/2 rounded bg-slate-200"></div>
+                            <div class="h-8 w-24 rounded-lg bg-brand/20 mt-2"></div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-display font-bold text-lg text-ink mb-1">{{ $card['title'] }}</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">{{ $card['text'] }}</p>
+                    </div>
                 </x-landing.reveal>
                 @endforeach
             </div>

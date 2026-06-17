@@ -1,6 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <x-ui.page-header :title="__('admin.logs.title')" :subtitle="__('admin.logs_page.subtitle')" />
+        <x-ui.page-header :title="__('admin.logs.title')" :subtitle="__('admin.logs_page.subtitle')">
+            <x-slot:actions>
+                <x-ui.button variant="outline" :href="route('admin.logs.export')">{{ __('admin.logs_page.export_csv') }}</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
     </x-slot>
 
     <form method="GET" class="flex flex-wrap gap-3 items-end mb-8">

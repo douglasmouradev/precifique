@@ -12,6 +12,7 @@ return [
     'premium_access' => 'Você tem acesso a todos os recursos Premium.',
     'unlock_title' => 'Desbloqueie todo o potencial do Precifique',
     'unlock_subtitle' => 'Produtos ilimitados, IA de precificação, relatórios Excel e margem de até 150%.',
+    'inline_upgrade_banner' => 'Desbloqueie IA, relatórios Excel e produtos ilimitados com o Premium.',
     'current_plan' => 'Plano atual',
     'basic' => 'Basic',
     'free' => 'Grátis',

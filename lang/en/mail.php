@@ -5,6 +5,12 @@ declare(strict_types=1);
 return [
     'thanks' => 'Thanks,',
 
+    'footer' => [
+        'tagline' => 'Smart pricing for small Brazilian businesses.',
+        'privacy' => 'Privacy',
+        'terms' => 'Terms of use',
+    ],
+
     'tenant_welcome' => [
         'subject' => 'Welcome to Precifique',
         'heading' => 'Welcome to Precifique, :name!',

@@ -9,6 +9,8 @@
     </x-slot:actions>
 </x-ui.page-header>
 
+<x-ui.upgrade-banner />
+
 <p class="text-sm text-slate-500 mb-6 -mt-4">{{ __('costs.variable.total_active', ['amount' => 'R$ '.number_format($total, 2, ',', '.')]) }}</p>
 
 <div class="grid lg:grid-cols-2 gap-6 animate-fade-in">

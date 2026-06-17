@@ -1,5 +1,7 @@
 <x-app-layout>
-        <x-ui.page-header :title="__('admin.dashboard.title')" :subtitle="__('admin.dashboard.subtitle')" class="mb-8" />
+    <x-slot name="header">
+        <x-ui.page-header :title="__('admin.dashboard.title')" :subtitle="__('admin.dashboard.subtitle')" />
+    </x-slot>
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <x-ui.stat :label="__('admin.dashboard.stats.tenants')" icon="products" accent="blue" :value="(string) $totalTenants" />
             <x-ui.stat :label="__('admin.dashboard.stats.active')" icon="dashboard" accent="brand" :value="(string) $activeTenants" />
@@ -27,6 +29,7 @@
                         ['route' => 'admin.plans.index', 'label' => __('admin.dashboard.links.plans.label'), 'desc' => __('admin.dashboard.links.plans.description')],
                         ['route' => 'admin.logs.index', 'label' => __('admin.dashboard.links.logs.label'), 'desc' => __('admin.dashboard.links.logs.description')],
                         ['route' => 'admin.lgpd', 'label' => __('admin.dashboard.links.lgpd.label'), 'desc' => __('admin.dashboard.links.lgpd.description')],
+                        ['route' => 'admin.failed-jobs.index', 'label' => __('admin.dashboard.links.failed_jobs.label'), 'desc' => __('admin.dashboard.links.failed_jobs.description')],
                     ] as $link)
                     <a href="{{ route($link['route']) }}" class="ui-card-hover p-4 block group">
                         <p class="font-semibold text-ink group-hover:text-brand-dark transition-colors">{{ $link['label'] }}</p>

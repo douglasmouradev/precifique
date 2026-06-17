@@ -1,10 +1,17 @@
-<x-guest-layout>
-    <div class="max-w-3xl mx-auto py-12 px-4 prose prose-slate">
-        <h1>Precifique API v1</h1>
-        <p>REST API for integrations. Base URL: <code>{{ url('/api/v1') }}</code></p>
+@extends('layouts.landing')
+@section('title', __('docs.api.title'))
+@section('meta_description', __('docs.api.meta'))
 
-        <h2>Authentication</h2>
-        <pre><code>POST /api/v1/auth/token
+@section('content')
+<x-landing.header />
+<article class="max-w-3xl mx-auto pt-[6.5rem] pb-20 px-4">
+    <div class="landing-card prose prose-slate max-w-none">
+        <h1 class="ui-page-title !mb-2">{{ __('docs.api.title') }}</h1>
+        <p class="ui-page-subtitle">{{ __('docs.api.subtitle') }}</p>
+        <p class="mt-6">{{ __('docs.api.base_url') }} <code class="text-sm bg-slate-100 px-2 py-1 rounded">{{ url('/api/v1') }}</code></p>
+
+        <h2 class="font-display font-semibold text-lg mt-8 mb-3">{{ __('docs.api.auth_title') }}</h2>
+        <pre class="text-sm bg-slate-900 text-slate-100 p-4 rounded-xl overflow-x-auto"><code>POST /api/v1/auth/token
 {
   "email": "you@example.com",
   "password": "...",
@@ -12,15 +19,21 @@
   "abilities": ["dashboard:read", "products:read", "sales:write"]
 }</code></pre>
 
-        <h2>Endpoints</h2>
-        <ul>
-            <li><code>GET /dashboard/summary</code> — requires <code>dashboard:read</code></li>
-            <li><code>GET /products</code> — requires <code>products:read</code></li>
-            <li><code>PATCH /products/{id}/stock</code> — requires <code>products:write</code></li>
-            <li><code>GET /sales</code> — requires <code>sales:read</code></li>
-            <li><code>POST /sales</code> — requires <code>sales:write</code></li>
+        <h2 class="font-display font-semibold text-lg mt-8 mb-3">{{ __('docs.api.endpoints_title') }}</h2>
+        <ul class="space-y-2 text-sm text-slate-600">
+            <li><code>GET /dashboard/summary</code> — dashboard:read</li>
+            <li><code>GET /products</code> — products:read</li>
+            <li><code>PATCH /products/{id}/stock</code> — products:write</li>
+            <li><code>GET /sales</code> — sales:read</li>
+            <li><code>POST /sales</code> — sales:write</li>
         </ul>
 
-        <p>Manage tokens in <strong>My account</strong> after logging in. Full reference: <a href="https://github.com/douglasmouradev/precifique/blob/main/docs/API.md">docs/API.md</a></p>
+        <p class="mt-8 text-sm">{{ __('docs.api.manage_tokens') }}</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+            <a href="{{ route('tenant.login') }}" class="landing-btn-brand">{{ __('docs.api.login_cta') }}</a>
+            <a href="{{ asset('openapi.yaml') }}" class="landing-btn-ghost !text-ink !border-slate-200">{{ __('docs.api.openapi') }}</a>
+        </div>
     </div>
-</x-guest-layout>
+</article>
+<x-landing.footer />
+@endsection

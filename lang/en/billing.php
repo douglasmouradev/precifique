@@ -12,6 +12,7 @@ return [
     'premium_access' => 'You have access to all Premium features.',
     'unlock_title' => 'Unlock the full power of Precifique',
     'unlock_subtitle' => 'Unlimited products, AI pricing, Excel reports and margins up to 150%.',
+    'inline_upgrade_banner' => 'Unlock AI, Excel reports and unlimited products with Premium.',
     'current_plan' => 'Current plan',
     'basic' => 'Basic',
     'free' => 'Free',

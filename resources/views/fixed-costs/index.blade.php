@@ -9,6 +9,8 @@
     </x-slot:actions>
 </x-ui.page-header>
 
+<x-ui.upgrade-banner />
+
 <div class="grid lg:grid-cols-2 gap-6 animate-fade-in">
     <x-ui.card>
         <x-slot:header>

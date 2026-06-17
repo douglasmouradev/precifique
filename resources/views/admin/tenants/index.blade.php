@@ -2,10 +2,10 @@
     <x-slot name="header">
         <x-ui.page-header :title="__('admin.tenants.title')" :subtitle="__('admin.tenants_page.subtitle')" />
     </x-slot>
-    <div class="py-6 max-w-6xl mx-auto sm:px-6 lg:px-8 animate-fade-in">
-        <div class="mb-6 flex flex-wrap gap-3 items-center justify-between">
-            <x-ui.button variant="secondary" :href="route('admin.tenants.create')">{{ __('admin.tenants_page.create') }}</x-ui.button>
-        </div>
+    <div class="mb-6 flex flex-wrap gap-3 items-center justify-between">
+        <x-ui.button variant="secondary" :href="route('admin.tenants.create')">{{ __('admin.tenants_page.create') }}</x-ui.button>
+        <x-ui.button variant="outline" :href="route('admin.tenants.export')">{{ __('admin.tenants_page.export_csv') }}</x-ui.button>
+    </div>
 
         <form method="GET" class="ui-card-premium p-4 mb-6 flex flex-wrap gap-3 items-end">
             <div class="flex-1 min-w-[200px]">
@@ -77,5 +77,4 @@
             </table>
         </x-ui.card>
         <div class="mt-6">{{ $tenants->links() }}</div>
-    </div>
 </x-app-layout>

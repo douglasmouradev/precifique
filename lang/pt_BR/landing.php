@@ -114,6 +114,13 @@ return [
 
     'cta_final_title' => 'Comece agora e pare de perder dinheiro',
     'cta_final_button' => 'Criar conta grátis',
+    'preview_title' => 'Veja por dentro',
+    'preview_subtitle' => 'Interface clara para precificar em minutos, sem planilhas confusas',
+    'preview_cards' => [
+        ['title' => 'Dashboard', 'text' => 'Meta mensal, margem e alertas em um só lugar.'],
+        ['title' => 'Produtos', 'text' => 'Ficha técnica, custos e preço sugerido por margem.'],
+        ['title' => 'Precificação', 'text' => 'Simule margens e veja o lucro real de cada venda.'],
+    ],
     'footer_privacy' => 'Privacidade',
     'footer_terms' => 'Termos',
     'footer_api' => 'API',

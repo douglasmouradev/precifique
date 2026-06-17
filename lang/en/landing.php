@@ -114,6 +114,13 @@ return [
 
     'cta_final_title' => 'Start now and stop losing money',
     'cta_final_button' => 'Create free account',
+    'preview_title' => 'Take a look inside',
+    'preview_subtitle' => 'A clear interface to price in minutes — no messy spreadsheets',
+    'preview_cards' => [
+        ['title' => 'Dashboard', 'text' => 'Monthly goal, margin and alerts in one place.'],
+        ['title' => 'Products', 'text' => 'Recipe sheet, costs and suggested price by margin.'],
+        ['title' => 'Pricing', 'text' => 'Simulate margins and see real profit per sale.'],
+    ],
     'footer_privacy' => 'Privacy',
     'footer_terms' => 'Terms',
     'footer_api' => 'API',

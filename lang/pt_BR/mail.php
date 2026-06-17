@@ -5,6 +5,12 @@ declare(strict_types=1);
 return [
     'thanks' => 'Obrigado,',
 
+    'footer' => [
+        'tagline' => 'Precificação inteligente para pequenos negócios brasileiros.',
+        'privacy' => 'Privacidade',
+        'terms' => 'Termos de uso',
+    ],
+
     'tenant_welcome' => [
         'subject' => 'Bem-vindo ao Precifique',
         'heading' => 'Bem-vindo ao Precifique, :name!',

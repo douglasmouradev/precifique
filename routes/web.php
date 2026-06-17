@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\AdminExportController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\FailedJobController;
@@ -94,7 +95,11 @@ Route::middleware(['auth', 'superadmin', 'admin.session', 'admin.2fa.enrolled', 
     Route::get('/plans', [PlanController::class, 'index'])->name('plans.index');
     Route::patch('/plans/{plan}', [PlanController::class, 'update'])->name('plans.update');
     Route::get('/logs', [AuditLogController::class, 'index'])->name('logs.index');
+    Route::get('/logs/export', [AdminExportController::class, 'auditLogs'])->name('logs.export');
+    Route::get('/tenants/export/csv', [AdminExportController::class, 'tenants'])->name('tenants.export');
     Route::get('/failed-jobs', [FailedJobController::class, 'index'])->name('failed-jobs.index');
+    Route::post('/failed-jobs/{uuid}/retry', [FailedJobController::class, 'retry'])->name('failed-jobs.retry');
+    Route::post('/failed-jobs/retry-all', [FailedJobController::class, 'retryAll'])->name('failed-jobs.retry-all');
 });
 
 Route::middleware('auth')->get('/dashboard', function () {

@@ -35,6 +35,8 @@ return [
         'has_account' => 'Already have an account?',
         'sign_in' => 'Sign in',
         'disposable_email' => 'Please use a permanent email address to create your account.',
+        'legacy_redirect' => 'Customer sign-up is on a dedicated page.',
+        'go_register' => 'Go to sign up',
     ],
     'reset_password' => [
         'title' => 'New password',

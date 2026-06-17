@@ -21,7 +21,12 @@
     </header>
 
     @if(session('success'))
-    <div class="max-w-3xl mx-auto px-4 pt-4 rounded-lg bg-emerald-50 text-emerald-800 text-sm border border-emerald-200" data-flash="success" role="status">{{ session('success') }}</div>
+    <div class="max-w-3xl mx-auto px-4 pt-4" data-flash="success" role="status">
+        <x-ui.alert type="success">{{ session('success') }}</x-ui.alert>
+    </div>
+    @endif
+    @if(session('error'))
+    <div class="max-w-3xl mx-auto px-4 pt-4 rounded-lg bg-red-50 text-red-800 text-sm border border-red-200 px-4 py-3" data-flash="error" role="alert">{{ session('error') }}</div>
     @endif
 
     <main id="main-content">@yield('content')</main>

@@ -36,6 +36,10 @@ return [
                 'label' => 'LGPD compliance',
                 'description' => 'Recorded consents',
             ],
+            'failed_jobs' => [
+                'label' => 'Failed queues',
+                'description' => 'Retry jobs that failed',
+            ],
         ],
         'recent_signups' => 'Recent sign-ups',
         'no_tenants' => 'No tenants yet.',
@@ -105,6 +109,8 @@ return [
         'add_days' => 'Add days',
         'deactivate' => 'Deactivate account',
         'reactivate' => 'Reactivate account',
+        'activity_timeline' => 'Activity timeline',
+        'no_activity' => 'No activity recorded.',
     ],
 
     'plans_page' => [
@@ -115,6 +121,7 @@ return [
     'tenants_page' => [
         'subtitle' => 'Manage customer accounts',
         'create' => '+ Create tenant',
+        'export_csv' => 'Export CSV',
         'search' => 'Search',
         'search_placeholder' => 'Name or email',
         'plan' => 'Plan',
@@ -155,6 +162,7 @@ return [
         'system_title' => 'System audit (admin)',
         'admin_user' => 'Administrator',
         'empty_system' => 'No system events recorded.',
+        'export_csv' => 'Export CSV',
     ],
 
     'failed_jobs' => [
@@ -165,5 +173,9 @@ return [
         'failed_at' => 'Failed at',
         'exception' => 'Exception',
         'empty' => 'No failed jobs.',
+        'retry' => 'Retry',
+        'retry_all' => 'Retry all',
+        'retried' => 'Job queued for retry.',
+        'retried_all' => 'All jobs have been queued for retry.',
     ],
 ];

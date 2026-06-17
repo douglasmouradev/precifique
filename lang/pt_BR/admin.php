@@ -36,6 +36,10 @@ return [
                 'label' => 'Conformidade LGPD',
                 'description' => 'Consentimentos registrados',
             ],
+            'failed_jobs' => [
+                'label' => 'Filas com falha',
+                'description' => 'Reprocessar jobs que falharam',
+            ],
         ],
         'recent_signups' => 'Cadastros recentes',
         'no_tenants' => 'Nenhum tenant ainda.',
@@ -131,6 +135,8 @@ return [
         'add_days' => 'Adicionar dias',
         'deactivate' => 'Desativar conta',
         'reactivate' => 'Reativar conta',
+        'activity_timeline' => 'Linha do tempo',
+        'no_activity' => 'Nenhuma atividade registrada.',
     ],
 
     'plans_page' => [
@@ -141,6 +147,7 @@ return [
     'tenants_page' => [
         'subtitle' => 'Gerencie contas de clientes',
         'create' => '+ Criar tenant',
+        'export_csv' => 'Exportar CSV',
         'search' => 'Buscar',
         'search_placeholder' => 'Nome ou e-mail',
         'plan' => 'Plano',
@@ -181,6 +188,7 @@ return [
         'system_title' => 'Auditoria do sistema (admin)',
         'admin_user' => 'Administrador',
         'empty_system' => 'Nenhum evento de sistema registrado.',
+        'export_csv' => 'Exportar CSV',
     ],
 
     'failed_jobs' => [
@@ -191,5 +199,9 @@ return [
         'failed_at' => 'Falhou em',
         'exception' => 'Exceção',
         'empty' => 'Nenhum job com falha.',
+        'retry' => 'Reprocessar',
+        'retry_all' => 'Reprocessar todos',
+        'retried' => 'Job enviado para reprocessamento.',
+        'retried_all' => 'Todos os jobs foram reenviados para a fila.',
     ],
 ];

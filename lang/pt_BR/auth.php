@@ -38,6 +38,8 @@ return [
         'has_account' => 'Já tem conta?',
         'sign_in' => 'Entrar',
         'disposable_email' => 'Use um e-mail permanente para criar sua conta.',
+        'legacy_redirect' => 'O cadastro de clientes é feito em outra página.',
+        'go_register' => 'Ir para o cadastro',
     ],
     'reset_password' => [
         'title' => 'Nova senha',

@@ -2,7 +2,8 @@
     <x-slot name="header">
         <x-ui.page-header :title="$tenant->name" :subtitle="__('admin.tenant_show.subtitle')" />
     </x-slot>
-    <div class="py-6 max-w-3xl mx-auto sm:px-6 space-y-6">
+
+    <div class="space-y-6 max-w-3xl">
         <x-ui.button variant="ghost" :href="route('admin.tenants.index')">{{ __('admin.tenants_page.back') }}</x-ui.button>
 
         <x-ui.card class="p-6 space-y-4">
@@ -29,16 +30,32 @@
         @endif
 
         <x-ui.card class="p-6">
-            <h3 class="font-display font-bold text-lg mb-3">{{ __('admin.tenant_show.lgpd_recent') }}</h3>
+            <h3 class="ui-section-title">{{ __('admin.tenant_show.activity_timeline') }}</h3>
+            <ul class="space-y-3 mt-4">
+                @forelse($tenant->auditLogs as $log)
+                <li class="flex gap-3 text-sm border-l-2 border-brand/30 pl-4 py-1">
+                    <div class="min-w-0 flex-1">
+                        <p class="font-medium text-ink"><code class="text-xs">{{ $log->action }}</code></p>
+                        <p class="text-xs text-slate-400 mt-0.5">{{ $log->created_at->format('d/m/Y H:i') }} · {{ $log->ip_address }}</p>
+                    </div>
+                </li>
+                @empty
+                <li class="text-sm text-slate-500">{{ __('admin.tenant_show.no_activity') }}</li>
+                @endforelse
+            </ul>
+        </x-ui.card>
+
+        <x-ui.card class="p-6">
+            <h3 class="ui-section-title">{{ __('admin.tenant_show.lgpd_recent') }}</h3>
             @forelse($tenant->lgpdConsents as $consent)
-            <p class="text-sm text-slate-600">{{ $consent->consent_type }} — {{ $consent->consented_at?->format('d/m/Y H:i') }} (v{{ $consent->version }})</p>
+            <p class="text-sm text-slate-600 mt-2">{{ $consent->consent_type }} — {{ $consent->consented_at?->format('d/m/Y H:i') }} (v{{ $consent->version }})</p>
             @empty
-            <p class="text-sm text-slate-500">{{ __('admin.tenant_show.no_consent') }}</p>
+            <p class="text-sm text-slate-500 mt-2">{{ __('admin.tenant_show.no_consent') }}</p>
             @endforelse
         </x-ui.card>
 
         <x-ui.card class="p-6 space-y-4">
-            <h3 class="font-display font-bold text-lg">{{ __('admin.tenant_show.support_actions') }}</h3>
+            <h3 class="ui-section-title">{{ __('admin.tenant_show.support_actions') }}</h3>
             <div class="flex flex-wrap gap-3">
                 <form method="POST" action="{{ route('admin.tenants.impersonate', $tenant) }}" class="flex flex-wrap items-end gap-3">@csrf
                     <div class="w-48">
