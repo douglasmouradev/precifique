@@ -239,7 +239,7 @@
                         @endforeach
                     </ul>
                     <a href="{{ route('tenant.register') }}" class="mt-8 block text-center py-3 rounded-xl font-bold {{ $plan->slug === 'premium' ? 'bg-ink text-white' : 'bg-brand text-ink' }}">
-                        {{ $plan->price_monthly > 0 ? __('landing.plans_subscribe') : __('landing.register') }}
+                        {{ $plan->slug === 'premium' ? __('landing.plans_subscribe_premium') : __('landing.plans_subscribe_basic') }}
                     </a>
                 </x-landing.reveal>
                 @empty

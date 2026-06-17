@@ -64,7 +64,8 @@ return [
 
     'plans_title' => 'Choose your plan',
     'plans_ai' => 'AI included',
-    'plans_subscribe' => 'Subscribe to Premium',
+    'plans_subscribe_basic' => 'Subscribe to Basic',
+    'plans_subscribe_premium' => 'Subscribe to Premium',
     'plans_configuring' => 'Plans being configured.',
 
     'stats' => [

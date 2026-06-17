@@ -64,7 +64,8 @@ return [
 
     'plans_title' => 'Escolha seu plano',
     'plans_ai' => 'IA Incluída',
-    'plans_subscribe' => 'Assinar Premium',
+    'plans_subscribe_basic' => 'Assinar Basic',
+    'plans_subscribe_premium' => 'Assinar Premium',
     'plans_configuring' => 'Planos em configuração.',
 
     'stats' => [
