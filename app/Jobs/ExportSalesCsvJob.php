@@ -46,8 +46,8 @@ class ExportSalesCsvJob implements ShouldQueue
             $notifications->notify(
                 $tenant,
                 'export_ready',
-                'Exportação de vendas pronta',
-                'Seu arquivo CSV está disponível para download.',
+                __('messages.sale.export_ready_title'),
+                __('messages.sale.export_ready_body'),
                 route('tenant.sales.export.download', $request),
             );
         } catch (\Throwable $e) {

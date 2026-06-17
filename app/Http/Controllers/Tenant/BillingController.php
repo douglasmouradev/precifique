@@ -45,7 +45,7 @@ class BillingController extends Controller
         $this->authorizeTenantOwner();
         $tenant = current_tenant();
         $plan = Plan::where('slug', 'premium')->firstOrFail();
-        $pix = $this->payments->createMercadoPagoPix($tenant, $plan);
+        $pix = $this->payments->getOrCreateMercadoPagoPix($tenant, $plan);
 
         return view('billing.pix', compact('pix', 'plan'));
     }
@@ -88,13 +88,17 @@ class BillingController extends Controller
     {
         $this->authorizeTenantOwner();
         $tenant = current_tenant();
-        $url = $this->payments->createStripePortalSession($tenant);
+        $url = $this->payments->billingPortalUrl($tenant);
 
         if ($url === null) {
             return back()->with('warning', __('messages.billing.portal_unavailable'));
         }
 
-        return redirect()->away($url);
+        if (str_starts_with($url, 'http')) {
+            return redirect()->away($url);
+        }
+
+        return redirect($url);
     }
 
     public function stripeWebhook(Request $request): Response

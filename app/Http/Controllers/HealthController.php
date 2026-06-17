@@ -25,6 +25,10 @@ class HealthController extends Controller
             $checks['redis'] = $this->checkRedis();
         }
 
+        if (config('queue.default') !== 'sync') {
+            $checks['queue_worker'] = $this->checkQueueWorker();
+        }
+
         $healthy = collect($checks)->every(fn ($v) => $v === true);
 
         return response()->json([
@@ -86,6 +90,20 @@ class HealthController extends Controller
     {
         try {
             return is_writable(storage_path('app')) && is_writable(storage_path('logs'));
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private function checkQueueWorker(): bool
+    {
+        try {
+            $heartbeat = Cache::get('queue_worker_heartbeat');
+            if (! is_string($heartbeat) || $heartbeat === '') {
+                return false;
+            }
+
+            return now()->diffInMinutes(\Illuminate\Support\Carbon::parse($heartbeat)) <= 5;
         } catch (\Throwable) {
             return false;
         }

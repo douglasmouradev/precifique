@@ -21,23 +21,23 @@ class EnsureTenantApiReady
         $tenant = Auth::guard('tenant')->user();
 
         if (! $tenant) {
-            return response()->json(['message' => 'Não autenticado.'], 401);
+            return response()->json(['message' => __('api.unauthenticated')], 401);
         }
 
         if (! $this->lgpdService->hasRequiredConsents($tenant)) {
-            return response()->json(['message' => 'Aceite os termos LGPD no painel web antes de usar a API.'], 403);
+            return response()->json(['message' => __('api.lgpd_required')], 403);
         }
 
         if (! $tenant->profile_setup_completed) {
-            return response()->json(['message' => 'Complete a configuração do perfil no painel web.'], 403);
+            return response()->json(['message' => __('api.profile_incomplete')], 403);
         }
 
         if (! $tenant->onboarding_completed) {
-            return response()->json(['message' => 'Complete o onboarding no painel web.'], 403);
+            return response()->json(['message' => __('api.onboarding_incomplete')], 403);
         }
 
         if (! $tenant->hasVerifiedEmail() && ! $tenant->isTestProfile()) {
-            return response()->json(['message' => 'Verifique seu e-mail no painel web antes de usar a API.'], 403);
+            return response()->json(['message' => __('api.email_unverified')], 403);
         }
 
         return $next($request);

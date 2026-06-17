@@ -8,7 +8,7 @@ use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Models\TenantWebhook;
 use App\Rules\SafeWebhookUrl;
-use App\Services\TenantWebhookDispatcher;
+use App\Jobs\DispatchTenantWebhookJob;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -16,10 +16,6 @@ use Illuminate\Validation\Rule;
 class WebhookController extends Controller
 {
     use AuthorizesTenantResource;
-
-    public function __construct(
-        private readonly TenantWebhookDispatcher $dispatcher,
-    ) {}
 
     public function store(Request $request): RedirectResponse
     {
@@ -49,7 +45,7 @@ class WebhookController extends Controller
         $tenant = current_tenant();
         abort_unless($tenant && $webhook->tenant_id === $tenant->id, 403);
 
-        $this->dispatcher->dispatch($tenant, 'webhook.test', [
+        DispatchTenantWebhookJob::dispatch($tenant->id, 'webhook.test', [
             'webhook_id' => $webhook->id,
             'message' => 'ping',
         ]);

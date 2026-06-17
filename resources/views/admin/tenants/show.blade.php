@@ -23,6 +23,21 @@
             <dl class="grid sm:grid-cols-2 gap-3 text-sm">
                 <div><dt class="text-slate-500">{{ __('admin.tenant_show.plan') }}</dt><dd class="font-medium">{{ $tenant->subscription->plan?->name ?? '—' }}</dd></div>
                 <div><dt class="text-slate-500">{{ __('admin.tenant_show.status') }}</dt><dd class="font-medium capitalize">{{ $tenant->subscription->status }}</dd></div>
+                <div><dt class="text-slate-500">{{ __('admin.tenant_show.payment_provider') }}</dt><dd class="font-medium">
+                    @if($tenant->subscription->stripe_subscription_id)
+                        Stripe
+                    @elseif($tenant->subscription->mercadopago_payment_id)
+                        PIX / Mercado Pago
+                    @else
+                        {{ __('admin.tenant_show.none') }}
+                    @endif
+                </dd></div>
+                @if($tenant->subscription->stripe_subscription_id)
+                <div class="sm:col-span-2"><dt class="text-slate-500">{{ __('admin.tenant_show.stripe_subscription') }}</dt><dd class="font-mono text-xs break-all">{{ $tenant->subscription->stripe_subscription_id }}</dd></div>
+                @endif
+                @if($tenant->subscription->mercadopago_payment_id)
+                <div class="sm:col-span-2"><dt class="text-slate-500">{{ __('admin.tenant_show.mercadopago_payment') }}</dt><dd class="font-mono text-xs break-all">{{ $tenant->subscription->mercadopago_payment_id }}</dd></div>
+                @endif
                 <div><dt class="text-slate-500">{{ __('admin.tenant_show.starts_at') }}</dt><dd class="font-medium">{{ $tenant->subscription->starts_at?->format('d/m/Y') ?? '—' }}</dd></div>
                 <div><dt class="text-slate-500">{{ __('admin.tenant_show.expires_at') }}</dt><dd class="font-medium">{{ $tenant->subscription->ends_at?->format('d/m/Y') ?? __('admin.tenant_show.recurring') }}</dd></div>
             </dl>

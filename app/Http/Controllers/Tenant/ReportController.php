@@ -20,9 +20,15 @@ class ReportController extends Controller
 
     public function index(): View
     {
+        $tenant = current_tenant();
+        $year = now()->year;
+        $month = now()->month;
+        $summary = $tenant ? $this->reports->monthlySummary($tenant, $year, $month) : null;
+
         return view('reports.index', [
-            'year' => now()->year,
-            'month' => now()->month,
+            'year' => $year,
+            'month' => $month,
+            'summary' => $summary,
         ]);
     }
 

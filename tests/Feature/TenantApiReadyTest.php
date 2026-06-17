@@ -26,7 +26,7 @@ class TenantApiReadyTest extends TestCase
         $this->withToken($plain)
             ->getJson('/api/v1/dashboard/summary')
             ->assertForbidden()
-            ->assertJsonPath('message', 'Complete o onboarding no painel web.');
+            ->assertJsonPath('message', __('api.onboarding_incomplete'));
     }
 
     public function test_api_rejects_tenant_without_lgpd(): void
@@ -40,7 +40,7 @@ class TenantApiReadyTest extends TestCase
         $this->withToken($plain)
             ->getJson('/api/v1/dashboard/summary')
             ->assertForbidden()
-            ->assertJsonPath('message', 'Aceite os termos LGPD no painel web antes de usar a API.');
+            ->assertJsonPath('message', __('api.lgpd_required'));
     }
 
     public function test_api_can_revoke_token(): void

@@ -71,6 +71,7 @@ class PreflightProductionCommand extends Command
             ['Fila assíncrona', config('queue.default') !== 'sync', 'QUEUE_CONNECTION=sync: jobs agendados não rodam em background', 'warning'],
             ['MP_WEBHOOK_SECRET (se usar PIX)', ! filled(config('services.mercadopago.access_token')) || filled(config('services.mercadopago.webhook_secret')), 'defina MP_WEBHOOK_SECRET', 'error'],
             ['STRIPE_WEBHOOK_SECRET (se usar Stripe)', ! filled(config('services.stripe.secret')) || filled(config('services.stripe.webhook_secret')), 'defina STRIPE_WEBHOOK_SECRET', 'error'],
+            ['SENTRY_LARAVEL_DSN', ! app()->environment('production') || filled(config('precifique.monitoring.sentry_dsn')), 'recomendado para monitorar erros em produção', 'warning'],
         ];
     }
 

@@ -33,6 +33,6 @@ class SendTenantMonthlyReportJob implements ShouldQueue
         }
 
         $path = $reports->generateMonthlyReport($tenant, $this->year, $this->month);
-        Mail::to($tenant->email)->send(new MonthlyReportMail($tenant, $path));
+        Mail::to($tenant->email)->queue(new MonthlyReportMail($tenant, $path));
     }
 }

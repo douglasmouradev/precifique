@@ -29,6 +29,11 @@ return [
 
     'pix' => [
         'notify_days_before' => (int) env('PIX_NOTIFY_DAYS_BEFORE', 3),
+        'pending_ttl_minutes' => (int) env('PIX_PENDING_TTL_MINUTES', 30),
+    ],
+
+    'billing' => [
+        'grace_period_days' => (int) env('BILLING_GRACE_PERIOD_DAYS', 7),
     ],
 
     'analytics' => [

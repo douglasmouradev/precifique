@@ -31,6 +31,10 @@ return [
         'group_account' => 'Account',
     ],
 
+    'menu' => [
+        'price_products' => 'Price products',
+    ],
+
     'actions' => [
         'save' => 'Save',
         'cancel' => 'Cancel',

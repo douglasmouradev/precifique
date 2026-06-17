@@ -31,6 +31,10 @@ return [
         'group_account' => 'Conta',
     ],
 
+    'menu' => [
+        'price_products' => 'Precificar',
+    ],
+
     'actions' => [
         'save' => 'Salvar',
         'cancel' => 'Cancelar',

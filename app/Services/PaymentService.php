@@ -10,6 +10,7 @@ use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\Tenant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -91,18 +92,45 @@ class PaymentService
     /**
      * @return array<string, mixed>
      */
+    public function getOrCreateMercadoPagoPix(Tenant $tenant, Plan $plan): array
+    {
+        if ($tenant->isPremium()) {
+            return ['error' => __('messages.billing.already_premium')];
+        }
+
+        $cacheKey = "pix_checkout:{$tenant->id}";
+        $ttlMinutes = (int) config('precifique.pix.pending_ttl_minutes', 30);
+        $cached = Cache::get($cacheKey);
+
+        if (is_array($cached) && ! isset($cached['error']) && ($cached['created_at'] ?? 0) >= now()->subMinutes($ttlMinutes)->timestamp) {
+            return $cached;
+        }
+
+        $result = $this->createMercadoPagoPix($tenant, $plan);
+
+        if (! isset($result['error'])) {
+            $result['created_at'] = now()->timestamp;
+            Cache::put($cacheKey, $result, now()->addMinutes($ttlMinutes));
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public function createMercadoPagoPix(Tenant $tenant, Plan $plan): array
     {
         $accessToken = (string) config('services.mercadopago.access_token', '');
 
         if ($accessToken === '') {
-            return ['error' => 'Mercado Pago não configurado.'];
+            return ['error' => __('messages.billing.mercadopago_not_configured')];
         }
 
         $response = Http::withToken($accessToken)
             ->post('https://api.mercadopago.com/v1/payments', [
                 'transaction_amount' => (float) $plan->price_monthly,
-                'description' => "Precifique Premium — {$tenant->name}",
+                'description' => __('messages.billing.pix_description', ['name' => $tenant->name]),
                 'payment_method_id' => 'pix',
                 'payer' => ['email' => $tenant->email],
                 'external_reference' => "tenant:{$tenant->id}:plan:{$plan->id}",
@@ -111,7 +139,7 @@ class PaymentService
         if (! $response->successful()) {
             Log::warning('Mercado Pago PIX error', ['body' => $response->body()]);
 
-            return ['error' => 'Não foi possível gerar o PIX.'];
+            return ['error' => __('messages.billing.pix_generation_failed')];
         }
 
         $data = $response->json();
@@ -121,6 +149,31 @@ class PaymentService
             'qr_code' => $data['point_of_interaction']['transaction_data']['qr_code'] ?? null,
             'qr_code_base64' => $data['point_of_interaction']['transaction_data']['qr_code_base64'] ?? null,
         ];
+    }
+
+    public function clearPendingPixCache(int $tenantId): void
+    {
+        Cache::forget("pix_checkout:{$tenantId}");
+    }
+
+    public function billingPortalUrl(Tenant $tenant): ?string
+    {
+        $stripeUrl = $this->createStripePortalSession($tenant);
+        if ($stripeUrl !== null) {
+            return $stripeUrl;
+        }
+
+        $subscription = Subscription::query()
+            ->where('tenant_id', $tenant->id)
+            ->where('status', 'active')
+            ->whereNotNull('mercadopago_payment_id')
+            ->first();
+
+        if ($subscription) {
+            return route('tenant.billing.pix');
+        }
+
+        return null;
     }
 
     public function createStripePortalSession(Tenant $tenant): ?string
@@ -256,7 +309,7 @@ class PaymentService
     public function expireSubscriptions(): int
     {
         $expired = Subscription::query()
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'past_due'])
             ->whereNotNull('ends_at')
             ->where('ends_at', '<', now())
             ->get();
@@ -294,6 +347,12 @@ class PaymentService
         $status = $subscription->status ?? 'active';
         if (in_array($status, ['canceled', 'unpaid'], true)) {
             return $this->deactivatePremium($local);
+        }
+
+        if ($status === 'past_due') {
+            $local->update(['status' => 'past_due']);
+
+            return true;
         }
 
         $local->update(['status' => 'active', 'ends_at' => null]);
@@ -365,6 +424,7 @@ class PaymentService
             );
 
             AdminMetricsService::forgetCache();
+            $this->clearPendingPixCache($tenant->id);
 
             return true;
         });
@@ -411,12 +471,18 @@ class PaymentService
             Mail::to($tenant->email)->queue(new PaymentFailedMail($tenant));
         }
 
+        $graceDays = (int) config('precifique.billing.grace_period_days', 7);
+        $local->update([
+            'status' => 'past_due',
+            'ends_at' => $local->ends_at ?? now()->addDays($graceDays),
+        ]);
+
         if ($this->notificationPreferences->allowsInApp($tenant)) {
             $this->notifications->notify(
                 $tenant,
                 'payment_failed',
-                'Falha no pagamento da assinatura',
-                'Atualize seu cartão no portal de cobrança para manter o Premium.',
+                __('messages.billing.payment_failed_title'),
+                __('messages.billing.payment_failed_body'),
                 route('tenant.billing.portal'),
             );
         }

@@ -54,6 +54,28 @@ class ReportService
         return $path;
     }
 
+    /**
+     * @return array{revenue: float, sales_count: int, fixed_costs: float, estimated_balance: float, has_data: bool}
+     */
+    public function monthlySummary(Tenant $tenant, int $year, int $month): array
+    {
+        $monthStats = SalePeriod::applyMonth($this->tenantSales($tenant), $year, $month)
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue, COUNT(*) as sales_count')
+            ->first();
+
+        $revenue = (float) ($monthStats->revenue ?? 0);
+        $salesCount = (int) ($monthStats->sales_count ?? 0);
+        $fixedCosts = (float) $this->tenantFixedCosts($tenant)->where('is_active', true)->sum('amount');
+
+        return [
+            'revenue' => $revenue,
+            'sales_count' => $salesCount,
+            'fixed_costs' => $fixedCosts,
+            'estimated_balance' => $revenue - $fixedCosts,
+            'has_data' => $salesCount > 0,
+        ];
+    }
+
     private function tenantSales(Tenant $tenant): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $tenant->sales()->withoutGlobalScope('tenant');
