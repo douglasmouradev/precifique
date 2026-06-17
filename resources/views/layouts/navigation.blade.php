@@ -32,7 +32,7 @@
 
             {{-- Ações --}}
             <div class="flex items-center gap-2 shrink-0">
-                <x-ui.locale-switcher class="hidden sm:flex" />
+                <x-ui.locale-switcher />
                 <a href="{{ route('home') }}" class="hidden sm:inline text-sm text-slate-500 hover:text-brand transition-colors whitespace-nowrap">{{ __('admin.nav.site') }}</a>
 
                 <div class="hidden sm:block">
@@ -86,6 +86,10 @@
         </a>
         @endforeach
         <div class="pt-3 mt-3 border-t border-slate-100 space-y-1">
+            <div class="px-3 py-2">
+                <x-ui.locale-switcher />
+            </div>
+            <a href="{{ route('home') }}" class="block px-3 py-2 text-sm text-slate-600">{{ __('admin.nav.site') }}</a>
             <a href="{{ route('profile.edit') }}" class="block px-3 py-2 text-sm text-slate-600">Meu perfil</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

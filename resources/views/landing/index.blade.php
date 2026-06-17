@@ -72,12 +72,13 @@
             <a href="#planos" class="hover:text-brand">{{ __('landing.nav_plans') }}</a>
             <a href="#faq" class="hover:text-brand">{{ __('landing.faq') }}</a>
         </nav>
-        <div class="hidden md:flex gap-3 items-center">
-            <x-ui.locale-switcher />
-            <a href="{{ route('tenant.login') }}" class="text-sm text-white hover:text-brand">{{ __('landing.login') }}</a>
-            <a href="{{ route('tenant.register') }}" class="bg-brand text-ink px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand-dark">{{ __('landing.register') }}</a>
-        </div>
-        <button
+        <div class="flex items-center gap-2 sm:gap-3 ml-auto">
+            <x-ui.locale-switcher dark />
+            <div class="hidden md:flex gap-3 items-center">
+                <a href="{{ route('tenant.login') }}" class="text-sm text-white hover:text-brand">{{ __('landing.login') }}</a>
+                <a href="{{ route('tenant.register') }}" class="bg-brand text-ink px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand-dark">{{ __('landing.register') }}</a>
+            </div>
+            <button
             type="button"
             id="landing-mobile-menu-toggle"
             data-label-open="{{ __('landing.open_menu') }}"
@@ -90,6 +91,7 @@
             <svg data-menu-icon="open" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
             <svg data-menu-icon="close" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
+        </div>
     </div>
     <div
         id="landing-mobile-menu"
@@ -100,6 +102,9 @@
         <a href="#solucao" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_solution') }}</a>
         <a href="#planos" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.nav_plans') }}</a>
         <a href="#faq" class="block py-2 text-gray-300 hover:text-brand">{{ __('landing.faq') }}</a>
+        <div class="py-2 flex justify-center">
+            <x-ui.locale-switcher dark />
+        </div>
         <div class="pt-3 border-t border-white/10 flex flex-col gap-2">
             <a href="{{ route('tenant.login') }}" class="text-center py-2.5 text-white border border-white/20 rounded-lg">{{ __('landing.login') }}</a>
             <a href="{{ route('tenant.register') }}" class="text-center py-2.5 bg-brand text-ink rounded-lg font-semibold">{{ __('landing.register') }}</a>

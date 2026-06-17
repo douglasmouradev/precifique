@@ -7,7 +7,7 @@
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <a href="{{ route('home') }}"><x-ui.logo variant="full" size="md" dark /></a>
         <div class="flex items-center gap-3">
-            <x-ui.locale-switcher class="text-white" />
+            <x-ui.locale-switcher dark />
             <a href="{{ route('tenant.login') }}" class="text-sm text-white">{{ __('landing.login') }}</a>
         </div>
     </div>
