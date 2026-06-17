@@ -161,9 +161,13 @@ class DashboardMetricsService
 
     private function cachedDailyTip(Tenant $tenant): string
     {
-        $niche = $tenant->niche->value ?? (string) $tenant->niche;
-        $key = 'tenant.'.$tenant->id.'.ai_tip.'.now()->toDateString();
+        try {
+            $niche = $tenant->niche?->value ?? 'alimentos';
+            $key = 'tenant.'.$tenant->id.'.ai_tip.'.now()->toDateString();
 
-        return Cache::remember($key, now()->endOfDay(), fn () => $this->ai->dailyTip($niche));
+            return Cache::remember($key, now()->endOfDay(), fn () => $this->ai->dailyTip($niche));
+        } catch (\Throwable) {
+            return 'Revise seus custos fixos mensalmente para manter preços competitivos.';
+        }
     }
 }

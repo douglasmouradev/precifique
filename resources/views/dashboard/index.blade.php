@@ -4,7 +4,7 @@
 @section('breadcrumb') {{ __('dashboard.breadcrumb') }} @endsection
 
 @section('content')
-<x-ui.page-header :title="__('dashboard.greeting', ['name' => $tenant->name])" :subtitle="__('dashboard.subtitle', ['month' => now()->translatedFormat('F Y')])">
+<x-ui.page-header :title="__('dashboard.greeting', ['name' => $tenant->name])" :subtitle="__('dashboard.subtitle', ['month' => __('sales.months.'.now()->month).' '.now()->year])">
     <x-slot:actions>
         <x-ui.button variant="outline" :href="route('tenant.goals.edit')">{{ __('dashboard.goal') }}</x-ui.button>
         <x-ui.button :href="route('tenant.sales.create')">{{ __('dashboard.new_sale') }}</x-ui.button>
