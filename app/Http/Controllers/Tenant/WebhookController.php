@@ -4,21 +4,25 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Models\TenantWebhook;
+use App\Rules\SafeWebhookUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class WebhookController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function store(Request $request): RedirectResponse
     {
-        $tenant = $this->resolveTenant();
+        $this->authorizeTenantManageAccount();
+        $tenant = current_tenant();
         abort_unless($tenant, 403);
 
         $data = $request->validate([
-            'url' => ['required', 'url', 'max:500'],
+            'url' => ['required', 'url', 'max:500', new SafeWebhookUrl],
             'secret' => ['nullable', 'string', 'max:255'],
         ]);
 
@@ -33,17 +37,12 @@ class WebhookController extends Controller
 
     public function destroy(TenantWebhook $webhook): RedirectResponse
     {
-        $tenant = $this->resolveTenant();
+        $this->authorizeTenantManageAccount();
+        $tenant = current_tenant();
         abort_unless($tenant && $webhook->tenant_id === $tenant->id, 403);
 
         $webhook->delete();
 
         return back()->with('success', __('app.messages.token_revoked'));
-    }
-
-    private function resolveTenant()
-    {
-        return current_tenant()
-            ?? Auth::guard('tenant_member')->user()?->tenant;
     }
 }

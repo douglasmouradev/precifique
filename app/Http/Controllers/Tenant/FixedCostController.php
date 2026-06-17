@@ -34,6 +34,7 @@ class FixedCostController extends Controller
 
     public function store(StoreFixedCostRequest $request): RedirectResponse
     {
+        $this->authorizeTenantAction('update');
         $tenant = current_tenant();
         $cost = $tenant->fixedCosts()->create($request->validated());
         $this->audit->log($tenant, 'fixed_cost.created', $cost, [], $request);

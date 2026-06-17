@@ -40,7 +40,12 @@
         <x-ui.card class="p-6 space-y-4">
             <h3 class="font-display font-bold text-lg">Ações de suporte</h3>
             <div class="flex flex-wrap gap-3">
-                <form method="POST" action="{{ route('admin.tenants.impersonate', $tenant) }}">@csrf
+                <form method="POST" action="{{ route('admin.tenants.impersonate', $tenant) }}" class="flex flex-wrap items-end gap-3">@csrf
+                    <div class="w-48">
+                        <label class="ui-label text-xs">Sua senha de admin</label>
+                        <input type="password" name="password" required class="ui-input py-2" autocomplete="current-password">
+                        @error('password')<p class="text-xs text-red-600 mt-1">{{ $message }}</p>@enderror
+                    </div>
                     <x-ui.button type="submit" variant="secondary">Acessar como cliente</x-ui.button>
                 </form>
                 <form method="POST" action="{{ route('admin.tenants.resend-welcome', $tenant) }}">@csrf

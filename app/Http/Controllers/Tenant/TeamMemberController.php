@@ -4,24 +4,28 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Models\TenantMember;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class TeamMemberController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function store(Request $request): RedirectResponse
     {
-        $tenant = $this->ownerTenant();
+        $this->authorizeTenantManageAccount();
+        $tenant = current_tenant();
         abort_unless($tenant, 403);
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('tenant_members', 'email')->where('tenant_id', $tenant->id)],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'confirmed', Password::defaults()],
             'role' => ['required', Rule::in(['admin', 'editor', 'viewer'])],
         ]);
 
@@ -32,22 +36,12 @@ class TeamMemberController extends Controller
 
     public function destroy(TenantMember $member): RedirectResponse
     {
-        $tenant = $this->ownerTenant();
+        $this->authorizeTenantManageAccount();
+        $tenant = current_tenant();
         abort_unless($tenant && $member->tenant_id === $tenant->id, 403);
 
         $member->delete();
 
         return back()->with('success', __('members.removed'));
-    }
-
-    private function ownerTenant()
-    {
-        if (Auth::guard('tenant')->check()) {
-            return current_tenant();
-        }
-
-        $member = Auth::guard('tenant_member')->user();
-
-        return $member?->canManageMembers() ? $member->tenant : null;
     }
 }

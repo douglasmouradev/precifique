@@ -62,7 +62,7 @@ class PricingController extends Controller
 
     public function aiSuggest(AiPricingSuggestRequest $request, Product $product): JsonResponse
     {
-        $this->authorizeTenant('view', $product);
+        $this->authorizeTenant('update', $product);
         $tenant = current_tenant();
         $this->aiUsage->assertCanUse($tenant);
 

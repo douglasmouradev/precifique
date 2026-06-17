@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Tenant;
 use App\Models\TenantWebhook;
+use App\Rules\SafeWebhookUrl;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -21,6 +22,15 @@ class TenantWebhookDispatcher
 
         foreach ($hooks as $hook) {
             if (! $hook->listensTo($event)) {
+                continue;
+            }
+
+            if (! SafeWebhookUrl::isAllowed($hook->url)) {
+                Log::warning('Tenant webhook blocked (unsafe URL)', [
+                    'webhook_id' => $hook->id,
+                    'event' => $event,
+                ]);
+
                 continue;
             }
 

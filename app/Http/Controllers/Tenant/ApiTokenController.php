@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreApiTokenRequest;
 use App\Http\Requests\Tenant\UpdateNotificationPreferencesRequest;
 use App\Models\TenantApiToken;
 use App\Support\TenantApiAbilities;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 
 class ApiTokenController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function store(StoreApiTokenRequest $request): RedirectResponse
     {
+        $this->authorizeTenantManageAccount();
         $tenant = current_tenant();
         $abilities = $request->validated('abilities', TenantApiAbilities::defaultForWeb());
 
@@ -28,6 +31,7 @@ class ApiTokenController extends Controller
 
     public function destroy(TenantApiToken $token): RedirectResponse
     {
+        $this->authorizeTenantManageAccount();
         $tenant = current_tenant();
         abort_unless($token->tenant_id === $tenant->id, 403);
 
@@ -38,6 +42,7 @@ class ApiTokenController extends Controller
 
     public function updatePreferences(UpdateNotificationPreferencesRequest $request): RedirectResponse
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant();
         $tenant->update(['notification_preferences' => $request->preferences()]);
 

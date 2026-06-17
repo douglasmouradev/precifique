@@ -33,6 +33,7 @@ class TenantVariableCostController extends Controller
 
     public function store(StoreTenantVariableCostRequest $request): RedirectResponse
     {
+        $this->authorizeTenantAction('update');
         $tenant = current_tenant();
         $cost = $tenant->tenantVariableCosts()->create($request->validated());
         $this->audit->log($tenant, 'tenant_variable_cost.created', $cost, [], $request);

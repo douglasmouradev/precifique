@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Services\LGPDService;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LGPDController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly LGPDService $lgpd,
     ) {}
@@ -70,6 +73,7 @@ class LGPDController extends Controller
 
     public function export(): StreamedResponse
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant();
         $data = $this->lgpd->exportTenantData($tenant);
 
@@ -82,6 +86,8 @@ class LGPDController extends Controller
 
     public function destroyAccount(Request $request): RedirectResponse
     {
+        $this->authorizeTenantOwner();
+
         $request->validate([
             'confirm' => ['required', 'in:EXCLUIR'],
             'password' => ['required', 'string'],

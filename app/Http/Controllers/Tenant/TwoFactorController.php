@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Services\TotpService;
 use Illuminate\Http\RedirectResponse;
@@ -13,8 +14,11 @@ use Illuminate\View\View;
 
 class TwoFactorController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function show(TotpService $totp): View
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant();
         $secret = $tenant->two_factor_secret;
 
@@ -32,6 +36,7 @@ class TwoFactorController extends Controller
 
     public function confirm(Request $request, TotpService $totp): RedirectResponse
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant();
         $request->validate(['code' => ['required', 'string', 'size:6']]);
 
@@ -47,6 +52,8 @@ class TwoFactorController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
+        $this->authorizeTenantOwner();
+
         $request->validate(['password' => ['required', 'current_password:tenant']]);
 
         $tenant = current_tenant();

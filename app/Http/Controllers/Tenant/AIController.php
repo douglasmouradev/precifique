@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Services\AIAssistantService;
 use App\Services\AiUsageLimiter;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 
 class AIController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly AIAssistantService $ai,
         private readonly AuditService $audit,
@@ -22,6 +25,7 @@ class AIController extends Controller
 
     public function chat(Request $request): JsonResponse
     {
+        $this->authorizeTenantAction('update');
         $tenant = current_tenant();
         $this->aiUsage->assertCanUse($tenant);
 

@@ -55,6 +55,16 @@ class TenantAuthController extends Controller
             ->first();
 
         if ($member && Hash::check($credentials['password'], $member->password)) {
+            $tenant = $member->tenant;
+
+            if ($tenant?->hasTwoFactorEnabled()) {
+                $request->session()->put('tenant_login_two_factor_id', $tenant->id);
+                $request->session()->put('tenant_login_member_id', $member->id);
+                $request->session()->put('tenant_login_remember', $request->boolean('remember'));
+
+                return redirect()->route('tenant.two-factor.challenge');
+            }
+
             Auth::guard('tenant_member')->login($member, $request->boolean('remember'));
             $request->session()->regenerate();
 

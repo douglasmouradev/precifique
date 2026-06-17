@@ -60,7 +60,9 @@ return [
         'code_label' => 'Authentication code',
         'confirm' => 'Confirm',
         'invalid_code' => 'Invalid authentication code.',
+        'admin_required' => 'Set up two-factor authentication to access the admin panel.',
     ],
+    'impersonate_password_invalid' => 'Incorrect administrator password.',
     'back_to_site' => '← Back to website',
     'back_to_login' => 'Back to login',
 ];

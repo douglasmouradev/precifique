@@ -76,6 +76,28 @@ function current_tenant(): ?Tenant
 }
 
 /**
+ * Tenant autenticado como owner (não membro da equipe).
+ */
+function tenant_is_owner(): bool
+{
+    return Auth::guard('tenant')->check();
+}
+
+/**
+ * Owner ou membro com permissão de administrar a conta (role admin).
+ */
+function tenant_can_manage_account(): bool
+{
+    if (tenant_is_owner()) {
+        return true;
+    }
+
+    $member = Auth::guard('tenant_member')->user();
+
+    return $member?->canManageMembers() ?? false;
+}
+
+/**
  * Verifica permissão de membro da equipe (owner sempre passa).
  */
 function tenant_member_can(string $ability): bool

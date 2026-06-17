@@ -4,23 +4,26 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class BillingController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly PaymentService $payments,
     ) {}
 
     public function upgrade(): View
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant()->load('subscription');
         $plan = Plan::where('slug', 'premium')->first();
 
@@ -29,6 +32,7 @@ class BillingController extends Controller
 
     public function stripeCheckout(): RedirectResponse
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant();
         $plan = Plan::where('slug', 'premium')->firstOrFail();
         $url = $this->payments->createStripeCheckout($tenant, $plan);
@@ -38,6 +42,7 @@ class BillingController extends Controller
 
     public function pix(): View
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant();
         $plan = Plan::where('slug', 'premium')->firstOrFail();
         $pix = $this->payments->createMercadoPagoPix($tenant, $plan);
@@ -47,6 +52,7 @@ class BillingController extends Controller
 
     public function success(Request $request): RedirectResponse
     {
+        $this->authorizeTenantOwner();
         $sessionId = (string) $request->query('session_id', '');
         $tenant = current_tenant();
 
@@ -63,6 +69,7 @@ class BillingController extends Controller
 
     public function pixStatus(): \Illuminate\Http\JsonResponse
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant()->fresh();
 
         return response()->json([
@@ -72,11 +79,14 @@ class BillingController extends Controller
 
     public function cancel(): RedirectResponse
     {
+        $this->authorizeTenantOwner();
+
         return redirect()->route('tenant.billing.upgrade')->with('warning', __('messages.billing.payment_cancelled'));
     }
 
     public function portal(): RedirectResponse
     {
+        $this->authorizeTenantOwner();
         $tenant = current_tenant();
         $url = $this->payments->createStripePortalSession($tenant);
 

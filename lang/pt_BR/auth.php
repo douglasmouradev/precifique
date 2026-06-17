@@ -60,7 +60,9 @@ return [
         'code_label' => 'Código de autenticação',
         'confirm' => 'Confirmar',
         'invalid_code' => 'Código de autenticação inválido.',
+        'admin_required' => 'Configure a autenticação em duas etapas para acessar o painel admin.',
     ],
+    'impersonate_password_invalid' => 'Senha de administrador incorreta.',
     'back_to_site' => '← Voltar ao site',
     'back_to_login' => 'Voltar ao login',
 ];

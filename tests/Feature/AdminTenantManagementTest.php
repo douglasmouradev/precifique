@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Tenant;
 use App\Models\User;
+use App\Services\TotpService;
 use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,7 +16,19 @@ class AdminTenantManagementTest extends TestCase
 
     private function superAdmin(): User
     {
-        return User::factory()->create(['is_superadmin' => true]);
+        $secret = app(TotpService::class)->generateSecret();
+
+        return User::factory()->create([
+            'is_superadmin' => true,
+            'two_factor_secret' => $secret,
+            'two_factor_confirmed_at' => now(),
+        ]);
+    }
+
+    private function actingAsVerifiedAdmin(User $admin): static
+    {
+        return $this->actingAs($admin)
+            ->withSession(['two_factor_verified_at' => now()->timestamp]);
     }
 
     public function test_tenant_index_filters_by_search_query(): void
@@ -23,7 +36,7 @@ class AdminTenantManagementTest extends TestCase
         Tenant::factory()->create(['name' => 'Padaria Sol', 'email' => 'sol@test.com']);
         Tenant::factory()->create(['name' => 'Oficina Norte', 'email' => 'norte@test.com']);
 
-        $this->actingAs($this->superAdmin())
+        $this->actingAsVerifiedAdmin($this->superAdmin())
             ->get(route('admin.tenants.index', ['q' => 'sol@test.com']))
             ->assertOk()
             ->assertSee('Padaria Sol')
@@ -37,7 +50,7 @@ class AdminTenantManagementTest extends TestCase
             'plan' => 'basic',
         ]);
 
-        $this->actingAs($this->superAdmin())
+        $this->actingAsVerifiedAdmin($this->superAdmin())
             ->patch(route('admin.tenants.extend-trial', $tenant), ['days' => 7])
             ->assertRedirect();
 
@@ -48,8 +61,12 @@ class AdminTenantManagementTest extends TestCase
     {
         $tenant = Tenant::factory()->create(['is_active' => true]);
 
-        $this->actingAs($this->superAdmin())
-            ->post(route('admin.tenants.impersonate', $tenant))
+        $admin = $this->superAdmin();
+
+        $this->actingAsVerifiedAdmin($admin)
+            ->post(route('admin.tenants.impersonate', $tenant), [
+                'password' => 'password',
+            ])
             ->assertRedirect(route('tenant.dashboard'));
 
         $this->assertTrue(auth('tenant')->check());

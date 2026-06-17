@@ -6,7 +6,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureTenantTwoFactor
@@ -23,11 +22,7 @@ class EnsureTenantTwoFactor
             return $next($request);
         }
 
-        if (Auth::guard('tenant_member')->check()) {
-            return $next($request);
-        }
-
-        $tenant = Auth::guard('tenant')->user();
+        $tenant = current_tenant();
 
         if ($tenant?->hasTwoFactorEnabled() && ! session('tenant_two_factor_verified_at')) {
             if (! session('tenant_login_two_factor_id')) {

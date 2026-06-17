@@ -14,6 +14,7 @@ use App\Services\LGPDService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -121,8 +122,14 @@ class TenantManagementController extends Controller
         return back()->with('success', __('messages.admin.trial_extended', ['days' => $data['days']]));
     }
 
-    public function impersonate(Tenant $tenant): RedirectResponse
+    public function impersonate(Request $request, Tenant $tenant): RedirectResponse
     {
+        $request->validate(['password' => ['required', 'string']]);
+
+        if (! Hash::check($request->password, (string) Auth::user()?->password)) {
+            return back()->withErrors(['password' => __('auth.impersonate_password_invalid')]);
+        }
+
         if (! $tenant->is_active) {
             return back()->with('warning', __('messages.admin.inactive_account'));
         }

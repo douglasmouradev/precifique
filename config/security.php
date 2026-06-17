@@ -13,8 +13,8 @@ return [
     'csp' => env('SECURITY_CSP_ENABLED', true),
 
     'csp_policy' => "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; "
-        ."script-src 'self' 'nonce-{nonce}' 'unsafe-inline' https://www.googletagmanager.com https://plausible.io; "
-        ."style-src 'self' 'unsafe-inline'; "
+        ."script-src 'self' 'nonce-{nonce}' https://www.googletagmanager.com https://plausible.io; "
+        ."style-src 'self' 'nonce-{nonce}' 'unsafe-inline'; "
         ."font-src 'self' data:; "
         ."img-src 'self' data: blob: https:; "
         ."connect-src 'self' https://www.google-analytics.com https://plausible.io; "

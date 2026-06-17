@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
+use App\Models\TenantMember;
 use App\Services\TotpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,12 +36,24 @@ class TenantTwoFactorChallengeController extends Controller
         }
 
         session()->forget('tenant_login_two_factor_id');
-        Auth::guard('tenant')->login($tenant, session('tenant_login_remember', false));
-        $request->session()->regenerate();
-        session()->forget('tenant_login_remember');
-        session(['tenant_two_factor_verified_at' => now()->timestamp]);
+        $memberId = session()->pull('tenant_login_member_id');
+        $remember = session()->pull('tenant_login_remember', false);
 
-        $tenant->ensureTestEmailVerified();
+        if ($memberId) {
+            $member = TenantMember::query()->find($memberId);
+            if (! $member || $member->tenant_id !== $tenant->id || ! $member->is_active) {
+                return redirect()->route('tenant.login')
+                    ->withErrors(['email' => __('auth.failed')]);
+            }
+
+            Auth::guard('tenant_member')->login($member, $remember);
+        } else {
+            Auth::guard('tenant')->login($tenant, $remember);
+            $tenant->ensureTestEmailVerified();
+        }
+
+        $request->session()->regenerate();
+        session(['tenant_two_factor_verified_at' => now()->timestamp]);
 
         return redirect()->intended(route('tenant.dashboard'));
     }

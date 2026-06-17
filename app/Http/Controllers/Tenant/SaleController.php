@@ -70,6 +70,7 @@ class SaleController extends Controller
 
     public function export(Request $request): StreamedResponse|RedirectResponse
     {
+        $this->authorizeTenantAction('view');
         $tenant = current_tenant();
         $filters = $request->only(['payment_method', 'month', 'year']);
         $count = $this->filteredSalesQuery($tenant, $filters)->count();
@@ -101,6 +102,7 @@ class SaleController extends Controller
 
     public function downloadExport(SaleExportRequest $saleExportRequest): StreamedResponse|RedirectResponse
     {
+        $this->authorizeTenantAction('view');
         $tenant = current_tenant();
         abort_unless($saleExportRequest->tenant_id === $tenant->id, 403);
         abort_unless($saleExportRequest->status === 'completed' && $saleExportRequest->file_path, 404);
@@ -120,6 +122,7 @@ class SaleController extends Controller
 
     public function create(): View
     {
+        $this->authorizeTenantAction('update');
         $tenant = current_tenant();
         $products = $tenant->products()->where('is_active', true)->orderBy('name')->get();
 
@@ -128,6 +131,7 @@ class SaleController extends Controller
 
     public function store(StoreSaleRequest $request): RedirectResponse
     {
+        $this->authorizeTenantAction('update');
         $tenant = current_tenant();
         $quantity = $request->integer('quantity');
 

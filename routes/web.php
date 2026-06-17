@@ -75,7 +75,7 @@ Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/two-factor', [TwoFactorController::class, 'destroy'])->name('two-factor.destroy');
 });
 
-Route::middleware(['auth', 'superadmin', 'admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'superadmin', 'admin.2fa.enrolled', 'admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/tenants', [AdminDashboardController::class, 'tenants'])->name('tenants.index');
     Route::get('/tenants/create', [TenantManagementController::class, 'create'])->name('tenants.create');

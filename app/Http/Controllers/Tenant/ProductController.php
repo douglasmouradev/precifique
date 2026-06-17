@@ -55,6 +55,7 @@ class ProductController extends Controller
 
     public function create(): View|RedirectResponse
     {
+        $this->authorizeTenantAction('update');
         $tenant = current_tenant();
 
         if (! $this->planLimits->canCreateProduct($tenant)) {
@@ -67,6 +68,7 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
+        $this->authorizeTenantAction('update');
         $tenant = current_tenant();
 
         if (! $this->planLimits->canCreateProduct($tenant)) {
@@ -121,7 +123,7 @@ class ProductController extends Controller
 
     public function duplicate(Product $product): RedirectResponse
     {
-        $this->authorizeTenant('view', $product);
+        $this->authorizeTenant('update', $product);
         $tenant = current_tenant();
 
         if (! $this->planLimits->canCreateProduct($tenant)) {

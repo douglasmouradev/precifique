@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Events\TenantDashboardChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreMonthlyGoalRequest;
@@ -15,6 +16,8 @@ use Illuminate\View\View;
 
 class MonthlyGoalController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function edit(): View
     {
         $tenant = current_tenant();
@@ -30,6 +33,7 @@ class MonthlyGoalController extends Controller
 
     public function store(StoreMonthlyGoalRequest $request): RedirectResponse
     {
+        $this->authorizeTenantAction('update');
         $tenant = current_tenant();
 
         $goal = new MonthlyGoal([
