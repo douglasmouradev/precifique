@@ -46,4 +46,19 @@ class TenantNotificationTest extends TestCase
 
         $this->assertSame(0, $service->unreadCount($tenant));
     }
+
+    public function test_tenant_can_mark_all_notifications_as_read(): void
+    {
+        $tenant = $this->readyTenant();
+        $service = app(TenantNotificationService::class);
+        $service->notify($tenant, 'test', 'Primeira', 'Corpo 1');
+        $service->notify($tenant, 'test', 'Segunda', 'Corpo 2');
+
+        $this->actingAs($tenant, 'tenant')
+            ->postJson(route('tenant.notifications.read-all'))
+            ->assertOk()
+            ->assertJson(['ok' => true]);
+
+        $this->assertSame(0, $service->unreadCount($tenant));
+    }
 }

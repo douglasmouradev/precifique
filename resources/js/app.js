@@ -3,6 +3,7 @@ import './toast';
 import { initTenantSidebar } from './tenant-sidebar';
 import { initConfirmDelete } from './confirm-delete';
 import { initTenantCookies } from './tenant-cookies';
+import { initNotificationBell } from './notification-bell';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -19,6 +20,7 @@ function bootApp() {
     initTenantSidebar();
     initConfirmDelete();
     initTenantCookies();
+    initNotificationBell();
 }
 
 if (document.readyState === 'loading') {
