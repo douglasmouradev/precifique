@@ -263,15 +263,15 @@
         id="tenant-cookie-banner"
         class="fixed bottom-16 lg:bottom-0 inset-x-0 lg:left-0 z-[65] bg-ink text-white p-4 shadow-2xl transition-[left] duration-300 pointer-events-auto"
         role="dialog"
-        aria-label="{{ __('messages.landing.cookie_message') }}"
+        aria-label="{{ __('messages.sidebar.cookie_message') }}"
     >
         <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="text-sm">{{ __('messages.landing.cookie_message') }} <a href="{{ route('privacy') }}" class="text-brand underline">{{ __('app.nav.privacy') }}</a></p>
+            <p class="text-sm">{{ __('messages.sidebar.cookie_message') }} <a href="{{ route('privacy') }}" class="text-brand underline">{{ __('app.nav.privacy') }}</a></p>
             <button
                 type="button"
                 id="tenant-cookie-accept"
                 class="bg-brand hover:bg-brand-dark px-6 py-3 min-h-[2.75rem] rounded-lg font-semibold text-ink shrink-0 touch-manipulation"
-            >{{ __('messages.landing.cookie_accept') }}</button>
+            >{{ __('messages.sidebar.cookie_accept') }}</button>
         </div>
     </div>
 
