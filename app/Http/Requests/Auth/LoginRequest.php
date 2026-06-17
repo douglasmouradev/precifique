@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Models\Tenant;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -45,14 +44,6 @@ class LoginRequest extends FormRequest
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
-
-            $email = Str::lower($this->string('email')->toString());
-
-            if (Tenant::query()->whereRaw('LOWER(email) = ?', [$email])->exists()) {
-                throw ValidationException::withMessages([
-                    'email' => __('auth.tenant_login_hint'),
-                ]);
-            }
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),

@@ -7,13 +7,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\TenantRegisterRequest;
 use App\Models\Tenant;
-use App\Models\TenantMember;
-use App\Models\User;
+use App\Services\Auth\UnifiedLoginService;
 use App\Support\TenantNicheMapper;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class TenantAuthController extends Controller
@@ -23,61 +21,14 @@ class TenantAuthController extends Controller
         return view('auth.tenant-login');
     }
 
-    public function login(Request $request): RedirectResponse
+    public function login(Request $request, UnifiedLoginService $login): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (Auth::guard('tenant')->attempt($credentials, $request->boolean('remember'))) {
-            $tenant = Auth::guard('tenant')->user();
-
-            if ($tenant?->hasTwoFactorEnabled() && ! $tenant->isDemoProfile()) {
-                Auth::guard('tenant')->logout();
-                $request->session()->put('tenant_login_two_factor_id', $tenant->id);
-                $request->session()->put('tenant_login_remember', $request->boolean('remember'));
-
-                return redirect()->route('tenant.two-factor.challenge');
-            }
-
-            $request->session()->regenerate();
-            session(['tenant_two_factor_verified_at' => now()->timestamp]);
-
-            $tenant->ensureTestEmailVerified();
-
-            return redirect()->intended(route('tenant.dashboard'));
-        }
-
-        $member = TenantMember::query()
-            ->where('email', $credentials['email'])
-            ->where('is_active', true)
-            ->first();
-
-        if ($member && Hash::check($credentials['password'], $member->password)) {
-            $tenant = $member->tenant;
-
-            if ($tenant?->hasTwoFactorEnabled() && ! $tenant->isDemoProfile()) {
-                $request->session()->put('tenant_login_two_factor_id', $tenant->id);
-                $request->session()->put('tenant_login_member_id', $member->id);
-                $request->session()->put('tenant_login_remember', $request->boolean('remember'));
-
-                return redirect()->route('tenant.two-factor.challenge');
-            }
-
-            Auth::guard('tenant_member')->login($member, $request->boolean('remember'));
-            $request->session()->regenerate();
-
-            return redirect()->intended(route('tenant.dashboard'));
-        }
-
-        return back()
-            ->withErrors([
-                'email' => User::query()->where('email', $credentials['email'])->exists()
-                    ? __('auth.admin_login_hint')
-                    : __('auth.failed'),
-            ])
-            ->onlyInput('email');
+        return $login->attempt($request, $credentials)->response;
     }
 
     public function showRegister(): View

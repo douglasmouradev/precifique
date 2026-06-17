@@ -4,48 +4,41 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\Auth\UnifiedLoginService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('auth.login');
+        return redirect()->route('tenant.login');
     }
 
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request, UnifiedLoginService $login): RedirectResponse
     {
-        $request->authenticate();
+        $request->ensureIsNotRateLimited();
 
-        $user = $request->user();
+        $credentials = $request->only('email', 'password');
+        $result = $login->attempt($request, $credentials);
 
-        if ($user?->hasTwoFactorEnabled() && ! $user->is_superadmin) {
-            $remember = $request->boolean('remember');
-            Auth::logout();
-            $request->session()->put('login.two_factor_user_id', $user->id);
-            $request->session()->put('login.remember', $remember);
+        if (! $result->successful) {
+            RateLimiter::hit($request->throttleKey());
 
-            return redirect()->route('two-factor.challenge');
+            return $result->response;
         }
 
-        $request->session()->regenerate();
+        RateLimiter::clear($request->throttleKey());
 
-        if ($user?->is_superadmin) {
-            session(['two_factor_verified_at' => now()->timestamp]);
-
-            return redirect()->intended(route('admin.dashboard'));
-        }
-
-        return redirect()->intended(route('dashboard', absolute: false));
+        return $result->response;
     }
 
     /**
