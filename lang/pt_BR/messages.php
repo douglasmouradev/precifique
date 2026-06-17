@@ -81,4 +81,14 @@ return [
         'close_menu' => 'Fechar menu',
         'open_menu' => 'Abrir menu',
     ],
+    'ai' => [
+        'title' => 'Assistente Precifique',
+        'subtitle' => 'Precificação e margens',
+        'close' => 'Fechar',
+        'placeholder' => 'Ex.: qual margem usar no meu nicho?',
+        'send' => 'Enviar',
+        'loading' => 'Consultando especialista…',
+        'no_answer' => 'Sem resposta.',
+        'error' => 'Erro ao consultar a IA.',
+    ],
 ];

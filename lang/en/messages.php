@@ -81,4 +81,14 @@ return [
         'close_menu' => 'Close menu',
         'open_menu' => 'Open menu',
     ],
+    'ai' => [
+        'title' => 'Precifique Assistant',
+        'subtitle' => 'Pricing and margins',
+        'close' => 'Close',
+        'placeholder' => 'E.g.: what margin should I use in my niche?',
+        'send' => 'Send',
+        'loading' => 'Consulting specialist…',
+        'no_answer' => 'No answer.',
+        'error' => 'Error contacting AI.',
+    ],
 ];

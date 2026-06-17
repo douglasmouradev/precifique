@@ -51,28 +51,7 @@
         $nav[] = ['route' => 'tenant.reports.monthly', 'label' => __('app.nav.reports'), 'icon' => 'reports', 'match' => 'tenant.reports.*'];
     }
 @endphp
-<body
-    class="bg-paper font-sans text-ink min-h-screen"
-    x-data="{
-        aiOpen: false,
-        aiQuestion: '',
-        aiAnswer: '',
-        aiLoading: false,
-        sendAi() {
-            if (!this.aiQuestion?.trim() || this.aiLoading) return;
-            this.aiLoading = true;
-            fetch('{{ route('tenant.ai.chat') }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-                body: JSON.stringify({ question: this.aiQuestion }),
-            })
-                .then(r => r.json())
-                .then(d => { this.aiAnswer = d.answer || 'Sem resposta.'; })
-                .catch(() => { window.toast?.error('Erro ao consultar a IA.'); })
-                .finally(() => { this.aiLoading = false; });
-        },
-    }"
->
+<body class="bg-paper font-sans text-ink min-h-screen">
 
     <div
         id="tenant-sidebar-overlay"
@@ -180,7 +159,7 @@
                     <x-ui.locale-switcher class="hidden sm:flex" />
                     <x-ui.notification-bell class="hidden sm:block" />
                     @if($tenant?->isPremium())
-                    <button @click="aiOpen=!aiOpen" class="ui-btn-outline px-3 py-2 text-xs hidden sm:inline-flex">{{ __('messages.sidebar.assistant') }}</button>
+                    <button type="button" data-ai-open class="ui-btn-outline px-3 py-2 text-xs hidden sm:inline-flex">{{ __('messages.sidebar.assistant') }}</button>
                     @endif
                     @yield('header-actions')
                 </div>
@@ -231,28 +210,42 @@
     </nav>
 
     @if($tenant?->isPremium())
-    <div x-show="aiOpen" x-cloak x-transition class="fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-md">
+    <div
+        id="tenant-ai-assistant"
+        class="hidden fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-md"
+        role="dialog"
+        aria-labelledby="tenant-ai-title"
+        aria-hidden="true"
+        data-chat-url="{{ route('tenant.ai.chat') }}"
+        data-csrf="{{ csrf_token() }}"
+        data-no-answer="{{ __('messages.ai.no_answer') }}"
+        data-error="{{ __('messages.ai.error') }}"
+    >
         <div class="ui-card shadow-card-hover overflow-hidden">
             <div class="bg-ink text-white px-4 py-3 flex justify-between items-center">
                 <div>
-                    <p class="font-semibold text-sm">Assistente Precifique</p>
-                    <p class="text-[11px] text-slate-400">Precificação e margens</p>
+                    <p id="tenant-ai-title" class="font-semibold text-sm">{{ __('messages.ai.title') }}</p>
+                    <p class="text-[11px] text-slate-400">{{ __('messages.ai.subtitle') }}</p>
                 </div>
-                <button @click="aiOpen=false" class="text-slate-400 hover:text-white p-1" aria-label="Fechar">
+                <button type="button" data-ai-close class="text-slate-400 hover:text-white p-1 touch-manipulation" aria-label="{{ __('messages.ai.close') }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <div class="p-4 min-h-[100px] max-h-52 overflow-y-auto text-sm text-slate-600 leading-relaxed" x-show="aiAnswer" x-text="aiAnswer"></div>
-            <div x-show="aiLoading" x-cloak class="px-4 pb-2 text-xs text-slate-500 flex items-center gap-2">
+            <div data-ai-answer class="hidden p-4 min-h-[100px] max-h-52 overflow-y-auto text-sm text-slate-600 leading-relaxed"></div>
+            <div data-ai-loading class="hidden px-4 pb-2 text-xs text-slate-500 flex items-center gap-2">
                 <span class="w-3 h-3 border-2 border-brand/30 border-t-brand rounded-full animate-spin"></span>
-                Consultando especialista…
+                {{ __('messages.ai.loading') }}
             </div>
             <div class="p-3 border-t border-slate-100 flex gap-2 bg-slate-50/50">
-                <input x-model="aiQuestion" type="text" placeholder="Ex.: qual margem usar no meu nicho?" class="ui-input flex-1 py-2 text-sm" :disabled="aiLoading"
-                    @keydown.enter="if(!aiLoading) sendAi()">
-                <button class="ui-btn-primary px-4 py-2 text-sm" :disabled="aiLoading" @click="sendAi()">
-                    <span x-show="!aiLoading">Enviar</span>
-                    <span x-show="aiLoading" x-cloak>…</span>
+                <input
+                    data-ai-question
+                    type="text"
+                    placeholder="{{ __('messages.ai.placeholder') }}"
+                    class="ui-input flex-1 py-2 text-sm"
+                >
+                <button type="button" data-ai-send class="ui-btn-primary px-4 py-2 text-sm touch-manipulation">
+                    <span data-ai-send-label>{{ __('messages.ai.send') }}</span>
+                    <span data-ai-send-busy class="hidden">…</span>
                 </button>
             </div>
         </div>
