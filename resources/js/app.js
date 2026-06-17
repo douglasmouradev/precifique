@@ -2,6 +2,7 @@ import './bootstrap';
 import './toast';
 import { initTenantSidebar } from './tenant-sidebar';
 import { initConfirmDelete } from './confirm-delete';
+import { initTenantCookies } from './tenant-cookies';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -17,6 +18,7 @@ Alpine.start();
 function bootApp() {
     initTenantSidebar();
     initConfirmDelete();
+    initTenantCookies();
 }
 
 if (document.readyState === 'loading') {

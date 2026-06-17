@@ -10,6 +10,29 @@
     <title>@yield('title', 'App') — Precifique</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-ui.toast-container />
+    @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
+    <style @if(is_string($cspNonce) && $cspNonce !== '') nonce="{{ $cspNonce }}" @endif>
+        html.cookies-accepted #tenant-cookie-banner { display: none !important; }
+    </style>
+    <script @if(is_string($cspNonce) && $cspNonce !== '') nonce="{{ $cspNonce }}" @endif>
+        try {
+            if (localStorage.getItem('precifique_cookies') === '1') {
+                document.documentElement.classList.add('cookies-accepted');
+            }
+        } catch (e) {}
+        document.addEventListener('DOMContentLoaded', function () {
+            var acceptBtn = document.getElementById('tenant-cookie-accept');
+            var banner = document.getElementById('tenant-cookie-banner');
+            if (!acceptBtn || !banner) return;
+            acceptBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                try { localStorage.setItem('precifique_cookies', '1'); } catch (err) {}
+                document.documentElement.classList.add('cookies-accepted');
+                banner.remove();
+            });
+        });
+    </script>
     @stack('head')
 </head>
 @php
@@ -35,7 +58,6 @@
         aiQuestion: '',
         aiAnswer: '',
         aiLoading: false,
-        cookieAccepted: localStorage.getItem('precifique_cookies') === '1',
         sendAi() {
             if (!this.aiQuestion?.trim() || this.aiLoading) return;
             this.aiLoading = true;
@@ -239,13 +261,17 @@
 
     <div
         id="tenant-cookie-banner"
-        x-show="!cookieAccepted"
-        x-cloak
-        class="fixed bottom-16 lg:bottom-0 inset-x-0 lg:left-0 z-[54] bg-ink text-white p-4 shadow-2xl transition-[left] duration-300"
+        class="fixed bottom-16 lg:bottom-0 inset-x-0 lg:left-0 z-[65] bg-ink text-white p-4 shadow-2xl transition-[left] duration-300 pointer-events-auto"
+        role="dialog"
+        aria-label="{{ __('messages.landing.cookie_message') }}"
     >
         <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="text-sm">Usamos cookies para melhorar sua experiência. <a href="{{ route('privacy') }}" class="text-brand underline">Política de Privacidade</a></p>
-            <button @click="localStorage.setItem('precifique_cookies','1'); cookieAccepted=true" class="bg-brand hover:bg-brand-dark px-6 py-2 rounded-lg font-semibold text-ink shrink-0">Aceitar</button>
+            <p class="text-sm">{{ __('messages.landing.cookie_message') }} <a href="{{ route('privacy') }}" class="text-brand underline">{{ __('app.nav.privacy') }}</a></p>
+            <button
+                type="button"
+                id="tenant-cookie-accept"
+                class="bg-brand hover:bg-brand-dark px-6 py-3 min-h-[2.75rem] rounded-lg font-semibold text-ink shrink-0 touch-manipulation"
+            >{{ __('messages.landing.cookie_accept') }}</button>
         </div>
     </div>
 
