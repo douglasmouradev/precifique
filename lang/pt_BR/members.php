@@ -13,6 +13,7 @@ return [
     'roles' => ['editor' => 'Editor', 'viewer' => 'Somente leitura', 'admin' => 'Administrador'],
     'no_members' => 'Nenhum membro além do titular.',
     'remove' => 'Remover',
+    'removed' => 'Membro removido com sucesso.',
     'webhooks_title' => 'Webhooks',
     'webhooks_desc' => 'Receba eventos HTTP quando uma venda for registrada.',
     'webhook_url' => 'URL do webhook',

@@ -158,8 +158,7 @@
 @endsection
 
 @push('scripts')
-@vite('resources/js/dashboard-charts.js')
-<script>
+<script type="module">
 window.dashboardChartData = {
     revenueLabels: @json($revenueChartLabels),
     revenueTotals: @json($revenueChartTotals),
@@ -170,5 +169,6 @@ window.dashboardChartData = {
     topProductLabels: @json($topProductLabels),
     topProductQty: @json($topProductQty),
 };
+import('{{ Vite::asset('resources/js/dashboard-charts.js') }}');
 </script>
 @endpush

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Actions\Tenant\UpdatePricingAction;
 use App\Enums\ProfitMargin;
 use App\Http\Controllers\Controller;
@@ -24,6 +25,8 @@ use Illuminate\View\View;
 
 class PricingController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly PricingCalculatorService $calculator,
         private readonly PricingDraftService $draft,
@@ -36,7 +39,7 @@ class PricingController extends Controller
 
     public function edit(Product $product): View
     {
-        $this->authorize('view', $product);
+        $this->authorizeTenant('view', $product);
         $product->load(['technicalSheets', 'variableCosts', 'additionalCosts', 'laborCosts', 'priceHistories']);
         $tenant = current_tenant();
         $margins = ProfitMargin::forPlan($tenant->plan->value ?? (string) $tenant->plan);
@@ -46,7 +49,7 @@ class PricingController extends Controller
 
     public function update(UpdatePricingRequest $request, Product $product): RedirectResponse
     {
-        $this->authorize('update', $product);
+        $this->authorizeTenant('update', $product);
         $tenant = current_tenant();
 
         $payload = $this->updatePricing->execute($request, $product, $tenant);
@@ -59,7 +62,7 @@ class PricingController extends Controller
 
     public function aiSuggest(AiPricingSuggestRequest $request, Product $product): JsonResponse
     {
-        $this->authorize('view', $product);
+        $this->authorizeTenant('view', $product);
         $tenant = current_tenant();
         $this->aiUsage->assertCanUse($tenant);
 
@@ -83,7 +86,7 @@ class PricingController extends Controller
 
     public function preview(PreviewPricingRequest $request, Product $product): JsonResponse
     {
-        $this->authorize('view', $product);
+        $this->authorizeTenant('view', $product);
 
         $data = $request->validated();
         $margin = (float) $data['profit_margin_percent'];
@@ -100,7 +103,7 @@ class PricingController extends Controller
 
     public function compare(PreviewPricingRequest $request, Product $product): JsonResponse
     {
-        $this->authorize('view', $product);
+        $this->authorizeTenant('view', $product);
         $tenant = current_tenant();
         $data = $request->validated();
         $margins = $request->input('margins');

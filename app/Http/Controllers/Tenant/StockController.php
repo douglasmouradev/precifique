@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
@@ -13,6 +14,8 @@ use Illuminate\View\View;
 
 class StockController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function index(): View
     {
         $tenant = current_tenant();
@@ -32,7 +35,7 @@ class StockController extends Controller
     public function update(Request $request, Product $product): RedirectResponse
     {
         $tenant = current_tenant();
-        $this->authorize('update', $product);
+        $this->authorizeTenant('update', $product);
 
         $data = $request->validate([
             'stock_quantity' => ['required', 'integer', 'min:0'],

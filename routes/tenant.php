@@ -64,7 +64,7 @@ Route::middleware('auth:tenant')->group(function () {
 
     Route::prefix('onboarding')->name('onboarding.')->middleware('throttle:tenant-onboarding')->group(function () {
         Route::get('/welcome', [OnboardingController::class, 'welcome'])->name('welcome');
-        Route::get('/pular', [OnboardingController::class, 'skip'])->name('skip');
+        Route::post('/pular', [OnboardingController::class, 'skip'])->name('skip');
         Route::get('/niche', [OnboardingController::class, 'niche'])->name('niche');
         Route::post('/niche', [OnboardingController::class, 'saveNiche'])->name('niche.store');
         Route::get('/mode', [OnboardingController::class, 'mode'])->name('mode');

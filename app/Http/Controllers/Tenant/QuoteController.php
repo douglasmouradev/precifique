@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\PricingCalculatorService;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class QuoteController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly PricingCalculatorService $calculator,
     ) {}
@@ -20,7 +23,7 @@ class QuoteController extends Controller
     public function pdf(Product $product): Response
     {
         $tenant = current_tenant();
-        $this->authorize('view', $product);
+        $this->authorizeTenant('view', $product);
 
         $product->load(['laborCosts', 'variableCosts', 'additionalCosts', 'technicalSheets']);
         $margin = (float) ($product->profit_margin_percent ?? 50);

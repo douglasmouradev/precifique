@@ -10,6 +10,9 @@ import { initDropdowns } from './dropdown';
 import { initAdminNavigation } from './admin-navigation';
 import { initSalesForms } from './sales-form';
 import { initBillingPix } from './billing-pix';
+import { initPricingWizard } from './pricing-wizard';
+import { initModals } from './modal';
+import { initProfileFlash } from './profile-flash';
 
 import Alpine from 'alpinejs';
 import intersect from '@alpinejs/intersect';
@@ -33,6 +36,9 @@ function bootApp() {
     initAdminNavigation();
     initSalesForms();
     initBillingPix();
+    initPricingWizard();
+    initModals();
+    initProfileFlash();
 }
 
 if (document.readyState === 'loading') {

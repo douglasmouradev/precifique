@@ -9,7 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-ui.toast-container />
 </head>
-<body class="bg-paper font-sans text-ink min-h-screen" x-data="{ cookieAccepted: localStorage.getItem('precifique_cookies') === '1' }">
+<body class="bg-paper font-sans text-ink min-h-screen">
     <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-30">
         <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
             <a href="{{ route('home') }}"><x-ui.logo variant="full" size="sm" /></a>

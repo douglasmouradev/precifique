@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Actions\Tenant\CreateProductAction;
 use App\Actions\Tenant\DuplicateProductAction;
 use App\Actions\Tenant\UpdateProductAction;
@@ -22,6 +23,8 @@ use RuntimeException;
 
 class ProductController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly PlanLimitService $planLimits,
         private readonly CreateProductAction $createProduct,
@@ -89,7 +92,7 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $this->authorize('update', $product);
+        $this->authorizeTenant('update', $product);
         $tenant = current_tenant();
         $priceHistories = $product->priceHistories()->limit(8)->get();
 
@@ -98,7 +101,7 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
-        $this->authorize('update', $product);
+        $this->authorizeTenant('update', $product);
         $tenant = current_tenant();
 
         $this->updateProduct->execute(
@@ -118,7 +121,7 @@ class ProductController extends Controller
 
     public function duplicate(Product $product): RedirectResponse
     {
-        $this->authorize('view', $product);
+        $this->authorizeTenant('view', $product);
         $tenant = current_tenant();
 
         if (! $this->planLimits->canCreateProduct($tenant)) {
@@ -135,7 +138,7 @@ class ProductController extends Controller
 
     public function destroy(Product $product): RedirectResponse
     {
-        $this->authorize('delete', $product);
+        $this->authorizeTenant('delete', $product);
         $tenant = current_tenant();
 
         $this->audit->log($tenant, 'product.deleted', $product, ['name' => $product->name]);

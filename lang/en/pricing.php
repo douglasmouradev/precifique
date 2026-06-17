@@ -62,6 +62,16 @@ return [
     'variables_hint' => 'Variable costs (energy, gas, etc.)',
     'additional_hint' => 'Additional (packaging, labels…)',
     'margin_label' => 'Margin :percent%',
+    'add_material' => 'Add material',
+    'add_variable' => 'Variable cost',
+    'add_additional' => 'Additional cost',
+    'preview_error' => 'Could not update preview.',
+    'compare_error' => 'Could not compare margins.',
+    'ai_error' => 'Error contacting AI.',
+    'ai_empty' => 'AI returned no suggestion.',
+    'ai_step_1' => 'Calculating costs…',
+    'ai_step_2' => 'Analyzing margin…',
+    'ai_step_3' => 'Generating recommendations…',
 
     'niche_food' => [
         'title' => 'Fields — Food',

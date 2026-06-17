@@ -6,7 +6,10 @@
     <p class="text-slate-500 mt-4 max-w-md mx-auto">{{ __('onboarding.welcome_text') }}</p>
     <div class="flex flex-col sm:flex-row gap-3 justify-center mt-10">
         <x-ui.button variant="secondary" :href="route('onboarding.niche')" class="px-8 py-3.5">{{ __('onboarding.want_learn') }}</x-ui.button>
-        <x-ui.button variant="outline" :href="route('onboarding.skip')" class="px-8 py-3.5">{{ __('onboarding.already_know') }}</x-ui.button>
+        <form method="POST" action="{{ route('onboarding.skip') }}" class="inline">
+            @csrf
+            <x-ui.button type="submit" variant="outline" class="px-8 py-3.5">{{ __('onboarding.already_know') }}</x-ui.button>
+        </form>
     </div>
 </div>
 @endsection

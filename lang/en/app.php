@@ -89,6 +89,8 @@ return [
         'notify_in_app' => 'In-app notifications',
         'two_factor' => 'Two-factor authentication (2FA)',
         'two_factor_desc' => 'Protect your account with an authenticator app.',
+        'two_factor_active' => '2FA is enabled on this account.',
+        'two_factor_scan' => 'Scan the QR code in Google Authenticator or similar.',
         'enable_2fa' => 'Set up 2FA',
         'disable_2fa' => 'Disable 2FA',
         'email_unverified' => 'Your email is not verified yet.',

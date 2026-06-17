@@ -167,29 +167,22 @@
                     @endforeach
                 </ul>
             </x-landing.reveal>
-            <x-landing.reveal :delay="120" class="card-3d bg-ink rounded-2xl p-6 shadow-2xl text-white" x-data="{
-                cost: 25.50,
-                margin: 50,
-                get profit() { return this.cost * (this.margin / 100); },
-                get price() { return this.cost + this.profit; },
-                fmt(n) { return n.toLocaleString(document.documentElement.lang || 'pt-BR', { style: 'currency', currency: 'BRL' }); }
-            }">
+            <x-landing.reveal :delay="120" class="card-3d bg-ink rounded-2xl p-6 shadow-2xl text-white" id="landing-pricing-demo" data-cost="25.5">
                 <p class="text-xs text-gray-400 mb-3">{{ __('landing.demo_hint') }}</p>
                 <div class="flex gap-2 mb-4">
-                    <template x-for="m in [30, 50, 70, 100]" :key="m">
-                        <button type="button" @click="margin = m"
-                            class="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors"
-                            :class="margin === m ? 'bg-brand text-ink' : 'bg-white/10 text-gray-300 hover:bg-white/20'"
-                            x-text="m + '%'"></button>
-                    </template>
+                    @foreach([30, 50, 70, 100] as $margin)
+                    <button type="button" data-demo-margin="{{ $margin }}"
+                        class="px-2.5 py-1 rounded-lg text-xs font-bold transition-colors bg-white/10 text-gray-300 hover:bg-white/20"
+                    >{{ $margin }}%</button>
+                    @endforeach
                 </div>
                 <div class="bg-brand/20 rounded-xl p-4 mb-4">
                     <p class="text-sm text-gray-400">{{ __('landing.demo_final_price') }}</p>
-                    <p class="font-display text-4xl font-bold text-brand" x-text="fmt(price)"></p>
+                    <p class="font-display text-4xl font-bold text-brand" data-demo-price></p>
                 </div>
                 <div class="space-y-2 text-sm text-gray-300">
-                    <div class="flex justify-between"><span>{{ __('landing.demo_production_cost') }}</span><span x-text="fmt(cost)"></span></div>
-                    <div class="flex justify-between text-brand font-semibold"><span>Lucro (<span x-text="margin"></span>%)</span><span x-text="'+ ' + fmt(profit)"></span></div>
+                    <div class="flex justify-between"><span>{{ __('landing.demo_production_cost') }}</span><span data-demo-cost></span></div>
+                    <div class="flex justify-between text-brand font-semibold"><span>{{ __('landing.demo_profit') }} (<span data-demo-margin-label>50</span>%)</span><span data-demo-profit></span></div>
                 </div>
             </x-landing.reveal>
         </div>

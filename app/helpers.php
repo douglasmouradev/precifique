@@ -74,3 +74,20 @@ function current_tenant(): ?Tenant
 
     return Auth::guard('tenant_member')->user()?->tenant;
 }
+
+/**
+ * Verifica permissão de membro da equipe (owner sempre passa).
+ */
+function tenant_member_can(string $ability): bool
+{
+    $member = Auth::guard('tenant_member')->user();
+    if (! $member) {
+        return true;
+    }
+
+    return match ($member->role) {
+        'viewer' => $ability === 'view',
+        'editor' => ! in_array($ability, ['delete'], true),
+        default => true,
+    };
+}

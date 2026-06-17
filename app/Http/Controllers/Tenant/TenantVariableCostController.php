@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreTenantVariableCostRequest;
 use App\Http\Requests\Tenant\UpdateTenantVariableCostRequest;
@@ -15,6 +16,8 @@ use Illuminate\View\View;
 
 class TenantVariableCostController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly AuditService $audit,
     ) {}
@@ -40,7 +43,7 @@ class TenantVariableCostController extends Controller
     public function update(UpdateTenantVariableCostRequest $request, TenantVariableCost $tenantVariableCost): RedirectResponse
     {
         $tenant = current_tenant();
-        $this->authorize('update', $tenantVariableCost);
+        $this->authorizeTenant('update', $tenantVariableCost);
 
         $tenantVariableCost->update($request->validated());
         $this->audit->log($tenant, 'tenant_variable_cost.updated', $tenantVariableCost, [], $request);
@@ -51,7 +54,7 @@ class TenantVariableCostController extends Controller
     public function destroy(TenantVariableCost $tenantVariableCost): RedirectResponse
     {
         $tenant = current_tenant();
-        $this->authorize('delete', $tenantVariableCost);
+        $this->authorizeTenant('delete', $tenantVariableCost);
 
         $tenantVariableCost->delete();
         $this->audit->log($tenant, 'tenant_variable_cost.deleted', null, ['id' => $tenantVariableCost->id]);

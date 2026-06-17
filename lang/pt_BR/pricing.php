@@ -62,6 +62,16 @@ return [
     'variables_hint' => 'Variáveis (energia, gás, etc.)',
     'additional_hint' => 'Adicionais (embalagem, etiqueta…)',
     'margin_label' => 'Margem :percent%',
+    'add_material' => 'Adicionar material',
+    'add_variable' => 'Custo variável',
+    'add_additional' => 'Custo adicional',
+    'preview_error' => 'Não foi possível atualizar a prévia.',
+    'compare_error' => 'Não foi possível comparar margens.',
+    'ai_error' => 'Erro ao consultar a IA.',
+    'ai_empty' => 'A IA não retornou uma sugestão.',
+    'ai_step_1' => 'Calculando custos…',
+    'ai_step_2' => 'Analisando margem…',
+    'ai_step_3' => 'Gerando recomendações…',
 
     'niche_food' => [
         'title' => 'Campos — Alimentos',

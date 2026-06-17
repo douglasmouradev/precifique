@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Events\SaleRecorded;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreSaleRequest;
@@ -27,6 +28,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SaleController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly AuditService $audit,
         private readonly SalesExportService $salesExport,
@@ -178,7 +181,7 @@ class SaleController extends Controller
 
     public function edit(Sale $sale): View
     {
-        $this->authorize('update', $sale);
+        $this->authorizeTenant('update', $sale);
         $sale->load('product:id,name');
 
         return view('sales.edit', compact('sale'));
@@ -187,7 +190,7 @@ class SaleController extends Controller
     public function update(UpdateSaleRequest $request, Sale $sale): RedirectResponse
     {
         $tenant = current_tenant();
-        $this->authorize('update', $sale);
+        $this->authorizeTenant('update', $sale);
 
         $newQuantity = $request->integer('quantity');
 
@@ -230,7 +233,7 @@ class SaleController extends Controller
     public function destroy(Sale $sale): RedirectResponse
     {
         $tenant = current_tenant();
-        $this->authorize('delete', $sale);
+        $this->authorizeTenant('delete', $sale);
 
         DB::transaction(function () use ($sale, $tenant): void {
             if ($sale->product_id) {

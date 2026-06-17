@@ -156,7 +156,7 @@
                     @endif
                 </div>
                 <div class="flex items-center gap-2">
-                    <x-ui.locale-switcher class="hidden sm:flex" />
+                    <x-ui.locale-switcher />
                     <x-ui.notification-bell class="hidden sm:block" />
                     @if($tenant?->isPremium())
                     <button type="button" data-ai-open class="ui-btn-outline px-3 py-2 text-xs hidden sm:inline-flex">{{ __('messages.sidebar.assistant') }}</button>

@@ -37,7 +37,7 @@ class TeamMemberController extends Controller
 
         $member->delete();
 
-        return back()->with('success', __('app.messages.profile_updated'));
+        return back()->with('success', __('members.removed'));
     }
 
     private function ownerTenant()

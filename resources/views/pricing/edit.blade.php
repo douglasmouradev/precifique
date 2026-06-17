@@ -26,22 +26,57 @@
 @endif
 
 {{-- Indicador de etapas + formulário --}}
-<div x-data="pricingWizard">
 @php
     $wizardSteps = $beginner
         ? [__('pricing.steps.basic'), __('pricing.steps.materials'), __('pricing.steps.labor'), __('pricing.steps.margin')]
         : [__('pricing.steps.basic'), __('pricing.steps.niche'), __('pricing.steps.materials'), __('pricing.steps.costs'), __('pricing.steps.margin'), __('pricing.steps.stock')];
+    $materialsData = $product->technicalSheets->map(fn ($t) => [
+        'material_name' => $t->material_name,
+        'quantity' => $t->quantity,
+        'unit' => $t->unit,
+        'unit_cost' => $t->unit_cost,
+    ])->values();
+    $variableCostsData = $product->variableCosts->map(fn ($c) => ['name' => $c->name, 'amount' => $c->amount])->values();
+    $additionalCostsData = $product->additionalCosts->map(fn ($c) => ['name' => $c->name, 'amount' => $c->amount])->values();
+    $pricingConfig = [
+        'materials' => $materialsData,
+        'variableCosts' => $variableCostsData,
+        'additionalCosts' => $additionalCostsData,
+        'hourlyRate' => $product->laborCosts->first()?->hourly_rate ?? 0,
+        'hoursSpent' => $product->laborCosts->first()?->hours_spent ?? 0,
+        'selectedMargin' => (int) ($product->profit_margin_percent ?? 50),
+        'maxStep' => count($wizardSteps),
+        'laborStep' => $beginner ? 3 : 4,
+        'margins' => array_map(fn ($m) => $m->value, $margins),
+        'previewUrl' => route('tenant.pricing.preview', $product),
+        'compareUrl' => route('tenant.pricing.compare', $product),
+        'aiUrl' => $tenant->isPremium() ? route('tenant.pricing.ai', $product) : null,
+        'csrf' => csrf_token(),
+        'labels' => [
+            'previewError' => __('pricing.preview_error'),
+            'compareError' => __('pricing.compare_error'),
+            'aiError' => __('pricing.ai_error'),
+            'aiEmpty' => __('pricing.ai_empty'),
+            'aiStep1' => __('pricing.ai_step_1'),
+            'aiStep2' => __('pricing.ai_step_2'),
+            'aiStep3' => __('pricing.ai_step_3'),
+        ],
+    ];
 @endphp
+<div
+    id="pricing-wizard"
+    data-config="{{ json_encode($pricingConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
+>
 <div class="ui-card p-4 mb-8 overflow-x-auto">
     <div class="flex min-w-max gap-2 text-xs font-semibold">
         @foreach($wizardSteps as $i => $step)
         <span
-            class="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors"
-            :class="activeWizardStep >= {{ $i + 1 }} ? 'bg-brand text-ink font-semibold' : 'bg-slate-100 text-slate-600'"
+            data-wizard-step="{{ $i + 1 }}"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors bg-slate-100 text-slate-600"
         >
             <span
-                class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
-                :class="activeWizardStep >= {{ $i + 1 }} ? 'bg-ink/20 text-ink' : 'bg-brand/20 text-brand-dark'"
+                data-wizard-badge
+                class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] bg-brand/20 text-brand-dark"
             >{{ $i + 1 }}</span>
             {{ $step }}
         </span>
@@ -126,15 +161,8 @@
             <span class="text-slate-400 font-normal text-sm">— liste ingredientes ou materiais principais</span>
             @endif
         </h2>
-        <template x-for="(row, i) in materials" :key="'m'+i">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2">
-                <input :name="'materials['+i+'][material_name]'" x-model="row.material_name" @input.debounce.400ms="updatePreview()" placeholder="Material" class="ui-input md:col-span-2">
-                <input :name="'materials['+i+'][quantity]'" x-model="row.quantity" @input.debounce.400ms="updatePreview()" type="number" step="0.0001" placeholder="Qtd" class="ui-input">
-                <input :name="'materials['+i+'][unit]'" x-model="row.unit" placeholder="Un" class="ui-input">
-                <input :name="'materials['+i+'][unit_cost]'" x-model="row.unit_cost" @input.debounce.400ms="updatePreview()" type="number" step="0.0001" placeholder="R$/un" class="ui-input">
-            </div>
-        </template>
-        <button type="button" @click="materials.push({material_name:'',quantity:0,unit:'g',unit_cost:0}); updatePreview()" class="text-brand text-sm font-semibold hover:text-brand-dark">+ Adicionar material</button>
+        <div data-pricing-materials></div>
+        <button type="button" data-pricing-add-material class="text-brand text-sm font-semibold hover:text-brand-dark">+ {{ __('pricing.add_material') }}</button>
     </x-ui.card>
     @endif
 
@@ -142,22 +170,12 @@
     <x-ui.card>
         <h2 class="ui-section-title">3. Custos variáveis e adicionais</h2>
         <p class="text-sm text-slate-500 mb-3">{{ __('pricing.variables_hint') }}</p>
-        <template x-for="(row, i) in variableCosts" :key="'v'+i">
-            <div class="grid grid-cols-3 gap-2 mb-2">
-                <input :name="'variable_costs['+i+'][name]'" x-model="row.name" @input.debounce.400ms="updatePreview()" placeholder="Nome" class="ui-input col-span-2">
-                <input :name="'variable_costs['+i+'][amount]'" x-model="row.amount" @input.debounce.400ms="updatePreview()" type="number" step="0.01" placeholder="R$" class="ui-input">
-            </div>
-        </template>
-        <button type="button" @click="variableCosts.push({name:'',amount:0})" class="text-brand text-sm font-semibold mb-6 block hover:text-brand-dark">+ Custo variável</button>
+        <div data-pricing-variable-costs></div>
+        <button type="button" data-pricing-add-variable class="text-brand text-sm font-semibold mb-6 block hover:text-brand-dark">+ {{ __('pricing.add_variable') }}</button>
 
         <p class="text-sm text-slate-500 mb-3">{{ __('pricing.additional_hint') }}</p>
-        <template x-for="(row, i) in additionalCosts" :key="'a'+i">
-            <div class="grid grid-cols-3 gap-2 mb-2">
-                <input :name="'additional_costs['+i+'][name]'" x-model="row.name" @input.debounce.400ms="updatePreview()" placeholder="Nome" class="ui-input col-span-2">
-                <input :name="'additional_costs['+i+'][amount]'" x-model="row.amount" @input.debounce.400ms="updatePreview()" type="number" step="0.01" placeholder="R$" class="ui-input">
-            </div>
-        </template>
-        <button type="button" @click="additionalCosts.push({name:'',amount:0})" class="text-brand text-sm font-semibold block hover:text-brand-dark">+ Custo adicional</button>
+        <div data-pricing-additional-costs></div>
+        <button type="button" data-pricing-add-additional class="text-brand text-sm font-semibold block hover:text-brand-dark">+ {{ __('pricing.add_additional') }}</button>
     </x-ui.card>
     @endif
 
@@ -169,8 +187,8 @@
             @endif
         </h2>
         <div class="grid md:grid-cols-2 gap-4">
-            <div><label class="ui-label">{{ __('pricing.hourly_rate') }}</label><input name="hourly_rate" x-model="hourlyRate" @input.debounce.400ms="updatePreview()" type="number" step="0.01" class="ui-input"></div>
-            <div><label class="ui-label">{{ __('pricing.hours_spent') }}</label><input name="hours_spent" x-model="hoursSpent" @input.debounce.400ms="updatePreview()" type="number" step="0.01" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.hourly_rate') }}</label><input name="hourly_rate" data-pricing-hourly-rate type="number" step="0.01" value="{{ $product->laborCosts->first()?->hourly_rate ?? 0 }}" class="ui-input"></div>
+            <div><label class="ui-label">{{ __('pricing.hours_spent') }}</label><input name="hours_spent" data-pricing-hours-spent type="number" step="0.01" value="{{ $product->laborCosts->first()?->hours_spent ?? 0 }}" class="ui-input"></div>
         </div>
     </x-ui.card>
 
@@ -185,7 +203,6 @@
                     value="{{ $margin->value }}"
                     class="sr-only peer"
                     @checked($product->profit_margin_percent == $margin->value)
-                    @change="setMargin($event.target.value)"
                 >
                 <span class="block px-4 py-2.5 rounded-xl border border-slate-200 bg-white peer-checked:bg-brand peer-checked:border-brand peer-checked:text-ink peer-checked:font-bold text-sm transition-colors">
                     {{ $margin->label() }}
@@ -196,55 +213,43 @@
         </div>
 
         <div class="mb-6">
-            <button type="button" @click="compareMargins()" :disabled="compareLoading" class="text-sm font-semibold text-brand-dark hover:text-brand inline-flex items-center gap-2">
-                <span x-show="!compareLoading">{{ __('pricing.compare_margins') }}</span>
-                <span x-show="compareLoading" x-cloak>{{ __('pricing.comparing') }}</span>
+            <button type="button" data-pricing-compare-btn class="text-sm font-semibold text-brand-dark hover:text-brand inline-flex items-center gap-2 touch-manipulation">
+                {{ __('pricing.compare_margins') }}
             </button>
         </div>
-        <div x-show="compareScenarios.length" x-cloak class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
-            <template x-for="scenario in compareScenarios" :key="scenario.margin">
-                <button
-                    type="button"
-                    @click="setMargin(String(scenario.margin))"
-                    class="text-left p-3 rounded-xl border border-slate-200 bg-white hover:border-brand/40 transition-colors"
-                    :class="Number(selectedMargin) === Number(scenario.margin) ? 'ring-2 ring-brand/40' : ''"
-                >
-                    <p class="text-xs text-slate-500 uppercase tracking-wide">Margem <span x-text="scenario.margin"></span>%</p>
-                    <p class="text-lg font-bold text-brand-dark mt-1" x-text="formatBrl(scenario.breakdown?.final_price)"></p>
-                    <p class="text-xs text-slate-500 mt-1">Lucro: <span x-text="formatBrl(scenario.breakdown?.profit_absolute)"></span></p>
-                </button>
-            </template>
+        <div data-pricing-compare class="hidden mb-6">
+            <div data-pricing-compare-grid class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </div>
 
-        <div x-show="breakdown" x-cloak class="mb-6 space-y-4">
+        <div data-pricing-breakdown class="hidden mb-6 space-y-4">
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                 <div class="bg-white/80 p-3 rounded-xl border border-slate-100">
-                    <span class="text-slate-500 block text-xs uppercase tracking-wide">Custo produção</span>
-                    <strong class="text-ink" x-text="formatBrl(breakdown?.total_production)"></strong>
+                    <span class="text-slate-500 block text-xs uppercase tracking-wide">{{ __('pricing.production_cost') }}</span>
+                    <strong class="text-ink" data-bd-production></strong>
                 </div>
                 <div class="bg-brand/10 p-3 rounded-xl border border-brand/20">
-                    <span class="text-slate-500 block text-xs uppercase tracking-wide">Lucro (<span x-text="selectedMargin"></span>%)</span>
-                    <strong class="text-brand" x-text="formatBrl(breakdown?.profit_absolute)"></strong>
+                    <span class="text-slate-500 block text-xs uppercase tracking-wide">{{ __('pricing.profit') }} (<span data-bd-margin></span>%)</span>
+                    <strong class="text-brand" data-bd-profit></strong>
                 </div>
                 <div class="bg-white/80 p-3 rounded-xl border border-slate-100 col-span-2 md:col-span-1">
-                    <span class="text-slate-500 block text-xs uppercase tracking-wide">Preço sugerido</span>
-                    <strong class="text-ink text-lg" x-text="formatBrl(breakdown?.final_price)"></strong>
+                    <span class="text-slate-500 block text-xs uppercase tracking-wide">{{ __('pricing.suggested_price') }}</span>
+                    <strong class="text-ink text-lg" data-bd-price></strong>
                 </div>
             </div>
             <details class="text-xs text-slate-500">
-                <summary class="cursor-pointer hover:text-brand font-medium">Ver detalhamento dos custos</summary>
+                <summary class="cursor-pointer hover:text-brand font-medium">{{ __('pricing.cost_breakdown') }}</summary>
                 <div class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2 pt-2">
-                    <span>Materiais: <strong x-text="formatBrl(breakdown?.materials_cost)"></strong></span>
-                    <span>Mão de obra: <strong x-text="formatBrl(breakdown?.labor_cost)"></strong></span>
-                    <span>Custos fixos: <strong x-text="formatBrl(breakdown?.fixed_cost_share)"></strong></span>
-                    <span>Variáveis: <strong x-text="formatBrl(breakdown?.variable_costs)"></strong></span>
-                    <span>Adicionais: <strong x-text="formatBrl(breakdown?.additional_costs)"></strong></span>
+                    <span>{{ __('pricing.materials_cost') }}: <strong data-bd-materials></strong></span>
+                    <span>{{ __('pricing.labor_cost') }}: <strong data-bd-labor></strong></span>
+                    <span>{{ __('pricing.fixed_cost') }}: <strong data-bd-fixed></strong></span>
+                    <span>{{ __('pricing.variable_costs') }}: <strong data-bd-variable></strong></span>
+                    <span>{{ __('pricing.additional_costs') }}: <strong data-bd-additional></strong></span>
                 </div>
             </details>
         </div>
 
-        <p x-show="breakdown" x-cloak class="text-4xl font-display font-bold text-brand mb-4" x-text="formatBrl(breakdown?.final_price)"></p>
-        <p x-show="!breakdown && {{ $product->selling_price ? 'true' : 'false' }}" class="text-4xl font-display font-bold text-brand mb-4">R$ {{ number_format($product->selling_price, 2, ',', '.') }}</p>
+        <p data-pricing-price-hero class="hidden text-4xl font-display font-bold text-brand mb-4"></p>
+        <p data-pricing-saved-price class="text-4xl font-display font-bold text-brand mb-4 {{ $product->selling_price ? '' : 'hidden' }}">@if($product->selling_price)R$ {{ number_format($product->selling_price, 2, ',', '.') }}@endif</p>
 
         @if(session('pricing'))
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm mb-6">
@@ -259,16 +264,15 @@
         </div>
         @endif
         @if($tenant->isPremium())
-        <button type="button" @click="fetchAi()" :disabled="aiLoading" class="text-sm text-brand font-semibold hover:text-brand-dark disabled:opacity-50 inline-flex items-center gap-2">
-            <x-ui.nav-icon name="spark" class="w-4 h-4" x-show="!aiLoading" />
-            <span x-show="!aiLoading">Calcular com IA</span>
-            <span x-show="aiLoading" x-cloak class="flex items-center gap-2">
-                <span class="w-4 h-4 border-2 border-brand/30 border-t-brand rounded-full animate-spin"></span>
-                <span x-text="aiStep"></span>
-            </span>
+        <button type="button" data-pricing-ai class="text-sm text-brand font-semibold hover:text-brand-dark inline-flex items-center gap-2 touch-manipulation">
+            <x-ui.nav-icon name="spark" class="w-4 h-4" />
+            {{ __('pricing.ai_calculate') }}
         </button>
-        <div x-show="aiLoading" x-cloak class="mt-2 text-xs text-slate-500">Usando custos e margem selecionada…</div>
-        <div x-show="aiText" x-cloak class="mt-3 p-4 bg-brand/10 rounded-xl text-sm whitespace-pre-wrap border border-brand/20" x-text="aiText"></div>
+        <div data-pricing-ai-loading class="hidden mt-2 text-xs text-slate-500 flex items-center gap-2">
+            <span class="w-4 h-4 border-2 border-brand/30 border-t-brand rounded-full animate-spin"></span>
+            <span data-pricing-ai-step>{{ __('pricing.ai_step_1') }}</span>
+        </div>
+        <div data-pricing-ai-text class="hidden mt-3 p-4 bg-brand/10 rounded-xl text-sm whitespace-pre-wrap border border-brand/20"></div>
         @endif
     </x-ui.card>
 
@@ -288,169 +292,3 @@
 </form>
 </div>
 @endsection
-
-@push('scripts')
-@php
-    $materialsData = $product->technicalSheets->map(fn ($t) => [
-        'material_name' => $t->material_name,
-        'quantity' => $t->quantity,
-        'unit' => $t->unit,
-        'unit_cost' => $t->unit_cost,
-    ])->values();
-    $variableCostsData = $product->variableCosts->map(fn ($c) => [
-        'name' => $c->name,
-        'amount' => $c->amount,
-    ])->values();
-    $additionalCostsData = $product->additionalCosts->map(fn ($c) => [
-        'name' => $c->name,
-        'amount' => $c->amount,
-    ])->values();
-@endphp
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('pricingWizard', () => ({
-        materials: @json($materialsData),
-        variableCosts: @json($variableCostsData),
-        additionalCosts: @json($additionalCostsData),
-        hourlyRate: {{ $product->laborCosts->first()?->hourly_rate ?? 0 }},
-        hoursSpent: {{ $product->laborCosts->first()?->hours_spent ?? 0 }},
-        selectedMargin: '{{ (int) ($product->profit_margin_percent ?? 50) }}',
-        activeWizardStep: 1,
-        breakdown: null,
-        aiText: '',
-        aiLoading: false,
-        aiStep: 'Calculando custos…',
-        previewTimer: null,
-        compareScenarios: [],
-        compareLoading: false,
-        init() {
-            if (this.materials.length === 0) {
-                this.materials.push({ material_name: '', quantity: 0, unit: 'g', unit_cost: 0 });
-            }
-            if (this.variableCosts.length === 0) {
-                this.variableCosts.push({ name: '', amount: 0 });
-            }
-            if (this.additionalCosts.length === 0) {
-                this.additionalCosts.push({ name: '', amount: 0 });
-            }
-            const checked = document.querySelector('input[name="profit_margin_percent"]:checked');
-            if (checked) {
-                this.selectedMargin = checked.value;
-            }
-            this.updatePreview();
-        },
-        formatBrl(value) {
-            const n = Number(value);
-            if (Number.isNaN(n)) return 'R$ 0,00';
-            return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        },
-        setMargin(value) {
-            this.selectedMargin = value;
-            this.updatePreview();
-        },
-        buildPayload() {
-            return {
-                profit_margin_percent: Number(this.selectedMargin),
-                materials: this.materials,
-                variable_costs: this.variableCosts,
-                additional_costs: this.additionalCosts,
-                hourly_rate: Number(this.hourlyRate) || 0,
-                hours_spent: Number(this.hoursSpent) || 0,
-            };
-        },
-        refreshWizardStep() {
-            const maxStep = {{ count($wizardSteps) }};
-            if (this.breakdown?.final_price > 0) {
-                this.activeWizardStep = maxStep;
-            } else if (Number(this.hourlyRate) > 0 || Number(this.hoursSpent) > 0) {
-                this.activeWizardStep = Math.min(maxStep, {{ $beginner ? 3 : 4 }});
-            } else if (this.materials.some(m => m.material_name)) {
-                this.activeWizardStep = 2;
-            } else {
-                this.activeWizardStep = 1;
-            }
-        },
-        updatePreview() {
-            clearTimeout(this.previewTimer);
-            this.previewTimer = setTimeout(() => this.runPreview(), 350);
-        },
-        runPreview() {
-            fetch('{{ route('tenant.pricing.preview', $product) }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(this.buildPayload()),
-            })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.breakdown) {
-                        this.breakdown = data.breakdown;
-                        this.refreshWizardStep();
-                    }
-                })
-                .catch(() => { window.toast?.error('Não foi possível atualizar a prévia.'); });
-        },
-        compareMargins() {
-            this.compareLoading = true;
-            const margins = @json(array_map(fn ($m) => $m->value, $margins));
-            fetch('{{ route('tenant.pricing.compare', $product) }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ ...this.buildPayload(), margins }),
-            })
-                .then(r => r.json())
-                .then(data => { this.compareScenarios = data.scenarios || []; })
-                .catch(() => { window.toast?.error('Não foi possível comparar margens.'); })
-                .finally(() => { this.compareLoading = false; });
-        },
-        fetchAi() {
-            this.aiLoading = true;
-            this.aiText = '';
-            this.aiStep = 'Calculando custos…';
-            const stepTimer = setInterval(() => {
-                if (this.aiStep === 'Calculando custos…') this.aiStep = 'Analisando margem…';
-                else if (this.aiStep === 'Analisando margem…') this.aiStep = 'Gerando recomendações…';
-            }, 1200);
-            fetch('{{ route('tenant.pricing.ai', $product) }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify(this.buildPayload()),
-            })
-                .then(async (response) => {
-                    const data = await response.json().catch(() => ({}));
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Não foi possível consultar a IA.');
-                    }
-                    if (data.breakdown) {
-                        this.breakdown = data.breakdown;
-                        this.refreshWizardStep();
-                    }
-                    this.aiText = data.suggestion || 'A IA não retornou uma sugestão.';
-                })
-                .catch((err) => {
-                    const msg = err.message || 'Erro ao consultar a IA.';
-                    this.aiText = msg;
-                    window.toast?.error(msg);
-                })
-                .finally(() => {
-                    clearInterval(stepTimer);
-                    this.aiLoading = false;
-                    this.aiStep = 'Calculando custos…';
-                });
-        },
-    }));
-});
-</script>
-@endpush

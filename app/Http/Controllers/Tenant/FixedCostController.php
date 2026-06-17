@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Events\TenantDashboardChanged;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreFixedCostRequest;
@@ -16,6 +17,8 @@ use Illuminate\View\View;
 
 class FixedCostController extends Controller
 {
+    use AuthorizesTenantResource;
+
     public function __construct(
         private readonly AuditService $audit,
     ) {}
@@ -42,7 +45,7 @@ class FixedCostController extends Controller
     public function update(UpdateFixedCostRequest $request, FixedCost $fixedCost): RedirectResponse
     {
         $tenant = current_tenant();
-        $this->authorize('update', $fixedCost);
+        $this->authorizeTenant('update', $fixedCost);
 
         $fixedCost->update($request->validated());
         $this->audit->log($tenant, 'fixed_cost.updated', $fixedCost, [], $request);
@@ -54,7 +57,7 @@ class FixedCostController extends Controller
     public function destroy(FixedCost $fixedCost): RedirectResponse
     {
         $tenant = current_tenant();
-        $this->authorize('delete', $fixedCost);
+        $this->authorizeTenant('delete', $fixedCost);
 
         $fixedCost->delete();
         $this->audit->log($tenant, 'fixed_cost.deleted', null, ['id' => $fixedCost->id]);
