@@ -41,11 +41,18 @@
   ],
   "screenshots": [
     {
-      "src": "/images/og-precifique.svg",
-      "sizes": "1200x630",
+      "src": "/images/preview/dashboard.svg",
+      "sizes": "640x400",
       "type": "image/svg+xml",
       "form_factor": "wide",
       "label": "Dashboard Precifique"
+    },
+    {
+      "src": "/images/preview/products.svg",
+      "sizes": "640x400",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Produtos Precifique"
     }
   ]
 }

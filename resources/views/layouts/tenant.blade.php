@@ -61,7 +61,7 @@
             'label' => __('app.nav.group_account'),
             'items' => array_values(array_filter([
                 $tenant?->isPremium()
-                    ? ['route' => 'tenant.reports.monthly', 'label' => __('app.nav.reports'), 'icon' => 'reports', 'match' => 'tenant.reports.*']
+                    ? ['route' => 'tenant.reports.index', 'label' => __('app.nav.reports'), 'icon' => 'reports', 'match' => 'tenant.reports.*']
                     : null,
                 ['route' => 'tenant.account.index', 'label' => __('app.nav.account'), 'icon' => 'edit', 'match' => 'tenant.account.*'],
             ])),

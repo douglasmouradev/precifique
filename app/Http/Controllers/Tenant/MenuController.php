@@ -27,7 +27,7 @@ class MenuController extends Controller
         ];
 
         if ($tenant?->isPremium()) {
-            $links[] = ['route' => 'tenant.reports.monthly', 'label' => 'Relatório', 'icon' => 'reports'];
+            $links[] = ['route' => 'tenant.reports.index', 'label' => 'Relatório', 'icon' => 'reports'];
         }
 
         return view('tenant.menu', compact('links'));

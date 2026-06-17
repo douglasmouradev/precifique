@@ -9,7 +9,7 @@
         <x-ui.button variant="outline" :href="route('tenant.goals.edit')">{{ __('dashboard.goal') }}</x-ui.button>
         <x-ui.button :href="route('tenant.sales.create')">{{ __('dashboard.new_sale') }}</x-ui.button>
         @if($tenant->isPremium())
-        <x-ui.button variant="secondary" :href="route('tenant.reports.monthly')">{{ __('dashboard.export_excel') }}</x-ui.button>
+        <x-ui.button variant="secondary" :href="route('tenant.reports.index')">{{ __('dashboard.export_excel') }}</x-ui.button>
         @endif
     </x-slot:actions>
 </x-ui.page-header>

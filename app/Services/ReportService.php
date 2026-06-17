@@ -17,7 +17,15 @@ class ReportService
 {
     public function generateMonthlyReport(Tenant $tenant, int $year, int $month): string
     {
+        if (! extension_loaded('zip')) {
+            throw new \RuntimeException('PHP Zip extension (ext-zip) is required to generate Excel reports.');
+        }
+
         $dir = storage_path('app/reports/'.$tenant->id);
+        if (! is_dir($dir) && ! mkdir($dir, 0755, true) && ! is_dir($dir)) {
+            throw new \RuntimeException('Could not create reports directory.');
+        }
+
         $this->purgeOldReports($dir);
 
         $spreadsheet = new Spreadsheet;
@@ -30,17 +38,44 @@ class ReportService
 
         $spreadsheet->setActiveSheetIndex(0);
 
-        $dir = storage_path('app/reports/'.$tenant->id);
-        if (! is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
         $filename = "relatorio_{$year}_{$month}.xlsx";
         $path = $dir.'/'.$filename;
 
-        (new Xlsx($spreadsheet))->save($path);
+        try {
+            (new Xlsx($spreadsheet))->save($path);
+        } finally {
+            $spreadsheet->disconnectWorksheets();
+        }
+
+        if (! is_file($path)) {
+            throw new \RuntimeException('Report file was not saved.');
+        }
 
         return $path;
+    }
+
+    private function tenantSales(Tenant $tenant): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $tenant->sales()->withoutGlobalScope('tenant');
+    }
+
+    private function tenantProducts(Tenant $tenant): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $tenant->products()->withoutGlobalScope('tenant');
+    }
+
+    private function tenantFixedCosts(Tenant $tenant): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $tenant->fixedCosts()->withoutGlobalScope('tenant');
+    }
+
+    private function paymentLabel(mixed $method): string
+    {
+        if ($method instanceof PaymentMethod) {
+            return $method->label();
+        }
+
+        return PaymentMethod::tryLabel(is_string($method) ? $method : null);
     }
 
     private function buildSummarySheet(Spreadsheet $spreadsheet, Tenant $tenant, int $year, int $month, string $color): void
@@ -52,7 +87,7 @@ class ReportService
         $sheet->setCellValue('A2', $tenant->name);
         $sheet->setCellValue('A3', sprintf('%02d/%d', $month, $year));
 
-        $monthStats = SalePeriod::applyMonth($tenant->sales(), $year, $month)
+        $monthStats = SalePeriod::applyMonth($this->tenantSales($tenant), $year, $month)
             ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue, COUNT(*) as sales_count')
             ->first();
 
@@ -74,7 +109,7 @@ class ReportService
         $sheet->fromArray(['Produto', 'Preço venda', 'Margem %', 'Estoque'], null, 'A1');
 
         $row = 2;
-        foreach ($tenant->products()->orderBy('name')->get(['name', 'selling_price', 'profit_margin_percent', 'stock_quantity']) as $product) {
+        foreach ($this->tenantProducts($tenant)->orderBy('name')->get(['name', 'selling_price', 'profit_margin_percent', 'stock_quantity']) as $product) {
             $sheet->fromArray([
                 $product->name,
                 $product->selling_price,
@@ -96,19 +131,19 @@ class ReportService
         $sheet->fromArray(['Data', 'Produto', 'Qtd', 'Valor unit.', 'Total', 'Pagamento'], null, 'A1');
 
         $row = 2;
-        $sales = SalePeriod::applyMonth($tenant->sales(), $year, $month)
-            ->with('product')
+        $sales = SalePeriod::applyMonth($this->tenantSales($tenant), $year, $month)
+            ->with(['product' => fn ($q) => $q->withoutGlobalScope('tenant')])
             ->orderByDesc('sold_at')
             ->get();
 
         foreach ($sales as $sale) {
             $sheet->fromArray([
-                $sale->sold_at->format('d/m/Y H:i'),
+                $sale->sold_at?->format('d/m/Y H:i') ?? '',
                 $sale->product?->name,
                 $sale->quantity,
                 $sale->unit_price,
                 $sale->total_amount,
-                PaymentMethod::tryLabel($sale->payment_method),
+                $this->paymentLabel($sale->payment_method),
             ], null, "A{$row}");
             $row++;
         }
@@ -124,10 +159,10 @@ class ReportService
         $sheet->setTitle('Fluxo de Caixa');
         $sheet->fromArray(['Tipo', 'Descrição', 'Valor'], null, 'A1');
 
-        $revenue = (float) SalePeriod::applyMonth($tenant->sales(), $year, $month)
+        $revenue = (float) SalePeriod::applyMonth($this->tenantSales($tenant), $year, $month)
             ->sum('total_amount');
 
-        $fixedCosts = (float) $tenant->fixedCosts()->where('is_active', true)->sum('amount');
+        $fixedCosts = (float) $this->tenantFixedCosts($tenant)->where('is_active', true)->sum('amount');
 
         $sheet->fromArray(['Entrada', 'Vendas do mês', $revenue], null, 'A2');
         $sheet->fromArray(['Saída', 'Custos fixos mensais', $fixedCosts], null, 'A3');

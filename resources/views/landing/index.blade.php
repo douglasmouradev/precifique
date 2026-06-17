@@ -315,12 +315,16 @@
             <div class="grid md:grid-cols-3 gap-6">
                 @foreach(__('landing.preview_cards') as $i => $card)
                 <x-landing.reveal :delay="$i * 80" class="card-3d landing-card overflow-hidden !p-0">
-                    <div class="h-36 bg-gradient-to-br from-slate-100 to-slate-50 border-b border-slate-200/80 p-4 flex flex-col justify-end">
-                        <div class="space-y-2">
-                            <div class="h-2 w-3/4 rounded bg-brand/30"></div>
-                            <div class="h-2 w-1/2 rounded bg-slate-200"></div>
-                            <div class="h-8 w-24 rounded-lg bg-brand/20 mt-2"></div>
-                        </div>
+                    <div class="relative aspect-[16/10] bg-slate-100 border-b border-slate-200/80 overflow-hidden">
+                        <img
+                            src="{{ asset($card['image']) }}"
+                            alt="{{ $card['title'] }} — Precifique"
+                            class="w-full h-full object-cover object-top"
+                            loading="lazy"
+                            decoding="async"
+                            width="640"
+                            height="400"
+                        >
                     </div>
                     <div class="p-5">
                         <h3 class="font-display font-bold text-lg text-ink mb-1">{{ $card['title'] }}</h3>

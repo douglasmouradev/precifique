@@ -144,9 +144,10 @@ Route::middleware(['auth.tenant_or_member', 'tenant', 'verified.tenant', 'tenant
     Route::get('/goals', [MonthlyGoalController::class, 'edit'])->name('goals.edit');
     Route::post('/goals', [MonthlyGoalController::class, 'store'])->name('goals.store');
 
-    Route::get('/reports/monthly', [ReportController::class, 'monthly'])
-        ->middleware('plan:premium')
-        ->name('reports.monthly');
+    Route::middleware('plan:premium')->prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/monthly', [ReportController::class, 'monthly'])->name('monthly');
+    });
 
     Route::post('/ai/chat', [AIController::class, 'chat'])
         ->middleware(['plan:premium', 'throttle:20,1'])

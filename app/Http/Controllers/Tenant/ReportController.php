@@ -7,8 +7,10 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\MonthlyReportRequest;
 use App\Services\ReportService;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 class ReportController extends Controller
 {
@@ -16,11 +18,41 @@ class ReportController extends Controller
         private readonly ReportService $reports,
     ) {}
 
-    public function monthly(MonthlyReportRequest $request): BinaryFileResponse
+    public function index(): View
+    {
+        return view('reports.index', [
+            'year' => now()->year,
+            'month' => now()->month,
+        ]);
+    }
+
+    public function monthly(MonthlyReportRequest $request): BinaryFileResponse|RedirectResponse
     {
         $tenant = current_tenant();
-        $path = $this->reports->generateMonthlyReport($tenant, $request->year(), $request->month());
+        abort_if($tenant === null, 403);
 
-        return response()->download($path, basename($path));
+        try {
+            $path = $this->reports->generateMonthlyReport($tenant, $request->year(), $request->month());
+
+            if (! is_file($path)) {
+                throw new \RuntimeException('Report file was not created.');
+            }
+
+            return response()->download(
+                $path,
+                basename($path),
+                ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            );
+        } catch (Throwable $e) {
+            report($e);
+
+            $message = str_contains($e->getMessage(), 'Zip')
+                ? __('reports.zip_missing')
+                : __('reports.generate_failed');
+
+            return redirect()
+                ->route('tenant.reports.index')
+                ->with('error', $message);
+        }
     }
 }
