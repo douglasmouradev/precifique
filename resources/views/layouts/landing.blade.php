@@ -22,6 +22,7 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'Precifique')</title>
+    <link rel="preconnect" href="{{ config('app.url') }}" crossorigin>
     @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
     <style @if(is_string($cspNonce) && $cspNonce !== '') nonce="{{ $cspNonce }}" @endif>
@@ -37,8 +38,13 @@
             if (localStorage.getItem('precifique_cookies') === '1') {
                 document.documentElement.classList.add('cookies-accepted');
             }
-            if (sessionStorage.getItem('precifique_intro_seen')) {
+            var skipIntro = window.matchMedia('(max-width: 767px)').matches
+                || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (skipIntro || sessionStorage.getItem('precifique_intro_seen')) {
                 document.documentElement.classList.add('landing-intro-seen');
+                if (skipIntro) {
+                    try { sessionStorage.setItem('precifique_intro_seen', '1'); } catch (e) {}
+                }
                 document.addEventListener('DOMContentLoaded', function () {
                     var el = document.getElementById('landing-intro-overlay');
                     if (el) el.remove();

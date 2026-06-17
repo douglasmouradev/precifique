@@ -331,6 +331,16 @@
         <p class="text-sm">© {{ date('Y') }} Precifique. {{ __('landing.footer_rights') }}</p>
     </div>
 </footer>
+
+<div
+    id="landing-mobile-cta"
+    class="md:hidden fixed bottom-0 inset-x-0 z-[105] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-ink/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_32px_rgba(0,0,0,0.35)] opacity-0 translate-y-full pointer-events-none transition-all duration-300"
+>
+    <a
+        href="{{ route('tenant.register') }}"
+        class="flex items-center justify-center w-full min-h-[3rem] rounded-xl bg-brand text-ink font-bold text-sm shadow-premium-glow hover:bg-brand-dark transition-colors"
+    >{{ __('landing.mobile_cta') }}</a>
+</div>
 </div>{{-- fim #landing-page --}}
 <style>.clip-hex{clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)}</style>
 @endsection

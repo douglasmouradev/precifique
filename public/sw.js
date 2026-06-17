@@ -1,4 +1,4 @@
-const PRECIFIQUE_CACHE = 'precifique-static-v2';
+const PRECIFIQUE_CACHE = 'precifique-static-v3';
 const PRECIFIQUE_ASSETS = [
     '/images/favicon.svg',
     '/apple-touch-icon.png',
@@ -26,6 +26,23 @@ self.addEventListener('activate', (event) => {
     );
 });
 
+function cacheFirst(request) {
+    return caches.match(request).then((cached) => {
+        if (cached) {
+            return cached;
+        }
+
+        return fetch(request).then((response) => {
+            if (response.ok) {
+                const clone = response.clone();
+                caches.open(PRECIFIQUE_CACHE).then((cache) => cache.put(request, clone));
+            }
+
+            return response;
+        });
+    });
+}
+
 self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') {
         return;
@@ -37,6 +54,12 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             fetch(event.request).catch(() => caches.match('/offline.html'))
         );
+
+        return;
+    }
+
+    if (url.pathname.startsWith('/build/assets/')) {
+        event.respondWith(cacheFirst(event.request));
 
         return;
     }
@@ -57,8 +80,6 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (url.pathname.startsWith('/images/') || url.pathname.includes('apple-touch-icon')) {
-        event.respondWith(
-            caches.match(event.request).then((cached) => cached || fetch(event.request))
-        );
+        event.respondWith(cacheFirst(event.request));
     }
 });

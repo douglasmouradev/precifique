@@ -16,44 +16,71 @@
     <x-ui.alert type="success">{{ __('billing.premium_access') }}</x-ui.alert>
 </div>
 @else
-<div class="max-w-4xl mx-auto py-8">
-    <div class="text-center mb-10">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand/20 to-amber-100 mb-6 ring-1 ring-brand/20">
+@php
+    $premiumPrice = number_format($plan?->price_monthly ?? 29.90, 2, ',', '.');
+    $premiumFeatures = $plan?->features ?? __('billing.premium_features');
+    $trialDaysLeft = ($tenant->onTrial() && $tenant->trial_ends_at?->isFuture())
+        ? (int) now()->diffInDays($tenant->trial_ends_at)
+        : null;
+@endphp
+<div class="max-w-4xl mx-auto py-6 md:py-10 animate-fade-in">
+    @if($tenant->onTrial() && $tenant->trial_ends_at)
+    <x-ui.alert type="warning" class="mb-8">
+        @if($trialDaysLeft !== null && $trialDaysLeft <= 14)
+        <span class="font-semibold">{{ __('billing.trial_days_left', ['days' => $trialDaysLeft]) }}</span> —
+        @endif
+        {!! __('billing.trial_banner', ['date' => '<strong>'.$tenant->trial_ends_at->format('d/m/Y').'</strong>']) !!}
+    </x-ui.alert>
+    @endif
+
+    <div class="text-center mb-10 md:mb-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand/25 to-amber-100/80 mb-6 ring-1 ring-brand/25 shadow-premium-glow">
             <x-ui.nav-icon name="spark" class="w-8 h-8 text-brand-dark" />
         </div>
         <h1 class="ui-page-title text-balance">{{ __('billing.unlock_title') }}</h1>
         <p class="ui-page-subtitle mt-3 max-w-lg mx-auto">
             {{ __('billing.unlock_subtitle') }}
         </p>
+        <p class="text-xs text-slate-400 mt-4">{{ __('billing.social_proof') }}</p>
     </div>
 
     <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-        <x-ui.card class="border-2 border-slate-200">
+        <x-ui.card class="border border-slate-200/80 bg-slate-50/30">
             <p class="text-xs font-bold uppercase text-slate-400 tracking-wide">{{ __('billing.current_plan') }}</p>
             <h2 class="font-display text-xl font-bold mt-2">{{ __('billing.basic') }}</h2>
-            <p class="text-3xl font-bold mt-2">{{ __('billing.free') }}</p>
-            <ul class="mt-6 space-y-2 text-sm text-slate-600">
-                <li class="flex gap-2"><span class="text-brand">✓</span> {{ __('billing.basic_products') }}</li>
-                <li class="flex gap-2"><span class="text-brand">✓</span> {{ __('billing.basic_margins') }}</li>
+            <p class="text-3xl font-bold mt-2 tabular-nums">{{ __('billing.free') }}</p>
+            <ul class="mt-6 space-y-3 text-sm text-slate-600">
+                @foreach(__('billing.basic_features') as $feature)
+                <li class="flex gap-3 items-start">
+                    <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200/80 text-slate-600 text-xs">✓</span>
+                    <span>{{ $feature }}</span>
+                </li>
+                @endforeach
             </ul>
         </x-ui.card>
 
-        <x-ui.card class="border-2 border-brand ring-4 ring-brand/10 relative overflow-hidden shadow-premium-glow">
+        <x-ui.card class="border-2 border-brand relative overflow-hidden shadow-premium-glow ring-4 ring-brand/10 bg-gradient-to-b from-white to-brand/[0.03]">
             <span class="absolute top-4 right-4 ui-badge-premium">{{ __('billing.recommended') }}</span>
             <p class="text-xs font-bold uppercase text-brand-dark tracking-wide">{{ __('billing.premium') }}</p>
             <h2 class="font-display text-xl font-bold mt-2">{{ __('billing.premium') }}</h2>
-            <p class="text-3xl font-bold mt-2">R$ {{ number_format($plan?->price_monthly ?? 29.90, 2, ',', '.') }}<span class="text-base font-normal text-slate-500">{{ __('billing.per_month') }}</span></p>
-            <ul class="mt-6 space-y-2 text-sm text-slate-600">
-                @foreach($plan?->features ?? ['Produtos ilimitados', 'IA integrada', 'Relatório Excel', '5 margens de lucro'] as $f)
-                <li class="flex gap-2"><span class="text-brand">✓</span> {{ is_string($f) ? $f : $f }}</li>
+            <p class="text-3xl font-bold mt-2 tabular-nums">
+                R$ {{ $premiumPrice }}<span class="text-base font-normal text-slate-500">{{ __('billing.per_month') }}</span>
+            </p>
+            <ul class="mt-6 space-y-3 text-sm text-slate-700">
+                @foreach($premiumFeatures as $feature)
+                <li class="flex gap-3 items-start">
+                    <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand-dark text-xs font-bold">✓</span>
+                    <span>{{ is_string($feature) ? $feature : $feature }}</span>
+                </li>
                 @endforeach
             </ul>
             <div class="flex flex-col gap-3 mt-8">
                 <form method="POST" action="{{ route('tenant.billing.stripe') }}">@csrf
-                    <x-ui.button type="submit" variant="secondary" class="w-full py-3">{{ __('billing.credit_card') }}</x-ui.button>
+                    <x-ui.button type="submit" variant="secondary" class="w-full py-3.5 text-base shadow-sm">{{ __('billing.credit_card') }}</x-ui.button>
                 </form>
-                <x-ui.button variant="outline" :href="route('tenant.billing.pix')" class="w-full py-3">{{ __('billing.pix') }}</x-ui.button>
+                <x-ui.button variant="outline" :href="route('tenant.billing.pix')" class="w-full py-3.5">{{ __('billing.pix') }}</x-ui.button>
             </div>
+            <p class="text-center text-xs text-slate-400 mt-4">{{ __('billing.guarantee') }}</p>
         </x-ui.card>
     </div>
 </div>

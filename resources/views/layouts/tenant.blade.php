@@ -8,6 +8,7 @@
         <link rel="manifest" href="{{ asset('manifest.json') }}">
         <meta name="theme-color" content="#00C896">
     <title>@yield('title', 'App') — Precifique</title>
+    <link rel="preconnect" href="{{ config('app.url') }}" crossorigin>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-ui.toast-container />
     @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp

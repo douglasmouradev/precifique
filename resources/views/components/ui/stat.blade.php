@@ -11,7 +11,7 @@ $accents = [
     <div class="flex items-start justify-between gap-4">
         <div class="min-w-0 flex-1">
             <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{{ $label }}</p>
-            <p class="text-2xl font-display font-bold text-ink mt-2 tracking-tight truncate">{{ $value }}</p>
+            <p class="text-2xl font-display font-bold text-ink mt-2 tracking-tight truncate tabular-nums">{{ $value }}</p>
             @if($trend)
             <p class="text-xs text-slate-500 mt-2">{{ $trend }}</p>
             @endif

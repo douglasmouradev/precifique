@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'login' => 'Log in',
     'register' => 'Start free',
+    'mobile_cta' => 'Start free — no card required',
     'hero_title' => 'Price with confidence',
     'hero_subtitle' => 'Calculate real costs, profit margin and selling price for food, services and handmade products.',
     'meta_description' => 'Precifique — calculate real costs, profit margin and selling price. Free Premium trial.',

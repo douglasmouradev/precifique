@@ -1,18 +1,10 @@
-@import '@fontsource/plus-jakarta-sans/400.css';
-@import '@fontsource/plus-jakarta-sans/500.css';
-@import '@fontsource/plus-jakarta-sans/600.css';
-@import '@fontsource/plus-jakarta-sans/700.css';
-@import '@fontsource/instrument-sans/500.css';
-@import '@fontsource/instrument-sans/600.css';
-@import '@fontsource/instrument-sans/700.css';
+@import './fonts.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-    [x-cloak] { display: none !important; }
-
     html { scroll-behavior: smooth; }
 
     @media (prefers-reduced-motion: reduce) {
@@ -103,7 +95,7 @@
     }
 
     .ui-stat {
-        @apply ui-card p-5;
+        @apply ui-card p-5 shadow-sm;
     }
 
     .ui-stat-icon {
@@ -176,5 +168,32 @@
 
     .confirm-delete-dialog::backdrop {
         @apply bg-ink/50 backdrop-blur-sm;
+    }
+
+    .ui-chart-skeleton {
+        @apply rounded-xl overflow-hidden;
+    }
+
+    .ui-shimmer-bar {
+        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: uiShimmer 1.4s ease-in-out infinite;
+    }
+
+    .ui-shimmer-ring {
+        background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: uiShimmer 1.4s ease-in-out infinite;
+    }
+
+    @keyframes uiShimmer {
+        0% { background-position: 100% 0; }
+        100% { background-position: -100% 0; }
+    }
+
+    .ui-product-placeholder {
+        background:
+            radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0, 200, 150, 0.12), transparent),
+            linear-gradient(135deg, #f1f5f9 0%, #e8f7f2 50%, #f8fafc 100%);
     }
 }

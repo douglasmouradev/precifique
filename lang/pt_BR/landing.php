@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'login' => 'Entrar',
     'register' => 'Começar Grátis',
+    'mobile_cta' => 'Começar grátis — sem cartão',
     'hero_title' => 'Precifique com confiança',
     'hero_subtitle' => 'Calcule custos reais, margem de lucro e preço de venda para alimentos, serviços e artesanato.',
     'meta_description' => 'Precifique — calcule custos reais, margem de lucro e preço de venda para alimentos, serviços e artesanato. Trial Premium grátis.',

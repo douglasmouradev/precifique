@@ -35,8 +35,10 @@
             <img src="{{ asset('storage/'.$product->photo_path) }}" alt="{{ $product->name }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
         </div>
         @else
-        <div class="aspect-[16/10] bg-gradient-to-br from-slate-100 to-brand/10 flex items-center justify-center">
-            <x-ui.nav-icon name="products" class="w-12 h-12 text-brand/40" />
+        <div class="aspect-[16/10] ui-product-placeholder flex items-center justify-center ring-1 ring-inset ring-brand/10">
+            <div class="w-14 h-14 rounded-2xl bg-white/70 backdrop-blur-sm flex items-center justify-center shadow-sm ring-1 ring-slate-200/60">
+                <x-ui.nav-icon name="products" class="w-7 h-7 text-brand/60" />
+            </div>
         </div>
         @endif
         <div class="p-5">

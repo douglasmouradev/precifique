@@ -107,7 +107,10 @@
         <x-slot:header>
             <h2 class="ui-section-title mb-0">{{ __('dashboard.revenue_chart') }}</h2>
         </x-slot:header>
-        <canvas id="revenueChart" height="100"></canvas>
+        <div data-chart-host class="relative min-h-[14rem]">
+            <x-ui.chart-skeleton chart-id="revenueChart" type="line" min-height="14rem" />
+            <canvas id="revenueChart" class="opacity-0 transition-opacity duration-500 relative z-[2]" height="100" aria-hidden="true"></canvas>
+        </div>
     </x-ui.card>
     <x-ui.card>
         <x-slot:header>
@@ -116,7 +119,10 @@
                 <span class="text-xs text-slate-400">{{ __('dashboard.current_month') }}</span>
             </div>
         </x-slot:header>
-        <canvas id="paymentChart" height="200"></canvas>
+        <div data-chart-host class="relative min-h-[12rem]">
+            <x-ui.chart-skeleton chart-id="paymentChart" type="doughnut" min-height="12rem" />
+            <canvas id="paymentChart" class="opacity-0 transition-opacity duration-500 relative z-[2]" height="200" aria-hidden="true"></canvas>
+        </div>
         @if($paymentSalesTotal === 0)
         <p class="text-center text-sm text-slate-400 mt-3">
             {{ __('dashboard.no_sales_month') }}
@@ -131,20 +137,39 @@
         <x-slot:header>
             <h2 class="ui-section-title mb-0">{{ __('dashboard.top_products') }}</h2>
         </x-slot:header>
-        <canvas id="topProductsChart" height="160"></canvas>
+        <div data-chart-host class="relative min-h-[12rem]">
+            <x-ui.chart-skeleton chart-id="topProductsChart" type="bar" min-height="12rem" />
+            <canvas id="topProductsChart" class="opacity-0 transition-opacity duration-500 relative z-[2]" height="160" aria-hidden="true"></canvas>
+        </div>
     </x-ui.card>
     <x-ui.card :padding="false" class="overflow-hidden">
         <x-slot:header>
             <h2 class="ui-section-title mb-0">{{ __('dashboard.recent_sales') }}</h2>
         </x-slot:header>
-        <div class="overflow-x-auto">
+        <div class="md:hidden divide-y divide-slate-100">
+            @forelse($recentSales as $sale)
+            <article class="px-5 py-4 flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                    <p class="font-medium text-ink truncate">{{ $sale->product?->name }}</p>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ $sale->sold_at->format('d/m/Y') }}</p>
+                </div>
+                <p class="font-semibold text-brand-dark tabular-nums shrink-0">R$ {{ number_format($sale->total_amount, 2, ',', '.') }}</p>
+            </article>
+            @empty
+            <div class="px-5 py-8 text-center text-sm text-slate-400">
+                {{ __('dashboard.no_sales_yet') }}
+                <a href="{{ route('tenant.sales.create') }}" class="block mt-2 text-brand-dark font-medium">{{ __('dashboard.register_sale') }} →</a>
+            </div>
+            @endforelse
+        </div>
+        <div class="hidden md:block overflow-x-auto">
             <table class="ui-table">
                 <thead><tr><th>{{ __('dashboard.product') }}</th><th>{{ __('dashboard.total') }}</th><th>{{ __('dashboard.date') }}</th></tr></thead>
                 <tbody>
                 @forelse($recentSales as $sale)
-                <tr>
+                <tr class="hover:bg-slate-50/50 transition-colors">
                     <td class="font-medium">{{ $sale->product?->name }}</td>
-                    <td class="text-brand-dark font-semibold">R$ {{ number_format($sale->total_amount, 2, ',', '.') }}</td>
+                    <td class="text-brand-dark font-semibold tabular-nums">R$ {{ number_format($sale->total_amount, 2, ',', '.') }}</td>
                     <td class="text-slate-500">{{ $sale->sold_at->format('d/m') }}</td>
                 </tr>
                 @empty

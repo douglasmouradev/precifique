@@ -20,11 +20,30 @@ window.precifiqueCloseIntroOverlay = function precifiqueCloseIntroOverlay() {
     }
 
     document.body.style.overflow = '';
+    document.dispatchEvent(new CustomEvent('precifique:intro-closed'));
 };
+
+function shouldSkipLandingIntro() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return true;
+    }
+
+    if (window.matchMedia('(max-width: 767px)').matches) {
+        return true;
+    }
+
+    return false;
+}
 
 function initLandingIntro() {
     const overlay = document.getElementById('landing-intro-overlay');
     if (!overlay) {
+        return;
+    }
+
+    if (shouldSkipLandingIntro()) {
+        window.precifiqueCloseIntroOverlay();
+
         return;
     }
 
@@ -288,6 +307,30 @@ function initLandingFaq() {
     });
 }
 
+function initLandingMobileCta() {
+    const bar = document.getElementById('landing-mobile-cta');
+    if (!bar || window.matchMedia('(min-width: 768px)').matches) {
+        return;
+    }
+
+    const show = () => {
+        bar.classList.remove('opacity-0', 'translate-y-full', 'pointer-events-none');
+        bar.classList.add('opacity-100', 'translate-y-0');
+    };
+
+    const onScroll = () => {
+        if (window.scrollY > 280) {
+            show();
+            window.removeEventListener('scroll', onScroll);
+        }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    document.addEventListener('precifique:intro-closed', show, { once: true });
+}
+
 function bootLanding() {
     initLandingIntro();
     initScrollProgressBar();
@@ -298,6 +341,7 @@ function bootLanding() {
     initLocaleSwitcher();
     initLandingFaq();
     initLandingPricingDemo();
+    initLandingMobileCta();
 }
 
 if (document.readyState === 'loading') {
@@ -314,7 +358,7 @@ window.setTimeout(() => {
 
 window.setTimeout(() => {
     const overlay = document.getElementById('landing-intro-overlay');
-    if (overlay) {
+    if (overlay && !shouldSkipLandingIntro()) {
         window.precifiqueCloseIntroOverlay();
     }
 }, 5500);
