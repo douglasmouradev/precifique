@@ -16,10 +16,15 @@ class TwoFactorController extends Controller
 {
     use AuthorizesTenantResource;
 
-    public function show(TotpService $totp): View
+    public function show(TotpService $totp): View|RedirectResponse
     {
         $this->authorizeTenantOwner();
         $tenant = current_tenant();
+
+        if ($tenant->isDemoProfile()) {
+            return redirect()->route('tenant.account.index');
+        }
+
         $secret = $tenant->two_factor_secret;
 
         if (! $secret) {

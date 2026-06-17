@@ -159,10 +159,6 @@ GET /api/v1/dashboard/summary
 Authorization: Bearer {token}
 ```
 
-### Admin — 2FA
-
-Em `/admin/two-factor`, ative TOTP (Google Authenticator). Após ativar, o login em `/login` exige o código de 6 dígitos.
-
 ### Saúde
 
 - `GET /up` — health check padrão Laravel

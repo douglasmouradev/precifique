@@ -175,6 +175,11 @@ class Tenant extends Authenticatable implements CanResetPasswordContract, MustVe
         return in_array($this->email, config('tenancy.test_emails', []), true);
     }
 
+    public function isDemoProfile(): bool
+    {
+        return $this->email === (string) config('tenancy.demo_email', 'demo@precifique.com.br');
+    }
+
     public function ensureTestEmailVerified(): void
     {
         if ($this->isTestProfile() && ! $this->hasVerifiedEmail()) {

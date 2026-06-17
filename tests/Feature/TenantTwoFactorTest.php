@@ -39,4 +39,22 @@ class TenantTwoFactorTest extends TestCase
 
         $this->assertAuthenticatedAs($tenant, 'tenant');
     }
+
+    public function test_demo_profile_skips_2fa_even_when_enabled(): void
+    {
+        $secret = app(TotpService::class)->generateSecret();
+        $tenant = $this->readyTenant([
+            'email' => 'demo@precifique.com.br',
+            'password' => 'demo1234',
+            'two_factor_secret' => $secret,
+            'two_factor_confirmed_at' => now(),
+        ]);
+
+        $this->post('/entrar', [
+            'email' => 'demo@precifique.com.br',
+            'password' => 'demo1234',
+        ])->assertRedirect(route('tenant.dashboard'));
+
+        $this->assertAuthenticatedAs($tenant, 'tenant');
+    }
 }

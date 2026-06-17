@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\Tenant;
 use App\Models\User;
-use App\Services\TotpService;
 use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,19 +15,14 @@ class AdminTenantManagementTest extends TestCase
 
     private function superAdmin(): User
     {
-        $secret = app(TotpService::class)->generateSecret();
-
         return User::factory()->create([
             'is_superadmin' => true,
-            'two_factor_secret' => $secret,
-            'two_factor_confirmed_at' => now(),
         ]);
     }
 
     private function actingAsVerifiedAdmin(User $admin): static
     {
-        return $this->actingAs($admin)
-            ->withSession(['two_factor_verified_at' => now()->timestamp]);
+        return $this->actingAs($admin);
     }
 
     public function test_tenant_index_filters_by_search_query(): void

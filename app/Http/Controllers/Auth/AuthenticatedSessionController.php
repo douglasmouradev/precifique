@@ -28,7 +28,7 @@ class AuthenticatedSessionController extends Controller
 
         $user = $request->user();
 
-        if ($user?->hasTwoFactorEnabled()) {
+        if ($user?->hasTwoFactorEnabled() && ! $user->is_superadmin) {
             $remember = $request->boolean('remember');
             Auth::logout();
             $request->session()->put('login.two_factor_user_id', $user->id);

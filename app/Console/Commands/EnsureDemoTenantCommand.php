@@ -38,6 +38,8 @@ class EnsureDemoTenantCommand extends Command
             'profile_setup_completed' => true,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_secret' => null,
+            'two_factor_confirmed_at' => null,
         ]);
         $tenant->password = $password;
         $tenant->save();

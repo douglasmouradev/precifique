@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\User;
-use App\Services\TotpService;
 use Tests\Concerns\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
@@ -16,20 +15,10 @@ class AdminAccessTest extends TestCase
 
     private function superAdmin(): User
     {
-        $secret = app(TotpService::class)->generateSecret();
-
         return User::factory()->create([
             'email' => 'admin@precifique.com.br',
             'is_superadmin' => true,
-            'two_factor_secret' => $secret,
-            'two_factor_confirmed_at' => now(),
         ]);
-    }
-
-    private function actingAsVerifiedAdmin(User $admin): static
-    {
-        return $this->actingAs($admin)
-            ->withSession(['two_factor_verified_at' => now()->timestamp]);
     }
 
     public function test_admin_logout_route_is_registered(): void
@@ -64,13 +53,13 @@ class AdminAccessTest extends TestCase
         ];
 
         foreach ($routes as $route) {
-            $this->actingAsVerifiedAdmin($admin)
+            $this->actingAs($admin)
                 ->get(route($route))
                 ->assertOk("Falha ao acessar a rota {$route}");
         }
     }
 
-    public function test_admin_without_2fa_is_redirected_to_setup(): void
+    public function test_admin_can_access_dashboard_without_2fa(): void
     {
         $admin = User::factory()->create([
             'is_superadmin' => true,
@@ -78,7 +67,7 @@ class AdminAccessTest extends TestCase
 
         $this->actingAs($admin)
             ->get(route('admin.dashboard'))
-            ->assertRedirect(route('admin.two-factor.show'));
+            ->assertOk();
     }
 
     public function test_admin_can_logout(): void

@@ -24,7 +24,7 @@ class EnsureTenantTwoFactor
 
         $tenant = current_tenant();
 
-        if ($tenant?->hasTwoFactorEnabled() && ! session('tenant_two_factor_verified_at')) {
+        if ($tenant?->hasTwoFactorEnabled() && ! $tenant->isDemoProfile() && ! session('tenant_two_factor_verified_at')) {
             if (! session('tenant_login_two_factor_id')) {
                 session(['tenant_login_two_factor_id' => $tenant->id]);
             }

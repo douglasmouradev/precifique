@@ -5,7 +5,6 @@
         ['route' => 'admin.plans.index', 'label' => __('admin.nav.plans'), 'match' => 'admin.plans.*'],
         ['route' => 'admin.logs.index', 'label' => __('admin.nav.logs'), 'match' => 'admin.logs.*'],
         ['route' => 'admin.lgpd', 'label' => __('admin.nav.lgpd'), 'match' => 'admin.lgpd'],
-        ['route' => 'admin.two-factor.show', 'label' => __('admin.nav.two_factor'), 'match' => 'admin.two-factor.*'],
     ];
 @endphp
 

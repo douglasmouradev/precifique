@@ -6,7 +6,6 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\PlanController;
 use App\Http\Controllers\Admin\TenantManagementController;
-use App\Http\Controllers\Admin\TwoFactorController;
 use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\LocaleController;
@@ -70,12 +69,6 @@ Route::post('/webhooks/mercadopago', [BillingController::class, 'mercadopagoWebh
     ->withoutMiddleware([VerifyCsrfToken::class]);
 
 Route::middleware(['auth', 'superadmin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/two-factor', [TwoFactorController::class, 'show'])->name('two-factor.show');
-    Route::post('/two-factor/confirm', [TwoFactorController::class, 'confirm'])->name('two-factor.confirm');
-    Route::delete('/two-factor', [TwoFactorController::class, 'destroy'])->name('two-factor.destroy');
-});
-
-Route::middleware(['auth', 'superadmin', 'admin.2fa.enrolled', 'admin.2fa'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/tenants', [AdminDashboardController::class, 'tenants'])->name('tenants.index');
     Route::get('/tenants/create', [TenantManagementController::class, 'create'])->name('tenants.create');

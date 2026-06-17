@@ -33,7 +33,7 @@ class TenantAuthController extends Controller
         if (Auth::guard('tenant')->attempt($credentials, $request->boolean('remember'))) {
             $tenant = Auth::guard('tenant')->user();
 
-            if ($tenant?->hasTwoFactorEnabled()) {
+            if ($tenant?->hasTwoFactorEnabled() && ! $tenant->isDemoProfile()) {
                 Auth::guard('tenant')->logout();
                 $request->session()->put('tenant_login_two_factor_id', $tenant->id);
                 $request->session()->put('tenant_login_remember', $request->boolean('remember'));
@@ -57,7 +57,7 @@ class TenantAuthController extends Controller
         if ($member && Hash::check($credentials['password'], $member->password)) {
             $tenant = $member->tenant;
 
-            if ($tenant?->hasTwoFactorEnabled()) {
+            if ($tenant?->hasTwoFactorEnabled() && ! $tenant->isDemoProfile()) {
                 $request->session()->put('tenant_login_two_factor_id', $tenant->id);
                 $request->session()->put('tenant_login_member_id', $member->id);
                 $request->session()->put('tenant_login_remember', $request->boolean('remember'));

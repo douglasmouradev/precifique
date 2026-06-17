@@ -4,8 +4,6 @@ use App\Http\Controllers\HealthController;
 use App\Http\Middleware\AuthenticateTenantApi;
 use App\Http\Middleware\AuthenticateTenantOrMember;
 use App\Http\Middleware\CheckTenantApiAbility;
-use App\Http\Middleware\EnsureAdminTwoFactor;
-use App\Http\Middleware\EnsureAdminTwoFactorEnrolled;
 use App\Http\Middleware\EnsureTenantApiReady;
 use App\Http\Middleware\EnsureTenantEmailVerified;
 use App\Http\Middleware\EnsureTenantTwoFactor;
@@ -42,8 +40,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => TenantMiddleware::class,
             'plan' => PlanMiddleware::class,
             'superadmin' => SuperAdminMiddleware::class,
-            'admin.2fa' => EnsureAdminTwoFactor::class,
-            'admin.2fa.enrolled' => EnsureAdminTwoFactorEnrolled::class,
             'auth.tenant.api' => AuthenticateTenantApi::class,
             'tenant.api.ready' => EnsureTenantApiReady::class,
             'tenant.api.ability' => CheckTenantApiAbility::class,

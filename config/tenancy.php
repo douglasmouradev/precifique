@@ -21,4 +21,6 @@ return [
         'artesanato@precifique.com.br',
         'novo@precifique.com.br',
     ],
+
+    'demo_email' => 'demo@precifique.com.br',
 ];

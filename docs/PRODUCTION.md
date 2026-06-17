@@ -98,7 +98,7 @@ Backups em `storage/backups/` (retenção 14 dias).
 ## 7. Checklist pós-deploy
 
 - [ ] `APP_DEBUG=false`
-- [ ] Login admin + 2FA em `/admin/two-factor`
+- [ ] Login admin em `/login`
 - [ ] E-mail de teste (reset de senha)
 - [ ] Checkout sandbox → live
 - [ ] `GET /health` retorna `ok`

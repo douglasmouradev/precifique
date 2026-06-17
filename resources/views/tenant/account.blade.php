@@ -163,6 +163,7 @@
         </form>
     </x-ui.card>
 
+    @unless($tenant->isDemoProfile())
     <x-ui.card>
         <h2 class="ui-section-title">{{ __('app.account.two_factor') }}</h2>
         <p class="text-sm text-slate-500 mb-4">{{ __('app.account.two_factor_desc') }}</p>
@@ -173,6 +174,7 @@
         <x-ui.button :href="route('tenant.account.two-factor')">{{ __('app.account.enable_2fa') }}</x-ui.button>
         @endif
     </x-ui.card>
+    @endunless
 
     @if($isOwner)
     <x-ui.card class="lg:col-span-2">
