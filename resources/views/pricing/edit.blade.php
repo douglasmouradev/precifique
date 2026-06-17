@@ -67,7 +67,7 @@
     id="pricing-wizard"
     data-config="{{ json_encode($pricingConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}"
 >
-<div class="ui-card p-4 mb-8 overflow-x-auto">
+<div class="ui-card p-4 mb-8 overflow-x-auto pricing-wizard-sticky">
     <div class="flex min-w-max gap-2 text-xs font-semibold">
         @foreach($wizardSteps as $i => $step)
         <span
@@ -106,11 +106,23 @@
 </x-ui.card>
 @endif
 
-<form method="POST" action="{{ route('tenant.pricing.update', $product) }}" class="space-y-6 animate-fade-in">
+<div class="lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-8 lg:items-start">
+<aside class="pricing-sticky-summary order-first lg:order-last mb-6 lg:mb-0">
+    <x-ui.card class="shadow-premium-glow border-brand/10">
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{{ __('pricing.suggested_price') }}</p>
+        <div data-pricing-preview-loading class="hidden h-10 ui-shimmer-bar rounded-lg mt-3"></div>
+        <p data-pricing-sticky-price class="text-3xl font-display font-bold text-brand mt-2 tabular-nums">—</p>
+        <p data-pricing-sticky-margin class="text-xs text-slate-500 mt-2"></p>
+    </x-ui.card>
+</aside>
+
+<div class="min-w-0">
+<form method="POST" action="{{ route('tenant.pricing.update', $product) }}" class="space-y-6">
     @csrf @method('PUT')
 
     <x-ui.card>
-        <h2 class="ui-section-title">{{ __('pricing.section_basic') }}</h2>
+        <details class="pricing-collapsible" open>
+        <summary>{{ __('pricing.section_basic') }}</summary>
         <div class="grid md:grid-cols-2 gap-4">
             <div><label class="ui-label">{{ __('pricing.name') }}</label><input name="name" value="{{ $product->name }}" required class="ui-input"></div>
             <div><label class="ui-label">{{ __('pricing.production_time') }}</label><input type="number" name="production_time_minutes" value="{{ $product->production_time_minutes }}" class="ui-input"></div>
@@ -120,6 +132,7 @@
                 {{ __('pricing.custom_order') }}
             </label>
         </div>
+        </details>
     </x-ui.card>
 
     @php $nf = $product->niche_fields ?? []; @endphp
@@ -155,20 +168,23 @@
 
     @if($tenant->interface_mode !== 'servico')
     <x-ui.card>
-        <h2 class="ui-section-title">
+        <details class="pricing-collapsible" open>
+        <summary>
             2. Ficha técnica (materiais)
             @if($beginner)
             <span class="text-slate-400 font-normal text-sm">— liste ingredientes ou materiais principais</span>
             @endif
-        </h2>
+        </summary>
         <div data-pricing-materials></div>
         <button type="button" data-pricing-add-material class="text-brand text-sm font-semibold hover:text-brand-dark">+ {{ __('pricing.add_material') }}</button>
+        </details>
     </x-ui.card>
     @endif
 
     @if(!$beginner)
     <x-ui.card>
-        <h2 class="ui-section-title">3. Custos variáveis e adicionais</h2>
+        <details class="pricing-collapsible" open>
+        <summary>3. Custos variáveis e adicionais</summary>
         <p class="text-sm text-slate-500 mb-3">{{ __('pricing.variables_hint') }}</p>
         <div data-pricing-variable-costs></div>
         <button type="button" data-pricing-add-variable class="text-brand text-sm font-semibold mb-6 block hover:text-brand-dark">+ {{ __('pricing.add_variable') }}</button>
@@ -176,24 +192,28 @@
         <p class="text-sm text-slate-500 mb-3">{{ __('pricing.additional_hint') }}</p>
         <div data-pricing-additional-costs></div>
         <button type="button" data-pricing-add-additional class="text-brand text-sm font-semibold block hover:text-brand-dark">+ {{ __('pricing.add_additional') }}</button>
+        </details>
     </x-ui.card>
     @endif
 
     <x-ui.card>
-        <h2 class="ui-section-title">
+        <details class="pricing-collapsible" open>
+        <summary>
             @if($beginner)3. @endif {{ __('pricing.section_labor') }}
             @if($beginner)
             <span class="text-slate-400 font-normal text-sm">{{ __('pricing.labor_hint') }}</span>
             @endif
-        </h2>
+        </summary>
         <div class="grid md:grid-cols-2 gap-4">
             <div><label class="ui-label">{{ __('pricing.hourly_rate') }}</label><input name="hourly_rate" data-pricing-hourly-rate type="number" step="0.01" value="{{ $product->laborCosts->first()?->hourly_rate ?? 0 }}" class="ui-input"></div>
             <div><label class="ui-label">{{ __('pricing.hours_spent') }}</label><input name="hours_spent" data-pricing-hours-spent type="number" step="0.01" value="{{ $product->laborCosts->first()?->hours_spent ?? 0 }}" class="ui-input"></div>
         </div>
+        </details>
     </x-ui.card>
 
     <x-ui.card class="border-brand/20 bg-gradient-to-br from-brand/[0.03] to-transparent">
-        <h2 class="ui-section-title">{{ __('pricing.section_margin') }}</h2>
+        <details class="pricing-collapsible" open>
+        <summary>{{ __('pricing.section_margin') }}</summary>
         <div class="flex flex-wrap gap-2 mb-6">
             @foreach($margins as $margin)
             <label class="cursor-pointer">
@@ -222,6 +242,7 @@
         </div>
 
         <div data-pricing-breakdown class="hidden mb-6 space-y-4">
+            <div data-pricing-preview-loading-inline class="hidden h-24 ui-shimmer-bar rounded-xl mb-4"></div>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                 <div class="bg-white/80 p-3 rounded-xl border border-slate-100">
                     <span class="text-slate-500 block text-xs uppercase tracking-wide">{{ __('pricing.production_cost') }}</span>
@@ -274,21 +295,26 @@
         </div>
         <div data-pricing-ai-text class="hidden mt-3 p-4 bg-brand/10 rounded-xl text-sm whitespace-pre-wrap border border-brand/20"></div>
         @endif
+        </details>
     </x-ui.card>
 
     @if(!$beginner)
     <x-ui.card>
-        <h2 class="ui-section-title">5. Estoque</h2>
+        <details class="pricing-collapsible" open>
+        <summary>5. Estoque</summary>
         <div class="grid grid-cols-2 gap-4">
             <div><label class="ui-label">Quantidade</label><input name="stock_quantity" type="number" value="{{ $product->stock_quantity }}" class="ui-input"></div>
             <div><label class="ui-label">Alerta mínimo</label><input name="min_stock_alert" type="number" value="{{ $product->min_stock_alert }}" class="ui-input"></div>
         </div>
+        </details>
     </x-ui.card>
     @endif
 
-    <div class="sticky bottom-4 z-20 flex justify-end">
-        <x-ui.button type="submit" class="py-3 px-10 shadow-lg shadow-brand/20 w-full md:w-auto">{{ __('pricing.save_and_calculate') }}</x-ui.button>
+    <div class="form-sticky-submit lg:static lg:p-0 lg:border-0 lg:shadow-none lg:bg-transparent lg:backdrop-blur-none">
+        <x-ui.button type="submit" class="py-3 px-10 shadow-lg shadow-brand/20 w-full">{{ __('pricing.save_and_calculate') }}</x-ui.button>
     </div>
 </form>
+</div>
+</div>
 </div>
 @endsection

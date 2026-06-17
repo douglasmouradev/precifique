@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -44,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
         $this->registerTenantRouteBindings();
         $this->registerRateLimiters();
         $this->registerViewComposers();
+
+        Paginator::defaultView('components.ui.pagination');
     }
 
     private function configureProductionUrls(): void

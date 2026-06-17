@@ -17,7 +17,7 @@
             <a href="{{ route('home') }}" class="transition-opacity hover:opacity-90 mb-2">
                 <x-ui.logo variant="full" size="xl" />
             </a>
-            <p class="text-sm text-slate-500 mb-6">Painel administrativo</p>
+            <p class="text-sm text-slate-500 mb-6">{{ __('auth.admin_login.panel_subtitle') }}</p>
 
             <div class="w-full sm:max-w-md ui-card p-6 sm:p-8">
                 {{ $slot }}

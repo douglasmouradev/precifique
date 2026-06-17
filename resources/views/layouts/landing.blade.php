@@ -37,6 +37,8 @@
         try {
             if (localStorage.getItem('precifique_cookies') === '1') {
                 document.documentElement.classList.add('cookies-accepted');
+            } else {
+                document.documentElement.classList.add('landing-cookie-visible');
             }
             var skipIntro = window.matchMedia('(max-width: 767px)').matches
                 || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -60,6 +62,7 @@
                 e.preventDefault();
                 try { localStorage.setItem('precifique_cookies', '1'); } catch (err) {}
                 document.documentElement.classList.add('cookies-accepted');
+                document.documentElement.classList.remove('landing-cookie-visible');
                 banner.remove();
             });
         });

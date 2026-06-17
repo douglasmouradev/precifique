@@ -32,7 +32,16 @@
     <article class="ui-card-hover overflow-hidden group">
         @if($product->photo_path)
         <div class="aspect-[16/10] overflow-hidden bg-slate-100">
-            <img src="{{ asset('storage/'.$product->photo_path) }}" alt="{{ $product->name }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <img
+                src="{{ asset('storage/'.$product->photo_path) }}"
+                alt="{{ $product->name }}"
+                width="640"
+                height="400"
+                loading="lazy"
+                decoding="async"
+                sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            >
         </div>
         @else
         <div class="aspect-[16/10] ui-product-placeholder flex items-center justify-center ring-1 ring-inset ring-brand/10">

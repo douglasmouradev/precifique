@@ -38,19 +38,34 @@
 </head>
 @php
     $tenant = auth('tenant')->user();
-    $nav = [
-        ['route' => 'tenant.dashboard', 'label' => __('app.nav.dashboard'), 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
-        ['route' => 'tenant.products.index', 'label' => __('app.nav.products'), 'icon' => 'products', 'match' => 'tenant.products.*'],
-        ['route' => 'tenant.sales.index', 'label' => __('app.nav.sales'), 'icon' => 'sales', 'match' => 'tenant.sales.*'],
-        ['route' => 'tenant.fixed-costs.index', 'label' => __('app.nav.fixed_costs'), 'icon' => 'fixed-costs', 'match' => 'tenant.fixed-costs.*'],
-        ['route' => 'tenant.variable-costs.index', 'label' => __('app.nav.variable_costs'), 'icon' => 'variable-costs', 'match' => 'tenant.variable-costs.*'],
-        ['route' => 'tenant.stock.index', 'label' => __('app.nav.stock'), 'icon' => 'stock', 'match' => 'tenant.stock.*'],
-        ['route' => 'tenant.goals.edit', 'label' => __('app.nav.goals'), 'icon' => 'goals', 'match' => 'tenant.goals.*'],
-        ['route' => 'tenant.account.index', 'label' => __('app.nav.account'), 'icon' => 'edit', 'match' => 'tenant.account.*'],
+    $navGroups = [
+        [
+            'label' => __('app.nav.group_operation'),
+            'items' => [
+                ['route' => 'tenant.dashboard', 'label' => __('app.nav.dashboard'), 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
+                ['route' => 'tenant.products.index', 'label' => __('app.nav.products'), 'icon' => 'products', 'match' => 'tenant.products.*'],
+                ['route' => 'tenant.sales.index', 'label' => __('app.nav.sales'), 'icon' => 'sales', 'match' => 'tenant.sales.*'],
+                ['route' => 'tenant.stock.index', 'label' => __('app.nav.stock'), 'icon' => 'stock', 'match' => 'tenant.stock.*'],
+            ],
+        ],
+        [
+            'label' => __('app.nav.group_finance'),
+            'items' => [
+                ['route' => 'tenant.fixed-costs.index', 'label' => __('app.nav.fixed_costs'), 'icon' => 'fixed-costs', 'match' => 'tenant.fixed-costs.*'],
+                ['route' => 'tenant.variable-costs.index', 'label' => __('app.nav.variable_costs'), 'icon' => 'variable-costs', 'match' => 'tenant.variable-costs.*'],
+                ['route' => 'tenant.goals.edit', 'label' => __('app.nav.goals'), 'icon' => 'goals', 'match' => 'tenant.goals.*'],
+            ],
+        ],
+        [
+            'label' => __('app.nav.group_account'),
+            'items' => array_values(array_filter([
+                $tenant?->isPremium()
+                    ? ['route' => 'tenant.reports.monthly', 'label' => __('app.nav.reports'), 'icon' => 'reports', 'match' => 'tenant.reports.*']
+                    : null,
+                ['route' => 'tenant.account.index', 'label' => __('app.nav.account'), 'icon' => 'edit', 'match' => 'tenant.account.*'],
+            ])),
+        ],
     ];
-    if ($tenant?->isPremium()) {
-        $nav[] = ['route' => 'tenant.reports.monthly', 'label' => __('app.nav.reports'), 'icon' => 'reports', 'match' => 'tenant.reports.*'];
-    }
 @endphp
 <body class="bg-paper font-sans text-ink min-h-screen">
 
@@ -89,14 +104,19 @@
             </button>
         </div>
 
-        <nav class="flex-1 p-3 space-y-0.5 overflow-y-auto">
-            @foreach($nav as $item)
-            <a href="{{ route($item['route']) }}"
-               class="{{ request()->routeIs($item['match']) ? 'ui-sidebar-link-active' : 'ui-sidebar-link' }}"
-               data-sidebar-close>
-                <x-ui.nav-icon :name="$item['icon']" class="w-[1.125rem] h-[1.125rem] shrink-0 opacity-80" />
-                {{ $item['label'] }}
-            </a>
+        <nav class="flex-1 p-3 overflow-y-auto">
+            @foreach($navGroups as $group)
+            <p class="ui-sidebar-group-label">{{ $group['label'] }}</p>
+            <div class="space-y-0.5 mb-2">
+                @foreach($group['items'] as $item)
+                <a href="{{ route($item['route']) }}"
+                   class="{{ request()->routeIs($item['match']) ? 'ui-sidebar-link-active' : 'ui-sidebar-link' }}"
+                   data-sidebar-close>
+                    <x-ui.nav-icon :name="$item['icon']" class="w-[1.125rem] h-[1.125rem] shrink-0 opacity-80" />
+                    {{ $item['label'] }}
+                </a>
+                @endforeach
+            </div>
             @endforeach
         </nav>
 
@@ -185,7 +205,7 @@
         <div class="mx-4 md:mx-8 mt-4 rounded-lg bg-red-50 text-red-800 text-sm border border-red-200 px-4 py-3" data-flash="error" role="alert" aria-live="assertive">{{ session('error') }}</div>
         @endif
 
-        <main class="flex-1 px-4 md:px-8 py-6 md:py-8 pb-24 lg:pb-8 app-shell-bg">
+        <main class="flex-1 px-4 md:px-8 py-6 md:py-8 pb-24 lg:pb-8 app-shell-bg animate-fade-in">
             @isset($setupProgress)
             <x-ui.setup-progress :progress="$setupProgress" />
             @endisset

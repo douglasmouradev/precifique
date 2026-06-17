@@ -20,6 +20,9 @@ return [
         'menu' => 'Menu',
         'logout' => 'Sair',
         'privacy' => 'Privacidade',
+        'group_operation' => 'Operação',
+        'group_finance' => 'Financeiro',
+        'group_account' => 'Conta',
     ],
 
     'actions' => [

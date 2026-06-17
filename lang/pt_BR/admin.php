@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'dashboard' => [
         'title' => 'Visão geral do SaaS',
+        'subtitle' => 'Métricas, assinaturas e acesso rápido ao painel',
         'stats' => [
             'tenants' => 'Tenants',
             'active' => 'Ativos',
@@ -111,12 +112,41 @@ return [
     ],
 
     'tenants_page' => [
+        'subtitle' => 'Gerencie contas de clientes',
+        'create' => '+ Criar tenant',
+        'search' => 'Buscar',
+        'search_placeholder' => 'Nome ou e-mail',
+        'plan' => 'Plano',
+        'status' => 'Status',
+        'all' => 'Todos',
+        'active' => 'Ativos',
+        'inactive' => 'Inativos',
+        'trial' => 'Em trial',
+        'filter' => 'Filtrar',
+        'clear' => 'Limpar',
+        'name' => 'Nome',
+        'email' => 'E-mail',
+        'trial_until' => 'Trial',
+        'active_col' => 'Ativo',
+        'details' => 'Detalhes',
+        'deactivate' => 'Desativar',
+        'activate' => 'Ativar',
+        'yes' => 'Sim',
+        'no' => 'Não',
         'empty' => 'Nenhum tenant encontrado.',
         'back' => '← Voltar',
         'no_consent' => 'Nenhum consentimento registrado.',
     ],
 
     'logs_page' => [
+        'subtitle' => 'Auditoria e chamadas à API de inteligência artificial',
+        'ai_title' => 'Últimas chamadas de IA',
+        'audit_title' => 'Auditoria geral',
+        'date' => 'Data',
+        'tenant' => 'Tenant',
+        'action' => 'Ação',
+        'ip' => 'IP',
         'empty_ai' => 'Nenhum uso de IA registrado.',
+        'empty_audit' => 'Nenhum registro de auditoria.',
     ],
 ];

@@ -38,7 +38,11 @@
             </div>
         </div>
         <div><label class="ui-label">{{ __('sales.notes') }}</label><textarea name="notes" rows="2" class="ui-input"></textarea></div>
-        <x-ui.button type="submit" class="w-full py-3">{{ __('sales.create.confirm') }}</x-ui.button>
+        <x-ui.button type="submit" class="hidden md:inline-flex w-full py-3">{{ __('sales.create.confirm') }}</x-ui.button>
     </form>
 </x-ui.card>
+
+<div class="form-sticky-submit md:hidden">
+    <x-ui.button type="submit" form="" onclick="document.querySelector('[data-sales-form]')?.requestSubmit()" class="w-full py-3">{{ __('sales.create.confirm') }}</x-ui.button>
+</div>
 @endsection

@@ -20,6 +20,9 @@ return [
         'menu' => 'Menu',
         'logout' => 'Log out',
         'privacy' => 'Privacy',
+        'group_operation' => 'Operations',
+        'group_finance' => 'Finance',
+        'group_account' => 'Account',
     ],
 
     'actions' => [

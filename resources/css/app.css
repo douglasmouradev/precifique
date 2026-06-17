@@ -196,4 +196,45 @@
             radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0, 200, 150, 0.12), transparent),
             linear-gradient(135deg, #f1f5f9 0%, #e8f7f2 50%, #f8fafc 100%);
     }
+
+    .gradient-mesh {
+        background-color: #f1f4f8;
+        background-image:
+            radial-gradient(ellipse 70% 50% at 20% 0%, rgba(0, 200, 150, 0.1), transparent),
+            radial-gradient(ellipse 50% 40% at 100% 100%, rgba(0, 166, 125, 0.06), transparent);
+    }
+
+    .ui-sidebar-group-label {
+        @apply px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500;
+    }
+
+    .form-sticky-submit {
+        @apply fixed bottom-20 lg:bottom-6 inset-x-4 lg:inset-x-auto lg:right-8 z-30
+               lg:max-w-md ml-auto p-3 rounded-2xl bg-white/95 backdrop-blur-xl
+               border border-slate-200/80 shadow-premium-glow;
+    }
+
+    .pricing-wizard-sticky {
+        @apply sticky top-14 z-20 bg-white/90 backdrop-blur-sm rounded-2xl border border-slate-200/70 shadow-sm;
+    }
+
+    .pricing-sticky-summary {
+        @apply hidden lg:block sticky top-20;
+    }
+
+    html.landing-cookie-visible #landing-mobile-cta {
+        bottom: 5.5rem;
+    }
+
+    @media (max-width: 767px) {
+        .pricing-collapsible > summary {
+            @apply flex items-center justify-between cursor-pointer list-none font-display font-semibold text-ink py-1;
+        }
+        .pricing-collapsible > summary::-webkit-details-marker { display: none; }
+        .pricing-collapsible[open] > summary { @apply mb-4; }
+    }
+
+    @media (min-width: 768px) {
+        .pricing-collapsible > summary { display: none; }
+    }
 }

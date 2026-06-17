@@ -68,6 +68,26 @@ return [
     'plans_subscribe_premium' => 'Subscribe to Premium',
     'plans_configuring' => 'Plans being configured.',
 
+    'logos_title' => 'For businesses of every size',
+    'logos' => ['Bakeries', 'Meal prep', 'Handmade', 'SMEs', 'Workshops', 'Studios'],
+
+    'testimonials_title' => 'Trusted by small business owners',
+    'testimonials' => [
+        ['name' => 'Ana Silva', 'business' => 'Ana\'s Bakery', 'text' => 'I finally know the real cost of each cake. I stopped selling at a loss.', 'initials' => 'AS'],
+        ['name' => 'Carlos Mendes', 'business' => 'CM Workshop', 'text' => 'Quotes with hourly rate and travel look professional. Clients accept prices more easily.', 'initials' => 'CM'],
+        ['name' => 'Juliana Rocha', 'business' => 'Juju Studio', 'text' => 'The materials sheet changed how I price. Clear margin on every piece.', 'initials' => 'JR'],
+    ],
+
+    'compare_title' => 'Compare plans',
+    'compare_feature' => 'Feature',
+    'compare_rows' => [
+        ['label' => 'Products in catalog', 'basic' => 'Up to 5', 'premium' => 'Unlimited'],
+        ['label' => 'Profit margins', 'basic' => '3 options', 'premium' => '5 (up to 150%)'],
+        ['label' => 'Excel reports', 'basic' => '—', 'premium' => '✓'],
+        ['label' => 'AI pricing', 'basic' => '—', 'premium' => '✓'],
+        ['label' => 'Technical sheet PDF', 'basic' => '✓', 'premium' => '✓'],
+    ],
+
     'stats' => [
         ['value' => '3 niches', 'label' => 'Food, services and handmade'],
         ['value' => 'Bill of materials', 'label' => 'Cost per material'],

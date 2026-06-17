@@ -1,15 +1,16 @@
 <x-guest-layout>
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <h1 class="font-display text-xl font-semibold text-center text-slate-700 mb-2">Entrar como admin</h1>
+    <h1 class="font-display text-xl font-semibold text-center text-slate-700 mb-2">{{ __('auth.admin_login.heading') }}</h1>
     <p class="text-sm text-slate-500 text-center mb-6">
-        Conta de loja/tenant? <a href="{{ route('tenant.login') }}" class="text-brand font-semibold hover:underline">Entrar em /entrar</a>
+        {{ __('auth.admin_login.tenant_hint') }}
+        <a href="{{ route('tenant.login') }}" class="text-brand font-semibold hover:underline">{{ __('auth.admin_login.tenant_link') }}</a>
     </p>
 
     @if($errors->has('email') && $errors->first('email') === __('auth.tenant_login_hint'))
     <div class="mb-4 rounded-xl border border-brand/30 bg-brand/10 px-4 py-3 text-sm text-ink">
         {{ __('auth.tenant_login_hint') }}
-        <a href="{{ route('tenant.login') }}" class="mt-2 inline-flex font-semibold text-brand-dark hover:underline">Ir para /entrar →</a>
+        <a href="{{ route('tenant.login') }}" class="mt-2 inline-flex font-semibold text-brand-dark hover:underline">{{ __('auth.admin_login.go_tenant_login') }}</a>
     </div>
     @endif
 
@@ -17,13 +18,13 @@
         @csrf
 
         <div>
-            <x-input-label for="email" value="E-mail" />
+            <x-input-label for="email" :value="__('auth.login.email')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <div>
-            <x-input-label for="password" value="Senha" />
+            <x-input-label for="password" :value="__('auth.login.password')" />
             <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -31,19 +32,19 @@
         <div class="flex items-center">
             <label for="remember_me" class="inline-flex items-center gap-2 text-sm text-slate-600">
                 <input id="remember_me" type="checkbox" class="rounded border-slate-300 text-brand focus:ring-brand/30" name="remember">
-                Lembrar-me
+                {{ __('auth.login.remember_me') }}
             </label>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
             @if (Route::has('password.request'))
                 <a class="text-sm text-slate-500 hover:text-brand transition-colors" href="{{ route('password.request') }}">
-                    Esqueci minha senha
+                    {{ __('auth.login.forgot_password') }}
                 </a>
             @endif
 
             <x-primary-button class="w-full sm:w-auto justify-center py-2.5 px-6">
-                Entrar
+                {{ __('auth.login.submit') }}
             </x-primary-button>
         </div>
     </form>

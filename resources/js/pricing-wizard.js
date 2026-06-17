@@ -47,6 +47,9 @@ export function initPricingWizard() {
     const aiStepEl = root.querySelector('[data-pricing-ai-step]');
     const hourlyRateInput = root.querySelector('[data-pricing-hourly-rate]');
     const hoursSpentInput = root.querySelector('[data-pricing-hours-spent]');
+    const stickyPriceEl = root.querySelector('[data-pricing-sticky-price]');
+    const stickyMarginEl = root.querySelector('[data-pricing-sticky-margin]');
+    const previewLoadingEls = root.querySelectorAll('[data-pricing-preview-loading], [data-pricing-preview-loading-inline]');
 
     const ensureRows = () => {
         if (!state.materials.length) state.materials.push({ material_name: '', quantity: 0, unit: 'g', unit_cost: 0 });
@@ -97,6 +100,15 @@ export function initPricingWizard() {
         const marginEl = breakdownPanel.querySelector('[data-bd-margin]');
         if (marginEl) marginEl.textContent = state.selectedMargin;
         if (priceHero) priceHero.textContent = formatBrl(state.breakdown.final_price);
+        if (stickyPriceEl) stickyPriceEl.textContent = formatBrl(state.breakdown.final_price);
+        if (stickyMarginEl) {
+            stickyMarginEl.textContent = `Margem ${state.selectedMargin}% · Lucro ${formatBrl(state.breakdown.profit_absolute)}`;
+        }
+    };
+
+    const setPreviewLoading = (loading) => {
+        previewLoadingEls.forEach((el) => el.classList.toggle('hidden', !loading));
+        if (stickyPriceEl) stickyPriceEl.classList.toggle('opacity-40', loading);
     };
 
     const renderCompare = () => {
@@ -125,11 +137,13 @@ export function initPricingWizard() {
 
     const runPreview = async () => {
         if (!config.previewUrl) return;
+        setPreviewLoading(true);
         try {
             const res = await fetch(config.previewUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': config.csrf, Accept: 'application/json' }, body: JSON.stringify(buildPayload()) });
             const data = await res.json();
             if (data.breakdown) { state.breakdown = data.breakdown; refreshWizardStep(); renderBreakdown(); }
         } catch (_) { window.toast?.error(config.labels?.previewError || 'Não foi possível atualizar a prévia.'); }
+        finally { setPreviewLoading(false); }
     };
 
     const schedulePreview = debounce(runPreview, 350);
@@ -222,5 +236,9 @@ export function initPricingWizard() {
     const checked = root.querySelector('input[name="profit_margin_percent"]:checked');
     if (checked) state.selectedMargin = checked.value;
     refreshWizardStep();
+    if (savedPrice && !state.breakdown?.final_price) {
+        const match = savedPrice.textContent?.match(/[\d.,]+/);
+        if (match && stickyPriceEl) stickyPriceEl.textContent = savedPrice.textContent.trim();
+    }
     runPreview();
 }

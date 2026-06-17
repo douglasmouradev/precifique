@@ -249,6 +249,7 @@ function initCookieConsent() {
             /* storage bloqueado */
         }
         document.documentElement.classList.add('cookies-accepted');
+        document.documentElement.classList.remove('landing-cookie-visible');
         banner.remove();
     };
 
@@ -261,6 +262,8 @@ function initCookieConsent() {
     } catch (_) {
         /* ignora */
     }
+
+    document.documentElement.classList.add('landing-cookie-visible');
 
     accept.addEventListener('click', (event) => {
         event.preventDefault();

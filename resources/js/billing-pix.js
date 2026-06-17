@@ -52,4 +52,25 @@ export function initBillingPix() {
     if (!premium && statusUrl) {
         timer = window.setInterval(checkStatus, 5000);
     }
+
+    const copyBtn = root.querySelector('[data-pix-copy]');
+    const copyField = document.getElementById('pix-copy-code');
+    if (copyBtn && copyField) {
+        copyBtn.addEventListener('click', async () => {
+            const code = copyField.value;
+            try {
+                await navigator.clipboard.writeText(code);
+            } catch (_) {
+                copyField.select();
+                document.execCommand('copy');
+            }
+            const copied = root.dataset.copiedLabel || 'Copiado!';
+            const original = copyBtn.textContent;
+            copyBtn.textContent = copied;
+            window.toast?.success(copied);
+            window.setTimeout(() => {
+                copyBtn.textContent = original;
+            }, 2000);
+        });
+    }
 }

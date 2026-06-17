@@ -68,6 +68,26 @@ return [
     'plans_subscribe_premium' => 'Assinar Premium',
     'plans_configuring' => 'Planos em configuração.',
 
+    'logos_title' => 'Para negócios de todos os tamanhos',
+    'logos' => ['Docerias', 'Marmitas', 'Artesãos', 'MEIs', 'Oficinas', 'Ateliês'],
+
+    'testimonials_title' => 'Quem já precifica com confiança',
+    'testimonials' => [
+        ['name' => 'Ana Silva', 'business' => 'Doceria da Ana', 'text' => 'Finalmente sei o custo real de cada bolo. Parei de vender no prejuízo.', 'initials' => 'AS'],
+        ['name' => 'Carlos Mendes', 'business' => 'Oficina CM', 'text' => 'Orçamentos com valor/hora e deslocamento ficaram profissionais. Clientes aceitam melhor o preço.', 'initials' => 'CM'],
+        ['name' => 'Juliana Rocha', 'business' => 'Ateliê Juju', 'text' => 'A ficha técnica de materiais mudou minha precificação. Margem clara em cada peça.', 'initials' => 'JR'],
+    ],
+
+    'compare_title' => 'Compare os planos',
+    'compare_feature' => 'Recurso',
+    'compare_rows' => [
+        ['label' => 'Produtos no catálogo', 'basic' => 'Até 5', 'premium' => 'Ilimitados'],
+        ['label' => 'Margens de lucro', 'basic' => '3 opções', 'premium' => '5 (até 150%)'],
+        ['label' => 'Relatórios Excel', 'basic' => '—', 'premium' => '✓'],
+        ['label' => 'IA de precificação', 'basic' => '—', 'premium' => '✓'],
+        ['label' => 'Ficha técnica PDF', 'basic' => '✓', 'premium' => '✓'],
+    ],
+
     'stats' => [
         ['value' => '3 nichos', 'label' => 'Alimentos, serviços e artesanato'],
         ['value' => 'Ficha técnica', 'label' => 'Custos por material'],

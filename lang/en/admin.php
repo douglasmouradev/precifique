@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'dashboard' => [
         'title' => 'SaaS overview',
+        'subtitle' => 'Metrics, subscriptions, and quick panel access',
         'stats' => [
             'tenants' => 'Tenants',
             'active' => 'Active',
@@ -111,12 +112,41 @@ return [
     ],
 
     'tenants_page' => [
+        'subtitle' => 'Manage customer accounts',
+        'create' => '+ Create tenant',
+        'search' => 'Search',
+        'search_placeholder' => 'Name or email',
+        'plan' => 'Plan',
+        'status' => 'Status',
+        'all' => 'All',
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'trial' => 'On trial',
+        'filter' => 'Filter',
+        'clear' => 'Clear',
+        'name' => 'Name',
+        'email' => 'Email',
+        'trial_until' => 'Trial',
+        'active_col' => 'Active',
+        'details' => 'Details',
+        'deactivate' => 'Deactivate',
+        'activate' => 'Activate',
+        'yes' => 'Yes',
+        'no' => 'No',
         'empty' => 'No tenants found.',
         'back' => '← Back',
         'no_consent' => 'No consent recorded.',
     ],
 
     'logs_page' => [
+        'subtitle' => 'Audit trail and AI API calls',
+        'ai_title' => 'Recent AI calls',
+        'audit_title' => 'General audit',
+        'date' => 'Date',
+        'tenant' => 'Tenant',
+        'action' => 'Action',
+        'ip' => 'IP',
         'empty_ai' => 'No AI usage recorded.',
+        'empty_audit' => 'No audit records.',
     ],
 ];

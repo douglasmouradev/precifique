@@ -57,6 +57,7 @@ return [
     ],
     'two_factor' => [
         'title' => 'Autenticação em duas etapas',
+        'subtitle' => 'Informe o código de 6 dígitos do seu aplicativo autenticador.',
         'code_label' => 'Código de autenticação',
         'confirm' => 'Confirmar',
         'invalid_code' => 'Código de autenticação inválido.',
@@ -65,4 +66,12 @@ return [
     'impersonate_password_invalid' => 'Senha de administrador incorreta.',
     'back_to_site' => '← Voltar ao site',
     'back_to_login' => 'Voltar ao login',
+
+    'admin_login' => [
+        'heading' => 'Entrar como admin',
+        'panel_subtitle' => 'Painel administrativo',
+        'tenant_hint' => 'Conta de loja/tenant?',
+        'tenant_link' => 'Entrar em /entrar',
+        'go_tenant_login' => 'Ir para /entrar →',
+    ],
 ];

@@ -57,6 +57,7 @@ return [
     ],
     'two_factor' => [
         'title' => 'Two-factor authentication',
+        'subtitle' => 'Enter the 6-digit code from your authenticator app.',
         'code_label' => 'Authentication code',
         'confirm' => 'Confirm',
         'invalid_code' => 'Invalid authentication code.',
@@ -65,4 +66,12 @@ return [
     'impersonate_password_invalid' => 'Incorrect administrator password.',
     'back_to_site' => '← Back to website',
     'back_to_login' => 'Back to login',
+
+    'admin_login' => [
+        'heading' => 'Sign in as admin',
+        'panel_subtitle' => 'Admin panel',
+        'tenant_hint' => 'Store/demo account?',
+        'tenant_link' => 'Sign in at /entrar',
+        'go_tenant_login' => 'Go to /entrar →',
+    ],
 ];

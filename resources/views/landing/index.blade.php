@@ -249,6 +249,35 @@
         </div>
     </x-landing.scroll-3d-section>
 
+    {{-- Comparativo de planos --}}
+    <x-landing.scroll-3d-section intensity="subtle" class="py-16 bg-paper border-y border-slate-100">
+        <div class="max-w-4xl mx-auto px-4">
+            <x-landing.reveal>
+            <h2 class="font-display text-3xl font-bold text-center mb-10 text-ink">{{ __('landing.compare_title') }}</h2>
+            </x-landing.reveal>
+            <x-landing.reveal :delay="80" class="overflow-x-auto">
+            <table class="w-full text-sm bg-white rounded-2xl shadow-card overflow-hidden border border-slate-200/70">
+                <thead class="bg-slate-50 text-left text-xs uppercase tracking-wider text-slate-500">
+                    <tr>
+                        <th class="px-5 py-4 font-semibold">{{ __('landing.compare_feature') }}</th>
+                        <th class="px-5 py-4 font-semibold">Basic</th>
+                        <th class="px-5 py-4 font-semibold text-brand-dark">Premium</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach(__('landing.compare_rows') as $row)
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-5 py-3.5 font-medium text-ink">{{ $row['label'] }}</td>
+                        <td class="px-5 py-3.5 text-slate-600">{{ $row['basic'] }}</td>
+                        <td class="px-5 py-3.5 font-semibold text-brand-dark">{{ $row['premium'] }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            </x-landing.reveal>
+        </div>
+    </x-landing.scroll-3d-section>
+
     {{-- Prova social --}}
     <x-landing.scroll-3d-section intensity="subtle" class="py-16 bg-white border-y border-slate-100">
         <div class="max-w-6xl mx-auto px-4">
@@ -258,6 +287,37 @@
                     <p class="font-display text-2xl font-bold text-brand-dark">{{ $stat['value'] }}</p>
                     <p class="text-sm text-slate-500 mt-1">{{ $stat['label'] }}</p>
                 </div>
+                @endforeach
+            </div>
+            <x-landing.reveal :delay="120" class="mt-12 text-center">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">{{ __('landing.logos_title') }}</p>
+                <div class="flex flex-wrap justify-center gap-3">
+                    @foreach(__('landing.logos') as $logo)
+                    <span class="px-4 py-2 rounded-full bg-slate-100 text-slate-600 text-sm font-medium border border-slate-200/80">{{ $logo }}</span>
+                    @endforeach
+                </div>
+            </x-landing.reveal>
+        </div>
+    </x-landing.scroll-3d-section>
+
+    {{-- Depoimentos --}}
+    <x-landing.scroll-3d-section intensity="subtle" class="py-20 bg-ink text-white">
+        <div class="max-w-6xl mx-auto px-4">
+            <x-landing.reveal>
+            <h2 class="font-display text-3xl font-bold text-center mb-12">{{ __('landing.testimonials_title') }}</h2>
+            </x-landing.reveal>
+            <div class="grid md:grid-cols-3 gap-6">
+                @foreach(__('landing.testimonials') as $i => $t)
+                <x-landing.reveal :delay="$i * 100" class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-11 h-11 rounded-full bg-brand/20 text-brand font-bold flex items-center justify-center text-sm">{{ $t['initials'] }}</div>
+                        <div>
+                            <p class="font-semibold">{{ $t['name'] }}</p>
+                            <p class="text-xs text-gray-400">{{ $t['business'] }}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-300 leading-relaxed">"{{ $t['text'] }}"</p>
+                </x-landing.reveal>
                 @endforeach
             </div>
         </div>
