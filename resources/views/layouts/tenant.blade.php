@@ -226,7 +226,7 @@
         </main>
     </div>
 
-    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-[60] bg-white border-t border-slate-200 px-1 py-2 flex justify-around safe-area-pb touch-manipulation" aria-label="{{ __('app.nav.menu') }}">
+    <nav class="ui-bottom-nav" aria-label="{{ __('app.nav.menu') }}">
         @foreach([
             ['route' => 'tenant.dashboard', 'label' => __('app.nav.dashboard'), 'icon' => 'dashboard', 'match' => 'tenant.dashboard'],
             ['route' => 'tenant.sales.create', 'label' => '+', 'icon' => 'sales', 'match' => 'tenant.sales.create', 'accent' => true],
@@ -235,7 +235,7 @@
             ['route' => 'tenant.menu', 'label' => __('app.nav.menu'), 'icon' => 'menu', 'match' => 'tenant.menu'],
         ] as $tab)
         <a href="{{ route($tab['route']) }}"
-           class="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg text-[10px] font-medium min-w-[3.5rem] touch-manipulation {{ request()->routeIs($tab['match']) ? 'text-brand-dark' : 'text-slate-500' }} {{ ($tab['accent'] ?? false) ? '!text-brand-dark font-bold text-sm' : '' }}"
+           class="{{ request()->routeIs($tab['match']) ? 'ui-bottom-nav-link-active' : 'ui-bottom-nav-link' }} {{ ($tab['accent'] ?? false) ? '!text-brand-dark font-bold text-sm' : '' }}"
            @if(request()->routeIs($tab['match'])) aria-current="page" @endif>
             <x-ui.nav-icon :name="$tab['icon']" class="w-5 h-5" />
             {{ $tab['label'] }}

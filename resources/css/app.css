@@ -27,20 +27,23 @@
 
 @layer components {
     .ui-card {
-        @apply bg-white rounded-2xl border border-slate-200/70 shadow-card;
+        @apply bg-white rounded-2xl border border-slate-200/70 shadow-card
+               ring-1 ring-slate-900/[0.02];
     }
 
     .ui-card-premium {
-        @apply bg-white/95 backdrop-blur-sm rounded-2xl border border-slate-200/60 shadow-card
-               ring-1 ring-white/80;
+        @apply bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-elevated
+               ring-1 ring-white/90;
     }
 
     .ui-card-hover {
-        @apply ui-card transition-all duration-200 hover:shadow-card-hover hover:border-slate-300/80;
+        @apply ui-card transition-all duration-300 hover:shadow-card-hover hover:border-slate-300/80
+               hover:-translate-y-0.5;
     }
 
     .ui-glass-header {
-        @apply bg-white/85 backdrop-blur-xl border-b border-slate-200/70 shadow-[0_1px_0_0_rgba(255,255,255,0.8)_inset];
+        @apply bg-white/90 backdrop-blur-xl border-b border-slate-200/60
+               shadow-[0_1px_0_0_rgba(255,255,255,0.9)_inset,0_8px_24px_-16px_rgba(15,23,42,0.08)];
     }
 
     #tenant-main.tenant-sidebar-open {
@@ -67,15 +70,18 @@
     }
 
     .ui-btn-primary {
-        @apply ui-btn bg-ink text-white hover:bg-slate-800 focus:ring-ink/30 shadow-sm;
+        @apply ui-btn bg-ink text-white hover:bg-slate-800 focus:ring-ink/30
+               shadow-sm shadow-ink/10 active:scale-[0.98];
     }
 
     .ui-btn-secondary {
-        @apply ui-btn bg-brand text-ink hover:bg-brand-dark focus:ring-brand/30 shadow-sm;
+        @apply ui-btn bg-brand text-ink hover:bg-brand-dark focus:ring-brand/30
+               shadow-brand-glow active:scale-[0.98];
     }
 
     .ui-btn-outline {
-        @apply ui-btn border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 focus:ring-slate-200;
+        @apply ui-btn border border-slate-200/90 bg-white text-slate-700
+               hover:border-slate-300 hover:bg-slate-50 focus:ring-slate-200 active:scale-[0.98];
     }
 
     .ui-btn-ghost {
@@ -128,15 +134,47 @@
     }
 
     .ui-page-title {
-        @apply font-display text-2xl md:text-[1.75rem] font-bold text-ink tracking-tight;
+        @apply font-display text-2xl md:text-[1.875rem] font-bold text-ink tracking-tight leading-tight;
     }
 
     .ui-page-subtitle {
-        @apply text-slate-500 text-sm md:text-base mt-1 max-w-2xl;
+        @apply text-slate-500 text-sm md:text-[0.9375rem] mt-1.5 max-w-2xl leading-relaxed;
     }
 
     .ui-section-title {
-        @apply font-display text-base font-semibold text-ink mb-4;
+        @apply font-display text-base font-semibold text-ink mb-4 tracking-tight;
+    }
+
+    .ui-auth-brand-panel {
+        @apply relative hidden lg:flex flex-col justify-between p-10 xl:p-14 text-white overflow-hidden;
+        background: linear-gradient(165deg, #0a0a0a 0%, #0d1210 45%, #081210 100%);
+    }
+
+    .ui-auth-brand-panel::before {
+        content: '';
+        @apply absolute inset-0 opacity-30 pointer-events-none;
+        background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(0, 200, 150, 0.35), transparent 60%);
+    }
+
+    .ui-auth-card {
+        @apply ui-card-premium p-8 sm:p-10;
+    }
+
+    .ui-bottom-nav {
+        @apply lg:hidden fixed bottom-0 inset-x-0 z-[60]
+               bg-white/95 backdrop-blur-xl border-t border-slate-200/80
+               px-2 py-2 flex justify-around touch-manipulation
+               shadow-[0_-8px_32px_-12px_rgba(15,23,42,0.12)];
+        padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+
+    .ui-bottom-nav-link {
+        @apply flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-[11px] font-medium
+               min-w-[3.25rem] text-slate-500 transition-colors touch-manipulation;
+    }
+
+    .ui-bottom-nav-link-active {
+        @apply ui-bottom-nav-link text-brand-dark bg-brand/10;
     }
 
     .ui-alert-success {

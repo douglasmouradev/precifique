@@ -2,27 +2,24 @@
 @section('title', __('legal.terms.title'))
 @section('meta_description', __('legal.terms.meta'))
 @section('content')
-<article class="max-w-3xl mx-auto py-24 px-4">
-    <h1 class="ui-page-title">{{ __('legal.terms.title') }}</h1>
-    <div class="mt-6 space-y-6 text-slate-600 leading-relaxed">
-        <p>{{ __('legal.terms.intro') }}</p>
-        <section>
-            <h2 class="font-display font-semibold text-ink text-lg">{{ __('legal.terms.section_service') }}</h2>
-            <p class="mt-2">{{ __('legal.terms.section_service_text') }}</p>
-        </section>
-        <section>
-            <h2 class="font-display font-semibold text-ink text-lg">{{ __('legal.terms.section_account') }}</h2>
-            <p class="mt-2">{{ __('legal.terms.section_account_text') }}</p>
-        </section>
-        <section>
-            <h2 class="font-display font-semibold text-ink text-lg">{{ __('legal.terms.section_payment') }}</h2>
-            <p class="mt-2">{{ __('legal.terms.section_payment_text') }}</p>
-        </section>
-        <section>
-            <h2 class="font-display font-semibold text-ink text-lg">{{ __('legal.terms.section_liability') }}</h2>
-            <p class="mt-2">{{ __('legal.terms.section_liability_text') }}</p>
-        </section>
+<x-landing.header />
+<article class="max-w-3xl mx-auto pt-[6.5rem] pb-20 px-4">
+    <div class="landing-card">
+        <h1 class="ui-page-title">{{ __('legal.terms.title') }}</h1>
+        <p class="ui-page-subtitle mt-2">{{ __('legal.terms.meta') }}</p>
+        <div class="mt-8 space-y-8 text-slate-600 leading-relaxed">
+            <p>{{ __('legal.terms.intro') }}</p>
+            @foreach(['section_service', 'section_account', 'section_payment', 'section_liability'] as $section)
+            <section>
+                <h2 class="font-display font-semibold text-ink text-lg">{{ __('legal.terms.'.$section) }}</h2>
+                <p class="mt-2">{{ __('legal.terms.'.$section.'_text') }}</p>
+            </section>
+            @endforeach
+        </div>
+        <p class="mt-10 pt-6 border-t border-slate-100">
+            <a href="{{ route('home') }}" class="text-brand font-semibold hover:underline">{{ __('legal.terms.back') }}</a>
+        </p>
     </div>
-    <p class="mt-10"><a href="{{ route('home') }}" class="text-brand font-medium hover:underline">{{ __('legal.terms.back') }}</a></p>
 </article>
+<x-landing.footer />
 @endsection

@@ -47,7 +47,7 @@
     @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
     <style @if(is_string($cspNonce) && $cspNonce !== '') nonce="{{ $cspNonce }}" @endif>
-        [data-scroll-3d-hero] { background-color: #0D0D0D; min-height: 70vh; }
+        [data-scroll-3d-hero] { background-color: #0D0D0D; min-height: 72vh; }
         .scroll-reveal { opacity: 1; transform: none; }
         html.landing-intro-seen #landing-intro-overlay { display: none !important; }
         #landing-intro-overlay { background-color: #0D0D0D; }
@@ -91,17 +91,6 @@
     @endif
     <x-analytics />
     @stack('head')
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Precifique",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
-        "description": "SaaS de precificação para pequenos negócios brasileiros."
-    }
-    </script>
 </head>
 <body class="landing-page bg-paper text-ink font-sans antialiased overflow-x-hidden">
     <x-ui.skip-link />
@@ -109,16 +98,16 @@
 
     <div
         id="landing-cookie-banner"
-        class="fixed bottom-0 inset-x-0 z-[120] bg-ink text-white p-4 shadow-2xl pointer-events-auto"
+        class="landing-cookie-banner"
         role="dialog"
         aria-label="{{ __('landing.cookie_message') }}"
     >
         <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="text-sm">{{ __('landing.cookie_message') }} <a href="{{ route('privacy') }}" class="text-brand underline">{{ __('app.nav.privacy') }}</a></p>
+            <p class="text-sm text-slate-300 leading-relaxed">{{ __('landing.cookie_message') }} <a href="{{ route('privacy') }}" class="text-brand font-medium hover:underline">{{ __('app.nav.privacy') }}</a></p>
             <button
                 type="button"
                 id="landing-cookie-accept"
-                class="bg-brand hover:bg-brand-dark px-6 py-3 min-h-[2.75rem] rounded-lg font-semibold text-ink touch-manipulation shrink-0"
+                class="landing-btn-brand !py-2.5 shrink-0 touch-manipulation"
             >{{ __('landing.cookie_accept') }}</button>
         </div>
     </div>

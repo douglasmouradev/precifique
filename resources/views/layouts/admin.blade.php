@@ -76,10 +76,10 @@
         </header>
 
         @if(session('success'))
-        <div class="mx-4 md:mx-8 mt-4 rounded-xl bg-emerald-50 text-emerald-800 text-sm border border-emerald-200 px-4 py-3" role="status">{{ session('success') }}</div>
+        <div class="mx-4 md:mx-8 mt-4 ui-alert-success" role="status">{{ session('success') }}</div>
         @endif
         @if(session('warning'))
-        <div class="mx-4 md:mx-8 mt-4 rounded-xl bg-amber-50 text-amber-800 text-sm border border-amber-200 px-4 py-3" role="status">{{ session('warning') }}</div>
+        <div class="mx-4 md:mx-8 mt-4 ui-alert-warning" role="status">{{ session('warning') }}</div>
         @endif
         @if(session('recovery_codes'))
         <div class="mx-4 md:mx-8 mt-4 rounded-xl bg-slate-900 text-white text-sm px-4 py-4" role="status">

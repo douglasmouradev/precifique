@@ -116,5 +116,9 @@ return [
     'cta_final_button' => 'Criar conta grátis',
     'footer_privacy' => 'Privacidade',
     'footer_terms' => 'Termos',
+    'footer_api' => 'API',
+    'footer_tagline' => 'Precificação inteligente para pequenos negócios brasileiros.',
+    'footer_nav' => 'Links do site',
+    'nav_menu' => 'Menu principal',
     'footer_rights' => 'Todos os direitos reservados.',
 ];

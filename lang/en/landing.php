@@ -116,5 +116,9 @@ return [
     'cta_final_button' => 'Create free account',
     'footer_privacy' => 'Privacy',
     'footer_terms' => 'Terms',
+    'footer_api' => 'API',
+    'footer_tagline' => 'Smart pricing for Brazilian small businesses.',
+    'footer_nav' => 'Site links',
+    'nav_menu' => 'Main menu',
     'footer_rights' => 'All rights reserved.',
 ];

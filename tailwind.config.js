@@ -17,8 +17,13 @@ export default {
                     DEFAULT: '#00C896',
                     dark: '#00A67D',
                     light: '#E6FBF5',
+                    glow: '#00E6B0',
                 },
                 ink: '#0D0D0D',
+                midnight: {
+                    DEFAULT: '#0A0A0A',
+                    soft: '#141414',
+                },
                 paper: '#F8FAFC',
                 surface: '#FFFFFF',
             },
@@ -29,8 +34,11 @@ export default {
             boxShadow: {
                 card: '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 0 0 1px rgb(15 23 42 / 0.03)',
                 'card-hover': '0 12px 40px -16px rgb(15 23 42 / 0.14), 0 0 0 1px rgb(15 23 42 / 0.04)',
-                'premium-glow': '0 0 0 1px rgb(0 200 150 / 0.12), 0 20px 50px -24px rgb(0 166 125 / 0.25)',
+                elevated: '0 24px 64px -28px rgb(15 23 42 / 0.16), 0 0 0 1px rgb(15 23 42 / 0.04)',
+                'premium-glow': '0 0 0 1px rgb(0 200 150 / 0.14), 0 20px 50px -24px rgb(0 166 125 / 0.28)',
+                'brand-glow': '0 0 0 1px rgb(0 200 150 / 0.2), 0 12px 32px -12px rgb(0 166 125 / 0.45)',
                 sidebar: '4px 0 24px -8px rgb(0 0 0 / 0.35), 1px 0 0 0 rgb(255 255 255 / 0.06)',
+                'inner-soft': 'inset 0 1px 0 0 rgb(255 255 255 / 0.06)',
             },
             borderRadius: {
                 '2xl': '1rem',
