@@ -65,17 +65,7 @@
 </x-ui.alert>
 @endif
 
-<div
-    class="mb-8"
-    x-data="{ ready: true }"
-    x-init="ready = false; requestAnimationFrame(() => { ready = true })"
->
-    <div x-show="!ready" x-cloak class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5 mb-4">
-        @for ($i = 0; $i < 4; $i++)
-        <x-ui.skeleton-stat />
-        @endfor
-    </div>
-    <div x-show="ready" class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5 [&>div]:shadow-sm">
+<div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5 mb-8 [&>div]:shadow-sm">
     <x-ui.stat :label="__('dashboard.revenue_month')" icon="revenue" accent="brand"
         :value="'R$ '.number_format($monthRevenue, 2, ',', '.')"
         :trend="$goalAmount > 0 ? __('dashboard.goal_percent', ['percent' => number_format($goalProgress, 0)]) : ''" />
@@ -84,7 +74,6 @@
     <x-ui.stat :label="__('dashboard.monthly_goal')" icon="goals" accent="amber"
         :value="'R$ '.number_format($goalAmount, 2, ',', '.')"
         :trend="$goalAmount > 0 ? __('dashboard.goal_progress', ['percent' => number_format(min(100, $goalProgress), 0)]) : __('dashboard.set_goal')" />
-    </div>
 </div>
 
 @if($goalAmount > 0)
