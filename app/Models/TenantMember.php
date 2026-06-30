@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\TenantMemberFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class TenantMember extends Authenticatable
 {
+    /** @use HasFactory<TenantMemberFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'tenant_id',
         'name',

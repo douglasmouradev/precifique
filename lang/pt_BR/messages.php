@@ -43,6 +43,7 @@ return [
     'pricing' => [
         'calculated' => 'Preço calculado: R$ :price',
         'invalid_margin' => 'Margem inválida para o seu plano.',
+        'premium_margin_only' => 'Margem de 150% disponível apenas no Premium.',
     ],
     'billing' => [
         'payment_confirmed' => 'Pagamento confirmado! Bem-vindo ao Premium.',

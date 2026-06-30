@@ -22,10 +22,7 @@ export function initTenantSidebar() {
     let open = false;
 
     const apply = () => {
-        sidebar.classList.toggle('translate-x-0', open);
-        sidebar.classList.toggle('-translate-x-full', !open);
-        sidebar.classList.toggle('pointer-events-auto', open);
-        sidebar.classList.toggle('pointer-events-none', !open);
+        sidebar.classList.toggle('is-open', open);
         sidebar.setAttribute('aria-hidden', String(!open));
 
         if (overlay) {
@@ -82,13 +79,11 @@ export function initTenantSidebar() {
 
     toggle.addEventListener('click', (event) => {
         event.preventDefault();
-        event.stopPropagation();
         setOpen(!open);
     });
 
     document.getElementById('tenant-sidebar-close')?.addEventListener('click', (event) => {
         event.preventDefault();
-        event.stopPropagation();
         setOpen(false);
     });
 
@@ -109,10 +104,16 @@ export function initTenantSidebar() {
     });
 
     desktopQuery.addEventListener('change', () => {
-        if (!isDesktop() && open) {
-            document.body.style.overflow = 'hidden';
-        } else if (isDesktop()) {
+        if (!isDesktop()) {
+            if (open) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                setOpen(false, false);
+            }
+        } else {
             document.body.style.overflow = '';
+            const pinned = readSaved() === '1';
+            setOpen(pinned, false);
         }
     });
 }

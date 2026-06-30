@@ -20,7 +20,7 @@
                 id="landing-mobile-menu-toggle"
                 data-label-open="{{ __('landing.open_menu') }}"
                 data-label-close="{{ __('landing.close_menu') }}"
-                class="md:hidden p-2.5 min-w-[2.75rem] min-h-[2.75rem] text-white hover:text-brand rounded-xl touch-manipulation"
+                class="md:hidden relative z-[1] p-2.5 min-w-[2.75rem] min-h-[2.75rem] text-white hover:text-brand rounded-xl touch-manipulation cursor-pointer"
                 aria-expanded="false"
                 aria-controls="landing-mobile-menu"
                 aria-label="{{ __('landing.open_menu') }}"

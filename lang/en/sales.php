@@ -75,4 +75,18 @@ return [
         11 => 'November',
         12 => 'December',
     ],
+
+    'export' => [
+        'filename_prefix' => 'sales',
+        'no_product' => '—',
+        'headers' => [
+            'date' => 'Date',
+            'product' => 'Product',
+            'quantity' => 'Quantity',
+            'unit_price' => 'Unit price',
+            'total' => 'Total',
+            'payment' => 'Payment',
+            'notes' => 'Notes',
+        ],
+    ],
 ];

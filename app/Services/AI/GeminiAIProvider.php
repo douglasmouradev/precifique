@@ -26,7 +26,7 @@ class GeminiAIProvider implements AIProvider
     public function chat(string $prompt, int $maxTokens = 1024): string
     {
         if (! $this->isConfigured()) {
-            return 'Configure GEMINI_API_KEY no .env (grátis em aistudio.google.com).';
+            return __('ai.not_configured.gemini');
         }
 
         $models = array_values(array_unique(array_filter([
@@ -74,7 +74,7 @@ class GeminiAIProvider implements AIProvider
 
                 return [
                     'ok' => $text !== '',
-                    'text' => $text !== '' ? $text : 'A IA não retornou texto. Tente novamente.',
+                    'text' => $text !== '' ? $text : __('ai.empty_response'),
                     'error' => '',
                     'retry' => false,
                 ];
@@ -117,18 +117,18 @@ class GeminiAIProvider implements AIProvider
         $lower = strtolower($message);
 
         if (str_contains($lower, 'quota') || str_contains($lower, 'limit: 0')) {
-            return 'Cota da API Gemini esgotada ou não ativada. Acesse aistudio.google.com → seu projeto → ative billing (Tier 1 gratuito com limites maiores) ou aguarde alguns minutos e tente de novo.';
+            return __('ai.gemini.quota');
         }
 
         if (str_contains($lower, 'api key not valid') || str_contains($lower, 'invalid api key')) {
-            return 'Chave GEMINI_API_KEY inválida. Gere uma nova em aistudio.google.com/apikey';
+            return __('ai.gemini.invalid_key');
         }
 
         if ($message !== '') {
-            return 'Erro da IA: '.$this->truncate($message);
+            return __('ai.generic_error', ['message' => $this->truncate($message)]);
         }
 
-        return 'IA indisponível no momento. Tente novamente mais tarde.';
+        return __('ai.unavailable_retry');
     }
 
     private function truncate(string $text, int $max = 280): string

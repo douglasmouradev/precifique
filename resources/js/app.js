@@ -1,6 +1,7 @@
 import './bootstrap';
 import './toast';
 import { initTenantSidebar } from './tenant-sidebar';
+import { initAdminSidebar } from './admin-sidebar';
 import { initConfirmDelete } from './confirm-delete';
 import { initConfirmSubmit } from './confirm-submit';
 import { initTenantCookies } from './tenant-cookies';
@@ -21,6 +22,7 @@ const lazyModules = [
 
 async function bootApp() {
     initTenantSidebar();
+    initAdminSidebar();
     initConfirmDelete();
     initConfirmSubmit();
     initTenantCookies();

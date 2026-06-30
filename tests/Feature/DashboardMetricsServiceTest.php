@@ -52,4 +52,31 @@ class DashboardMetricsServiceTest extends TestCase
 
         $this->assertSame(50.0, (float) $after['monthRevenue']);
     }
+
+    public function test_top_products_include_product_names(): void
+    {
+        Cache::flush();
+        $tenant = $this->readyTenant(['plan' => 'basic']);
+
+        $product = $tenant->products()->create([
+            'name' => 'Brownie',
+            'niche_type' => 'alimentos',
+            'selling_price' => 12,
+            'is_active' => true,
+        ]);
+
+        Sale::create([
+            'tenant_id' => $tenant->id,
+            'product_id' => $product->id,
+            'quantity' => 3,
+            'unit_price' => 12,
+            'payment_method' => 'pix',
+            'sold_at' => now(),
+        ]);
+
+        $data = app(DashboardMetricsService::class)->for($tenant);
+
+        $this->assertContains('Brownie', $data['topProductLabels']->all());
+        $this->assertSame(3, (int) $data['topProductQty']->first());
+    }
 }

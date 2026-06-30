@@ -64,7 +64,7 @@
         <header class="sticky top-0 z-[70] ui-glass-header">
             <div class="flex items-center justify-between gap-4 px-4 md:px-8 h-14">
                 <div class="flex items-center gap-3 min-w-0">
-                    <button type="button" id="admin-sidebar-toggle" class="lg:hidden p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 shadow-sm" aria-expanded="false" aria-label="{{ __('messages.sidebar.open_menu') }}">
+                    <button type="button" id="admin-sidebar-toggle" class="lg:hidden relative z-[1] p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 shadow-sm touch-manipulation cursor-pointer" aria-expanded="false" aria-controls="admin-sidebar" aria-label="{{ __('messages.sidebar.open_menu') }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
                     @hasSection('breadcrumb')
@@ -103,34 +103,5 @@
     </div>
 
     @stack('scripts')
-    <script type="module">
-    (function () {
-        const sidebar = document.getElementById('admin-sidebar');
-        const overlay = document.getElementById('admin-sidebar-overlay');
-        const toggle = document.getElementById('admin-sidebar-toggle');
-        const closeBtn = document.getElementById('admin-sidebar-close');
-        if (!sidebar || !toggle) return;
-        const open = () => {
-            sidebar.classList.remove('-translate-x-full', 'pointer-events-none');
-            sidebar.setAttribute('aria-hidden', 'false');
-            overlay?.classList.remove('hidden');
-            toggle.setAttribute('aria-expanded', 'true');
-        };
-        const shut = () => {
-            sidebar.classList.add('-translate-x-full', 'pointer-events-none');
-            sidebar.setAttribute('aria-hidden', 'true');
-            overlay?.classList.add('hidden');
-            toggle.setAttribute('aria-expanded', 'false');
-        };
-        toggle.addEventListener('click', () => toggle.getAttribute('aria-expanded') === 'true' ? shut() : open());
-        closeBtn?.addEventListener('click', shut);
-        overlay?.addEventListener('click', shut);
-        document.querySelectorAll('[data-admin-sidebar-close]').forEach((el) => el.addEventListener('click', shut));
-        if (window.matchMedia('(min-width: 1024px)').matches) {
-            sidebar.classList.remove('-translate-x-full', 'pointer-events-none');
-            sidebar.setAttribute('aria-hidden', 'false');
-        }
-    })();
-    </script>
 </body>
 </html>

@@ -117,8 +117,8 @@ class DashboardMetricsService
             ->groupBy('product_id')
             ->orderByDesc('qty')
             ->limit(5)
-            ->get()
-            ->load(['product:id,name']);
+            ->with(['product' => fn ($query) => $query->select('id', 'name')])
+            ->get();
 
         $recentSales = Sale::query()
             ->where('tenant_id', $tenant->id)

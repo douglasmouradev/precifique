@@ -19,7 +19,7 @@ class GroqAIProvider implements AIProvider
     public function chat(string $prompt, int $maxTokens = 1024): string
     {
         if (! $this->isConfigured()) {
-            return 'Configure GROQ_API_KEY no .env (grátis em console.groq.com).';
+            return __('ai.not_configured.groq');
         }
 
         try {
@@ -30,17 +30,17 @@ class GroqAIProvider implements AIProvider
             ]);
 
             if ($response->successful()) {
-                return (string) $response->json('choices.0.message.content', 'IA indisponível no momento.');
+                return (string) $response->json('choices.0.message.content', __('ai.unavailable'));
             }
 
             $message = (string) $response->json('error.message', '');
             Log::warning('Groq API error', ['status' => $response->status(), 'body' => $response->body()]);
 
-            return $message !== '' ? 'Erro da IA: '.$message : 'IA indisponível no momento.';
+            return $message !== '' ? __('ai.generic_error', ['message' => $message]) : __('ai.unavailable');
         } catch (\Throwable $e) {
             Log::error('Groq API exception', ['message' => $e->getMessage()]);
 
-            return 'IA indisponível no momento. Tente novamente mais tarde.';
+            return __('ai.unavailable_retry');
         }
     }
 

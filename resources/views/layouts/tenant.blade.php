@@ -155,23 +155,17 @@
                         id="tenant-sidebar-toggle"
                         data-label-open="{{ __('messages.sidebar.open_menu') }}"
                         data-label-close="{{ __('messages.sidebar.close_menu') }}"
-                        class="relative p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-colors touch-manipulation"
+                        class="relative z-[1] p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-colors touch-manipulation cursor-pointer"
                         aria-expanded="false"
+                        aria-controls="tenant-sidebar"
                         aria-label="{{ __('messages.sidebar.open_menu') }}"
                     >
                         <span class="sr-only">{{ __('messages.sidebar.open_menu') }}</span>
-                        <svg class="w-5 h-5 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path
-                                data-icon="open"
-                                stroke-linecap="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16"
-                            />
-                            <path
-                                data-icon="close"
-                                class="hidden"
-                                stroke-linecap="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"
-                            />
+                        <svg data-icon="open" class="w-5 h-5 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        <svg data-icon="close" class="w-5 h-5 text-ink hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                     @hasSection('breadcrumb')
@@ -306,7 +300,8 @@
     </div>
 
     @stack('scripts')
-    <script>
+    @php $footerCspNonce = request()->attributes->get('csp_nonce'); @endphp
+    <script @if(is_string($footerCspNonce) && $footerCspNonce !== '') nonce="{{ $footerCspNonce }}" @endif>
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('{{ asset('sw.js') }}', { scope: '/' }).catch(() => {});
     }

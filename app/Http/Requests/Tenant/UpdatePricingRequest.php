@@ -6,7 +6,6 @@ namespace App\Http\Requests\Tenant;
 
 use App\Enums\ProfitMargin;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
 
 class UpdatePricingRequest extends FormRequest
@@ -43,7 +42,7 @@ class UpdatePricingRequest extends FormRequest
             $tenant = current_tenant();
 
             if ($margin === (float) ProfitMargin::HundredFifty->value && ! $tenant?->isPremium()) {
-                $validator->errors()->add('profit_margin_percent', 'Margem de 150% disponível apenas no Premium.');
+                $validator->errors()->add('profit_margin_percent', __('messages.pricing.premium_margin_only'));
             }
 
             $allowed = array_map(fn (ProfitMargin $m) => $m->value, ProfitMargin::forPlan(
@@ -51,7 +50,7 @@ class UpdatePricingRequest extends FormRequest
             ));
 
             if (! in_array((int) $margin, $allowed, true)) {
-                $validator->errors()->add('profit_margin_percent', 'Margem de lucro inválida para o seu plano.');
+                $validator->errors()->add('profit_margin_percent', __('messages.pricing.invalid_margin'));
             }
         });
     }

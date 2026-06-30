@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Tenant;
 
-use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
+use App\Actions\Tenant\RecordSaleAction;
 use App\Events\SaleRecorded;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Tenant\Concerns\AuthorizesTenantResource;
 use App\Http\Requests\Tenant\StoreSaleRequest;
 use App\Http\Requests\Tenant\UpdateSaleRequest;
 use App\Jobs\ExportSalesCsvJob;
@@ -20,7 +21,6 @@ use App\Support\SalePeriod;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -36,6 +36,7 @@ class SaleController extends Controller
         private readonly AuditService $audit,
         private readonly SalesExportService $salesExport,
         private readonly TenantNotificationService $notifications,
+        private readonly RecordSaleAction $recordSale,
     ) {}
 
     public function index(Request $request): View
@@ -124,7 +125,7 @@ class SaleController extends Controller
 
         return Storage::disk($disk)->download(
             $saleExportRequest->file_path,
-            'vendas-'.now()->format('Y-m-d').'.csv',
+            __('sales.export.filename_prefix').'-'.now()->format('Y-m-d').'.csv',
             ['Content-Type' => 'text/csv; charset=UTF-8']
         );
     }
@@ -142,33 +143,15 @@ class SaleController extends Controller
     {
         $this->authorizeTenantAction('update');
         $tenant = current_tenant();
-        $quantity = $request->integer('quantity');
 
-        $sale = DB::transaction(function () use ($tenant, $request, $quantity) {
-            $product = $tenant->products()->lockForUpdate()->findOrFail($request->integer('product_id'));
-
-            if ($product->stock_quantity > 0 && $product->stock_quantity < $quantity) {
-                throw ValidationException::withMessages([
-                    'quantity' => __('messages.sale.insufficient_stock'),
-                ]);
-            }
-
-            $sale = Sale::create([
-                'tenant_id' => $tenant->id,
-                'product_id' => $product->id,
-                'quantity' => $quantity,
-                'unit_price' => $request->input('unit_price'),
-                'payment_method' => $request->input('payment_method'),
-                'sold_at' => $request->input('sold_at') ?? now(),
-                'notes' => $request->input('notes'),
-            ]);
-
-            if ($product->stock_quantity > 0) {
-                $product->decrement('stock_quantity', $quantity);
-            }
-
-            return $sale;
-        });
+        $sale = $this->recordSale->execute($tenant, [
+            'product_id' => $request->integer('product_id'),
+            'quantity' => $request->integer('quantity'),
+            'unit_price' => $request->input('unit_price'),
+            'payment_method' => $request->input('payment_method'),
+            'sold_at' => $request->input('sold_at'),
+            'notes' => $request->input('notes'),
+        ]);
 
         $product = $tenant->products()->find($sale->product_id);
 

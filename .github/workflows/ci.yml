@@ -27,8 +27,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: dom, curl, libxml, mbstring, pdo_mysql, zip, sqlite
-          coverage: none
+          extensions: dom, curl, libxml, mbstring, pdo_mysql, zip, sqlite, pcov
+          coverage: pcov
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -64,14 +64,24 @@ jobs:
       - name: Static analysis (PHPStan)
         run: vendor/bin/phpstan analyse --no-progress
 
-      - name: Run preflight (staging checks)
-        run: php artisan precifique:preflight || true
+      - name: Run preflight (production checks)
+        run: php artisan precifique:preflight
         env:
           APP_ENV: production
           APP_DEBUG: false
+          APP_URL: https://precifique.test
+          HEALTH_CHECK_TOKEN: ci-preflight-token
+          SESSION_ENCRYPT: true
+          ADMIN_PASSWORD: ci-preflight-admin-password
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: precifique_test
+          DB_USERNAME: root
+          DB_PASSWORD: password
 
       - name: Run tests
-        run: php artisan test
+        run: php artisan test --coverage --min=0
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1
@@ -82,3 +92,6 @@ jobs:
 
       - name: NPM audit
         run: npm audit --audit-level=high
+
+      - name: ESLint (resources/js)
+        run: npm run lint:js

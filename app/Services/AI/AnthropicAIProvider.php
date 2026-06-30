@@ -19,7 +19,7 @@ class AnthropicAIProvider implements AIProvider
     public function chat(string $prompt, int $maxTokens = 1024): string
     {
         if (! $this->isConfigured()) {
-            return 'Configure ANTHROPIC_API_KEY no .env para usar a IA.';
+            return __('ai.not_configured.anthropic');
         }
 
         try {
@@ -30,7 +30,7 @@ class AnthropicAIProvider implements AIProvider
             ]);
 
             if ($response->successful()) {
-                return (string) $response->json('content.0.text', 'IA indisponível no momento.');
+                return (string) $response->json('content.0.text', __('ai.unavailable'));
             }
 
             return $this->parseError($response->json('error.message', ''), $response->status(), $response->body());
@@ -38,8 +38,8 @@ class AnthropicAIProvider implements AIProvider
             Log::error('Anthropic API exception', ['message' => $e->getMessage()]);
 
             return str_contains($e->getMessage(), 'SSL certificate')
-                ? 'Erro de SSL. Defina AI_VERIFY_SSL=false no .env (apenas dev).'
-                : 'IA indisponível no momento. Tente novamente mais tarde.';
+                ? __('ai.ssl_error')
+                : __('ai.unavailable_retry');
         }
     }
 
@@ -63,9 +63,9 @@ class AnthropicAIProvider implements AIProvider
         Log::warning('Anthropic API error', ['status' => $status, 'body' => $body]);
 
         if (str_contains(strtolower($message), 'credit balance')) {
-            return 'Conta Anthropic sem créditos. Adicione saldo em console.anthropic.com.';
+            return __('ai.anthropic.no_credits');
         }
 
-        return $message !== '' ? 'Erro da IA: '.$message : 'IA indisponível no momento.';
+        return $message !== '' ? __('ai.generic_error', ['message' => $message]) : __('ai.unavailable');
     }
 }

@@ -23,6 +23,9 @@ yarn-error.log
 /.zed
 /Teste
 /_v0-ref
+/test-results
+/playwright-report
+/playwright/.cache
 composer.phar
 composer-setup.php
 /storage/logs/*.log

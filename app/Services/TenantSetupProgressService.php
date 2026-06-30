@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Tenant;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class TenantSetupProgressService
 {
@@ -77,11 +78,20 @@ class TenantSetupProgressService
             ->where('month', now()->month)
             ->value('goal_amount') ?? 0);
 
+        $flags = DB::selectOne('
+            SELECT
+                EXISTS(
+                    SELECT 1 FROM fixed_costs
+                    WHERE tenant_id = ? AND is_active = 1 AND deleted_at IS NULL
+                ) AS has_costs,
+                EXISTS(SELECT 1 FROM sales WHERE tenant_id = ?) AS has_sale
+        ', [$tenant->id, $tenant->id]);
+
         return [
             [
                 'key' => 'costs',
                 'label' => __('app.setup_progress.steps.costs'),
-                'done' => $tenant->fixedCosts()->where('is_active', true)->exists(),
+                'done' => (bool) ($flags->has_costs ?? false),
                 'url' => route('tenant.fixed-costs.index'),
             ],
             [
@@ -105,7 +115,7 @@ class TenantSetupProgressService
             [
                 'key' => 'sale',
                 'label' => __('app.setup_progress.steps.sale'),
-                'done' => $tenant->sales()->exists(),
+                'done' => (bool) ($flags->has_sale ?? false),
                 'url' => route('tenant.sales.create'),
             ],
         ];

@@ -29,24 +29,16 @@ class SalesExportService
 
         SalePeriod::applyFromFilters($query, $filters);
 
-        $filename = 'exports/tenant-'.$tenant->id.'/vendas-'.now()->format('Y-m-d-His').'.csv';
+        $filename = 'exports/tenant-'.$tenant->id.'/'.__('sales.export.filename_prefix').'-'.now()->format('Y-m-d-His').'.csv';
         $disk = config('filesystems.default') === 's3' ? 's3' : 'local';
 
         $handle = fopen('php://temp', 'r+');
         fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
-        fputcsv($handle, ['Data', 'Produto', 'Quantidade', 'Preço unitário', 'Total', 'Pagamento', 'Observações'], ';');
+        fputcsv($handle, $this->csvHeaders(), ';');
 
         $query->chunk(500, function ($sales) use ($handle): void {
             foreach ($sales as $sale) {
-                fputcsv($handle, [
-                    $sale->sold_at->format('d/m/Y H:i'),
-                    $sale->product?->name ?? '—',
-                    $sale->quantity,
-                    number_format((float) $sale->unit_price, 2, ',', '.'),
-                    number_format((float) $sale->total_amount, 2, ',', '.'),
-                    PaymentMethod::tryLabel($sale->payment_method),
-                    $sale->notes ?? '',
-                ], ';');
+                fputcsv($handle, $this->csvRow($sale), ';');
             }
         });
 
@@ -94,24 +86,36 @@ class SalesExportService
 
         SalePeriod::applyFromFilters($query, $filters);
 
-        $filename = 'vendas-'.now()->format('Y-m-d').'.csv';
+        $filename = __('sales.export.filename_prefix').'-'.now()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () use ($query): void {
             $handle = fopen('php://output', 'w');
             fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
-            fputcsv($handle, ['Data', 'Produto', 'Quantidade', 'Preço unitário', 'Total', 'Pagamento', 'Observações'], ';');
+            fputcsv($handle, $this->csvHeaders(), ';');
             foreach ($query->cursor() as $sale) {
-                fputcsv($handle, [
-                    $sale->sold_at->format('d/m/Y H:i'),
-                    $sale->product?->name ?? '—',
-                    $sale->quantity,
-                    number_format((float) $sale->unit_price, 2, ',', '.'),
-                    number_format((float) $sale->total_amount, 2, ',', '.'),
-                    PaymentMethod::tryLabel($sale->payment_method),
-                    $sale->notes ?? '',
-                ], ';');
+                fputcsv($handle, $this->csvRow($sale), ';');
             }
             fclose($handle);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** @return list<string> */
+    private function csvHeaders(): array
+    {
+        return array_values(__('sales.export.headers'));
+    }
+
+    /** @return list<int|float|string> */
+    private function csvRow(Sale $sale): array
+    {
+        return [
+            $sale->sold_at->format('d/m/Y H:i'),
+            $sale->product?->name ?? __('sales.export.no_product'),
+            $sale->quantity,
+            number_format((float) $sale->unit_price, 2, ',', '.'),
+            number_format((float) $sale->total_amount, 2, ',', '.'),
+            PaymentMethod::tryLabel($sale->payment_method),
+            $sale->notes ?? '',
+        ];
     }
 }

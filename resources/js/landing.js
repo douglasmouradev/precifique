@@ -188,6 +188,7 @@ function initLandingMobileMenu() {
         open = next;
         toggle.setAttribute('aria-expanded', String(open));
         toggle.setAttribute('aria-label', open ? closeLabel : openLabel);
+        menu.classList.toggle('is-open', open);
         menu.classList.toggle('hidden', !open);
         menu.hidden = !open;
         iconOpen?.classList.toggle('hidden', open);

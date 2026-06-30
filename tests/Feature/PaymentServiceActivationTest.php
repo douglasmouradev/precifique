@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Plan;
+use App\Models\Subscription;
 use App\Models\Tenant;
+use App\Services\Billing\StripeBillingService;
+use App\Services\Billing\SubscriptionLifecycleService;
 use App\Services\PaymentService;
 use Database\Seeders\PlanSeeder;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use ReflectionMethod;
 use Tests\Concerns\RefreshDatabase;
 use Tests\TestCase;
 
@@ -25,11 +26,8 @@ class PaymentServiceActivationTest extends TestCase
         $tenant = Tenant::factory()->create(['plan' => 'basic']);
         $plan = Plan::where('slug', 'premium')->firstOrFail();
 
-        $service = app(PaymentService::class);
-        $method = new ReflectionMethod(PaymentService::class, 'activatePremium');
-        $method->setAccessible(true);
-
-        $result = $method->invoke($service, $tenant->id, $plan->id, 'sub_test_123', null, null);
+        $service = app(SubscriptionLifecycleService::class);
+        $result = $service->activatePremium($tenant->id, $plan->id, 'sub_test_123', null, null);
 
         $this->assertTrue($result);
         $this->assertTrue($tenant->fresh()->isPremium());
@@ -82,16 +80,21 @@ class PaymentServiceActivationTest extends TestCase
             'ends_at' => null,
         ]);
 
-        $service = app(PaymentService::class);
-        $method = new ReflectionMethod(PaymentService::class, 'handleInvoicePaymentFailed');
-        $method->setAccessible(true);
-
+        $service = app(StripeBillingService::class);
         $invoice = (object) ['subscription' => 'sub_fail_1'];
-        $method->invoke($service, $invoice);
+        $service->handleInvoicePaymentFailed($invoice);
 
         $subscription->refresh();
         $this->assertSame('past_due', $subscription->status);
         $this->assertNotNull($subscription->ends_at);
         $this->assertTrue($subscription->ends_at->isFuture());
+    }
+
+    public function test_subscription_factory_creates_active_record(): void
+    {
+        $subscription = Subscription::factory()->stripe('sub_factory_1')->create();
+
+        $this->assertSame('active', $subscription->status);
+        $this->assertTrue($subscription->isActive());
     }
 }
