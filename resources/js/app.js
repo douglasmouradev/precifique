@@ -21,17 +21,25 @@ const lazyModules = [
 ];
 
 async function bootApp() {
-    initTenantSidebar();
-    initAdminSidebar();
-    initConfirmDelete();
-    initConfirmSubmit();
-    initTenantCookies();
-    initNotificationBell();
-    initLocaleSwitcher();
-    initDropdowns();
-    initModals();
-    initProfileFlash();
-    initAnalyticsEvents();
+    const safeInit = (fn) => {
+        try {
+            fn();
+        } catch (_) {
+            /* módulo opcional não deve bloquear o shell */
+        }
+    };
+
+    safeInit(() => initTenantSidebar());
+    safeInit(() => initAdminSidebar());
+    safeInit(() => initConfirmDelete());
+    safeInit(() => initConfirmSubmit());
+    safeInit(() => initTenantCookies());
+    safeInit(() => initNotificationBell());
+    safeInit(() => initLocaleSwitcher());
+    safeInit(() => initDropdowns());
+    safeInit(() => initModals());
+    safeInit(() => initProfileFlash());
+    safeInit(() => initAnalyticsEvents());
 
     await Promise.all(
         lazyModules
