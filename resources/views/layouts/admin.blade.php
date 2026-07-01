@@ -11,62 +11,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <x-analytics />
     <x-ui.toast-container />
-    @php $cspNonce = request()->attributes->get('csp_nonce'); @endphp
-    <script @if(is_string($cspNonce) && $cspNonce !== '') nonce="{{ $cspNonce }}" @endif>
-        (function () {
-            function bindAdminSidebarFallback() {
-                if (document.documentElement.dataset.adminSidebarInit === '1') return;
-                var sidebar = document.getElementById('admin-sidebar');
-                var overlay = document.getElementById('admin-sidebar-overlay');
-                var toggle = document.getElementById('admin-sidebar-toggle');
-                if (!sidebar || !toggle || toggle.dataset.fallbackBound === '1') return;
-                toggle.dataset.fallbackBound = '1';
-                var mq = window.matchMedia('(min-width: 1024px)');
-                var open = false;
-                function isDesktop() { return mq.matches; }
-                function apply() {
-                    var offScreen = !isDesktop() && !open;
-                    sidebar.classList.toggle('-translate-x-full', offScreen);
-                    sidebar.classList.toggle('pointer-events-none', offScreen);
-                    sidebar.classList.toggle('is-open', open);
-                    if (!isDesktop()) {
-                        sidebar.style.transform = open ? 'translateX(0)' : '';
-                        sidebar.style.pointerEvents = open ? 'auto' : '';
-                    } else {
-                        sidebar.style.transform = '';
-                        sidebar.style.pointerEvents = '';
-                    }
-                    if (overlay) overlay.classList.toggle('hidden', !open || isDesktop());
-                    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-                    document.body.style.overflow = (!isDesktop() && open) ? 'hidden' : '';
-                }
-                toggle.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (isDesktop()) return;
-                    open = !open;
-                    apply();
-                });
-                overlay && overlay.addEventListener('click', function () {
-                    open = false;
-                    apply();
-                });
-                document.getElementById('admin-sidebar-close')?.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    open = false;
-                    apply();
-                });
-            }
-            function scheduleAdminSidebarFallback() {
-                window.setTimeout(bindAdminSidebarFallback, 0);
-            }
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', scheduleAdminSidebarFallback);
-            } else {
-                scheduleAdminSidebarFallback();
-            }
-        })();
-    </script>
     @stack('head')
 </head>
 @php
@@ -82,16 +26,29 @@
 <body class="bg-paper font-sans text-ink min-h-screen">
     <x-ui.skip-link />
 
-    <div id="admin-sidebar-overlay" class="fixed inset-0 z-40 bg-ink/60 backdrop-blur-sm lg:hidden hidden" aria-hidden="true"></div>
+    <input
+        type="checkbox"
+        id="admin-sidebar-check"
+        class="sr-only"
+        aria-hidden="true"
+        tabindex="-1"
+    >
+
+    <label
+        for="admin-sidebar-check"
+        id="admin-sidebar-overlay"
+        class="fixed inset-0 z-[74] bg-ink/60 backdrop-blur-sm lg:hidden opacity-0 pointer-events-none transition-opacity duration-300 cursor-pointer"
+        aria-hidden="true"
+    ></label>
 
     <aside id="admin-sidebar" class="fixed inset-y-0 left-0 z-[75] w-[16.5rem] max-w-[85vw] ui-sidebar-premium text-white flex flex-col shadow-sidebar transition-transform duration-300 ease-out -translate-x-full lg:translate-x-0 pointer-events-none lg:pointer-events-auto" aria-hidden="true">
         <div class="px-4 py-4 border-b border-white/[0.06] flex items-center gap-2">
             <a href="{{ route('admin.dashboard') }}" class="flex-1 min-w-0" data-admin-sidebar-close>
                 <x-ui.logo variant="sidebar" class="w-full" />
             </a>
-            <button type="button" id="admin-sidebar-close" class="lg:hidden shrink-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10" aria-label="{{ __('messages.sidebar.close_menu') }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
+            <label for="admin-sidebar-check" id="admin-sidebar-close" class="lg:hidden shrink-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer touch-manipulation" role="button" aria-label="{{ __('messages.sidebar.close_menu') }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </label>
         </div>
         <nav class="flex-1 p-3 overflow-y-auto space-y-0.5">
             @foreach($adminLinks as $link)
@@ -120,10 +77,16 @@
         <header class="sticky top-0 z-[70] ui-glass-header">
             <div class="flex items-center justify-between gap-4 px-4 md:px-8 h-14">
                 <div class="flex items-center gap-3 min-w-0">
-                    <button type="button" id="admin-sidebar-toggle" class="lg:hidden relative z-[80] p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 shadow-sm touch-manipulation cursor-pointer" aria-expanded="false" aria-controls="admin-sidebar" aria-label="{{ __('messages.sidebar.open_menu') }}">
+                    <label
+                        for="admin-sidebar-check"
+                        id="admin-sidebar-toggle"
+                        class="lg:hidden relative z-[80] p-2.5 min-w-[2.75rem] min-h-[2.75rem] rounded-xl border border-slate-200 bg-white hover:bg-slate-50 shadow-sm touch-manipulation cursor-pointer inline-flex items-center justify-center"
+                        role="button"
+                        aria-controls="admin-sidebar"
+                        aria-label="{{ __('messages.sidebar.open_menu') }}"
+                    >
                         <svg data-icon="open" class="w-5 h-5 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        <svg data-icon="close" class="w-5 h-5 text-ink hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
+                    </label>
                     @hasSection('breadcrumb')
                     <p class="text-sm text-slate-500 truncate">@yield('breadcrumb')</p>
                     @endif

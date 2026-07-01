@@ -54,9 +54,19 @@
         @apply lg:left-[16.5rem];
     }
 
-    /* Menu mobile — estado aberto via JS (evita conflito entre utilitários Tailwind) */
-    #tenant-sidebar.is-open,
-    #admin-sidebar.is-open {
+    /* Menu mobile admin — checkbox + irmãos (funciona sem JS) */
+    #admin-sidebar-check:checked ~ #admin-sidebar-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    #admin-sidebar-check:checked ~ #admin-sidebar {
+        transform: translateX(0) !important;
+        pointer-events: auto !important;
+    }
+
+    /* Menu mobile tenant — estado aberto via JS */
+    #tenant-sidebar.is-open {
         transform: translateX(0) !important;
         pointer-events: auto !important;
     }

@@ -61,6 +61,18 @@ class AdminAccessTest extends TestCase
         }
     }
 
+    public function test_admin_dashboard_has_css_mobile_menu_toggle(): void
+    {
+        $admin = $this->superAdmin();
+
+        $this->actingAsEnrolledSuperAdmin($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('id="admin-sidebar-check"', false)
+            ->assertSee('for="admin-sidebar-check"', false)
+            ->assertSee('id="admin-sidebar-toggle"', false);
+    }
+
     public function test_admin_without_2fa_is_redirected_to_enrollment(): void
     {
         $admin = User::factory()->superadmin()->create();

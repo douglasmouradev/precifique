@@ -1,4 +1,4 @@
-const CACHE = 'precifique-shell-v3';
+const CACHE = 'precifique-shell-v4';
 const SHELL = ['/manifest.json'];
 
 self.addEventListener('install', (event) => {
