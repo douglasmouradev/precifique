@@ -27,8 +27,12 @@ if [[ -f composer.json ]]; then
 fi
 
 if [[ -f package.json ]]; then
-  echo "==> npm ci && npm run build"
-  $NPM_BIN ci
+  echo "==> npm install && npm run build"
+  if [[ -f package-lock.json ]]; then
+    $NPM_BIN ci || $NPM_BIN install
+  else
+    $NPM_BIN install
+  fi
   $NPM_BIN run build
 fi
 
