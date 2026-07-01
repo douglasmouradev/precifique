@@ -2,6 +2,8 @@
  * Menu lateral do painel tenant — JS puro (sem depender do Alpine).
  */
 export function initTenantSidebar() {
+    document.documentElement.dataset.tenantSidebarInit = '1';
+
     const sidebar = document.getElementById('tenant-sidebar');
     const overlay = document.getElementById('tenant-sidebar-overlay');
     const toggle = document.getElementById('tenant-sidebar-toggle');
@@ -22,6 +24,9 @@ export function initTenantSidebar() {
     let open = false;
 
     const apply = () => {
+        const offScreen = !open;
+        sidebar.classList.toggle('-translate-x-full', offScreen);
+        sidebar.classList.toggle('pointer-events-none', offScreen);
         sidebar.classList.toggle('is-open', open);
         sidebar.setAttribute('aria-hidden', String(!open));
 

@@ -191,6 +191,11 @@ function initLandingMobileMenu() {
         menu.classList.toggle('is-open', open);
         menu.classList.toggle('hidden', !open);
         menu.hidden = !open;
+        if (open) {
+            menu.style.display = 'block';
+        } else {
+            menu.style.display = '';
+        }
         iconOpen?.classList.toggle('hidden', open);
         iconClose?.classList.toggle('hidden', !open);
     };

@@ -34,6 +34,57 @@
                 banner.remove();
             });
         });
+        (function () {
+            function bindTenantSidebarFallback() {
+                if (document.documentElement.dataset.tenantSidebarInit === '1') return;
+                var sidebar = document.getElementById('tenant-sidebar');
+                var overlay = document.getElementById('tenant-sidebar-overlay');
+                var toggle = document.getElementById('tenant-sidebar-toggle');
+                if (!sidebar || !toggle || toggle.dataset.fallbackBound === '1') return;
+                toggle.dataset.fallbackBound = '1';
+                var open = false;
+                function apply() {
+                    sidebar.classList.toggle('-translate-x-full', !open);
+                    sidebar.classList.toggle('pointer-events-none', !open);
+                    sidebar.classList.toggle('is-open', open);
+                    sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+                    if (overlay) {
+                        overlay.classList.toggle('hidden', !open);
+                        overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+                    }
+                    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    var iconOpen = toggle.querySelector('[data-icon="open"]');
+                    var iconClose = toggle.querySelector('[data-icon="close"]');
+                    if (iconOpen) iconOpen.classList.toggle('hidden', open);
+                    if (iconClose) iconClose.classList.toggle('hidden', !open);
+                    if (window.matchMedia('(max-width: 1023px)').matches) {
+                        document.body.style.overflow = open ? 'hidden' : '';
+                    }
+                }
+                toggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    open = !open;
+                    apply();
+                });
+                overlay && overlay.addEventListener('click', function () {
+                    open = false;
+                    apply();
+                });
+                document.getElementById('tenant-sidebar-close')?.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    open = false;
+                    apply();
+                });
+            }
+            function scheduleTenantSidebarFallback() {
+                window.setTimeout(bindTenantSidebarFallback, 0);
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', scheduleTenantSidebarFallback);
+            } else {
+                scheduleTenantSidebarFallback();
+            }
+        })();
     </script>
     @stack('head')
 </head>

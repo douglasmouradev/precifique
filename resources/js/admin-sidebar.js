@@ -18,6 +18,9 @@ export function initAdminSidebar() {
 
     const apply = () => {
         const visible = open || isDesktop();
+        const offScreen = !isDesktop() && !open;
+        sidebar.classList.toggle('-translate-x-full', offScreen);
+        sidebar.classList.toggle('pointer-events-none', offScreen);
         sidebar.classList.toggle('is-open', open);
         sidebar.setAttribute('aria-hidden', String(!visible));
         overlay?.classList.toggle('hidden', !open || isDesktop());
