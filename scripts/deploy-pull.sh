@@ -15,8 +15,11 @@ fi
 
 cd "$APP_DIR"
 
-echo "==> git pull origin main"
-git pull origin main
+echo "==> git fetch origin main"
+git fetch origin main
+
+echo "==> git reset --hard origin/main"
+git reset --hard origin/main
 
 if [[ -f composer.json ]]; then
   echo "==> composer install --no-dev"
